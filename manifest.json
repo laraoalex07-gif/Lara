@@ -1,11 +1,17 @@
 {
-  "background_color": "#ffffff",
-  "dir": "ltr",
+  "name": "Multi Servicios LARA",
+  "short_name": "LARA",
+  "description": "Aplicación personal para el control de registros, viajes y cálculo de diezmos de Multi Servicios LARA.",
+  "start_url": "index.html",
   "display": "standalone",
-  "name": "laraoalex07-gif.github",
-  "orientation": "any",
-  "scope": "/",
-  "short_name": "laraoalex07-gif.github",
-  "start_url": "/",
-  "theme_color": "#0f172a"
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "aa.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
 }
