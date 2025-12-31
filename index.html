@@ -3,167 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lara Control</title>
+    <title>Lara Control Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
     <style>
-        body { background-color: #f0f2f5; font-family: -apple-system, sans-serif; margin: 0; padding-bottom: 100px; }
-        /* Diseño tipo Glide: Tarjetas con bordes muy redondeados y sombras suaves */
-        .glide-card { background: white; border-radius: 28px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); border: 1px solid #ffffff; margin-bottom: 20px; }
-        .nav-bar { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); border-top: 1px solid rgba(0,0,0,0.05); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 12px; color: #94a3b8; border: none; background: none; font-size: 10px; font-weight: 600; }
-        .active-tab { color: #2563eb; }
+        :root { --glide-blue: #007aff; --glide-bg: #f2f2f7; }
+        body { background-color: var(--glide-bg); font-family: -apple-system, system-ui, sans-serif; margin: 0; padding-bottom: 100px; color: #1c1c1e; }
         
-        input, select, textarea { background: #f3f4f6 !important; border: 2px solid transparent !important; border-radius: 18px !important; padding: 16px !important; width: 100%; font-size: 16px; margin-bottom: 15px; -webkit-appearance: none; }
-        input:focus { border-color: #3b82f6 !important; background: white !important; outline: none; }
+        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.02); }
+        .header { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; padding: 15px 20px; border-bottom: 1px solid #e5e5ea; display: flex; justify-content: space-between; align-items: center; }
         
-        .btn-principal { background: #2563eb; color: white; font-weight: bold; padding: 18px; border-radius: 20px; width: 100%; border: none; font-size: 16px; box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2); transition: 0.2s; }
-        .btn-principal:active { transform: scale(0.97); background: #1d4ed8; }
+        label { display: block; font-size: 11px; font-weight: 600; color: #8e8e93; text-transform: uppercase; margin: 0 0 6px 4px; }
+        input, select, textarea { width: 100%; background: #f2f2f7; border: none; border-radius: 12px; padding: 12px; font-size: 16px; margin-bottom: 15px; box-sizing: border-box; -webkit-appearance: none; }
+        input:focus { background: #e5e5ea; outline: none; }
         
-        .label-input { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-left: 12px; margin-bottom: 6px; display: block; }
+        .btn-main { background: var(--glide-blue); color: white; border: none; width: 100%; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+        .btn-main:active { opacity: 0.7; transform: scale(0.99); }
+        .btn-diezmo { background: #34c759; }
+
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e5e5ea; display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; padding: 10px 0; color: #8e8e93; background: none; border: none; font-size: 10px; font-weight: 500; display: flex; flex-direction: column; align-items: center; }
+        .nav-item.active { color: var(--glide-blue); }
+        .nav-item i { margin-bottom: 4px; }
+        
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <header class="p-6 flex justify-between items-center bg-white/50 sticky top-0 z-50">
+    <header class="header">
         <div>
-            <h1 id="header-title" class="text-2xl font-black text-slate-800 tracking-tight">Nuevo</h1>
+            <span style="color: var(--glide-blue); font-size: 10px; font-weight: 800; letter-spacing: 1px;">LARA CONTROL</span>
+            <h1 id="view-title" style="margin:0; font-size: 20px; font-weight: 800;">Registros</h1>
         </div>
-        <img src="aa.jpg" class="h-11 w-11 rounded-2xl object-cover border-2 border-white shadow-md">
+        <img src="aa.jpg" style="width: 42px; height: 42px; border-radius: 12px; object-fit: cover; background: #eee;">
     </header>
 
-    <main class="px-5 max-w-md mx-auto">
+    <main style="padding: 16px;">
         
-        <div id="pantalla-registros" class="seccion-app">
-            <div class="glide-card">
-                <span class="label-input">Fecha del movimiento</span>
-                <input type="date" id="campo-fecha">
-
-                <span class="label-input">Tipo</span>
-                <select id="campo-tipo">
-                    <option value="Ingreso">🟢 Ingreso / Venta</option>
-                    <option value="Gasto">🔴 Gasto / Pago</option>
+        <div id="sec-registros" class="content-sec">
+            <div class="card">
+                <label>Fecha</label>
+                <input type="date" id="reg-fecha">
+                <label>Tipo</label>
+                <select id="reg-tipo"><option value="Ingreso">🟢 Ingreso</option><option value="Gasto">🔴 Gasto</option></select>
+                <label>Categoría</label>
+                <select id="reg-cat">
+                    <option>Uber Diario</option><option>Renta Carro</option><option>Gasolina</option>
+                    <option>Mantenimiento</option><option>Internet</option><option>Privado</option><option>Otros</option>
                 </select>
-
-                <span class="label-input">Categoría</span>
-                <select id="campo-categoria">
-                    <option value="Uber Diario">🚕 Uber Diario</option>
-                    <option value="Renta Carro">🔑 Renta Carro</option>
-                    <option value="Gasolina">⛽ Gasolina</option>
-                    <option value="Mantenimiento">🛠️ Mantenimiento</option>
-                    <option value="Internet">🌐 Internet</option>
-                    <option value="Otros">📦 Otros</option>
-                </select>
-
-                <span class="label-input">Monto en $</span>
-                <input type="number" id="campo-monto" placeholder="0.00" inputmode="decimal">
-
-                <button onclick="ejecutarGuardado()" class="btn-principal">Guardar en mi lista</button>
+                <label>Monto $</label>
+                <input type="number" id="reg-monto" placeholder="0.00" inputmode="decimal">
+                <label>Nota</label>
+                <input type="text" id="reg-nota" placeholder="Opcional">
+                <button onclick="guardarMovimiento()" class="btn-main">Guardar Registro</button>
             </div>
         </div>
 
-        <div id="pantalla-viajes" class="seccion-app hidden">
-            <div class="glide-card text-center">
-                <p class="text-slate-400">Próximamente: Agenda de viajes</p>
+        <div id="sec-viajes" class="content-sec hidden">
+            <div class="card">
+                <label>Cliente</label>
+                <input type="text" id="v-cliente" placeholder="Nombre">
+                <label>Costo del Viaje</label>
+                <input type="number" id="v-costo" placeholder="$0.00">
+                <label>Estado</label>
+                <select id="v-estado">
+                    <option>Cotización</option><option>Agendado</option><option>Realizado</option>
+                </select>
+                <button onclick="guardarViaje()" class="btn-main">Agendar Viaje</button>
+            </div>
+            <div id="lista-viajes"></div>
+        </div>
+
+        <div id="sec-diezmos" class="content-sec hidden">
+            <div id="card-diezmo-calculo" class="card" style="text-align: center; background: linear-gradient(135deg, #007aff, #5856d6); color: white;">
+                </div>
+            <div class="card">
+                <label>Monto a abonar</label>
+                <input type="number" id="d-pago" placeholder="$0.00">
+                <button onclick="guardarDiezmo()" class="btn-main btn-diezmo">Registrar Pago</button>
             </div>
         </div>
 
-        <div id="pantalla-balance" class="seccion-app hidden">
-            <div id="contenedor-balance"></div>
+        <div id="sec-balance" class="content-sec hidden">
+            <div id="balance-total"></div>
+            <div class="card" style="padding: 10px;">
+                <button onclick="exportarDatos()" style="background: none; border: none; color: #8e8e93; width: 100%; font-size: 12px;">Resetear Aplicación (Borrar todo)</button>
+            </div>
         </div>
 
     </main>
 
-    <nav class="nav-bar fixed bottom-0 left-0 right-0 flex pb-8 pt-2 z-50">
-        <button onclick="cambiarTab('registros')" id="t-registros" class="nav-btn active-tab">
-            <i data-lucide="plus-circle"></i><span>Nuevo</span>
-        </button>
-        <button onclick="cambiarTab('viajes')" id="t-viajes" class="nav-btn">
-            <i data-lucide="calendar"></i><span>Viajes</span>
-        </button>
-        <button onclick="cambiarTab('balance')" id="t-balance" class="nav-btn">
-            <i data-lucide="pie-chart"></i><span>Balance</span>
-        </button>
+    <nav class="nav-bar">
+        <button class="nav-item active" onclick="nav('registros')"><i data-lucide="plus-circle"></i>Nuevo</button>
+        <button class="nav-item" onclick="nav('viajes')"><i data-lucide="map-pin"></i>Viajes</button>
+        <button class="nav-item" onclick="nav('diezmos')"><i data-lucide="heart"></i>Diezmos</button>
+        <button class="nav-item" onclick="nav('balance')"><i data-lucide="pie-chart"></i>Balance</button>
     </nav>
 
     <script>
-        // Inicializar iconos y fecha
         lucide.createIcons();
-        document.getElementById('campo-fecha').valueAsDate = new Date();
+        document.getElementById('reg-fecha').valueAsDate = new Date();
 
-        // Cargar Base de Datos
-        let datosApp = JSON.parse(localStorage.getItem('LARA_CONTROL_DB')) || [];
+        // BASE DE DATOS ÚNICA
+        let LARA_DB = JSON.parse(localStorage.getItem('LARA_STORAGE_V1')) || { registros: [], viajes: [], diezmos: [] };
 
-        function cambiarTab(pestaña) {
-            // Ocultar todas
-            document.querySelectorAll('.seccion-app').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-tab'));
-            
-            // Mostrar seleccionada
-            document.getElementById('pantalla-' + pestaña).classList.remove('hidden');
-            document.getElementById('t-' + pestaña).classList.add('active-tab');
-            
-            const titulos = { registros: 'Nuevo', viajes: 'Mis Viajes', balance: 'Balance' };
-            document.getElementById('header-title').innerText = titulos[pestaña];
-
-            if(pestaña === 'balance') dibujarBalance();
+        function nav(id) {
+            document.querySelectorAll('.content-sec').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('sec-'+id).classList.remove('hidden');
+            event.currentTarget.classList.add('active');
+            document.getElementById('view-title').innerText = id.charAt(0).toUpperCase() + id.slice(1);
+            if(id === 'balance') actualizarBalance();
+            if(id === 'diezmos') actualizarDiezmos();
         }
 
-        function ejecutarGuardado() {
-            const montoInput = document.getElementById('campo-monto');
-            const valorMonto = parseFloat(montoInput.value);
-
-            if (!valorMonto || valorMonto <= 0) {
-                alert("⚠️ Por favor ingresa un monto mayor a 0");
-                return;
-            }
-
-            // Crear el objeto del registro
-            const nuevoRegistro = {
-                fecha: document.getElementById('campo-fecha').value,
-                tipo: document.getElementById('campo-tipo').value,
-                cat: document.getElementById('campo-categoria').value,
-                monto: valorMonto
-            };
-
-            // Guardar en el arreglo y luego en el celular
-            datosApp.push(nuevoRegistro);
-            localStorage.setItem('LARA_CONTROL_DB', JSON.stringify(datosApp));
-
-            // Notificación visual
-            alert("✅ ¡Registro Guardado con Éxito!");
-
-            // Limpiar campo
-            montoInput.value = "";
-        }
-
-        function dibujarBalance() {
-            let ingresos = 0;
-            let gastos = 0;
-
-            datosApp.forEach(item => {
-                if(item.tipo === 'Ingreso') ingresos += item.monto;
-                else gastos += item.monto;
+        function guardarMovimiento() {
+            const monto = document.getElementById('reg-monto').value;
+            if(!monto) return alert("Ingresa un monto");
+            
+            LARA_DB.registros.push({
+                fecha: document.getElementById('reg-fecha').value,
+                tipo: document.getElementById('reg-tipo').value,
+                cat: document.getElementById('reg-cat').value,
+                monto: parseFloat(monto),
+                nota: document.getElementById('reg-nota').value
             });
+            
+            persistir();
+            alert("✅ Registro Guardado");
+            document.getElementById('reg-monto').value = "";
+        }
 
-            const total = ingresos - gastos;
+        function guardarViaje() {
+            const cliente = document.getElementById('v-cliente').value;
+            const costo = document.getElementById('v-costo').value;
+            if(!cliente || !costo) return alert("Faltan datos");
 
-            document.getElementById('contenedor-balance').innerHTML = `
-                <div class="glide-card bg-blue-600 text-white text-center">
-                    <p class="text-xs font-bold opacity-80 uppercase mb-1">Balance Neto</p>
-                    <h2 class="text-4xl font-black">$${total.toLocaleString()}</h2>
+            LARA_DB.viajes.push({ cliente, costo: parseFloat(costo), estado: document.getElementById('v-estado').value });
+            persistir();
+            alert("✅ Viaje Guardado");
+            document.getElementById('v-cliente').value = "";
+            document.getElementById('v-costo').value = "";
+        }
+
+        function actualizarBalance() {
+            let ingresos = 0, gastos = 0;
+            LARA_DB.registros.forEach(r => {
+                if(r.tipo === 'Ingreso') ingresos += r.monto; else gastos += r.monto;
+            });
+            const neto = ingresos - gastos;
+            
+            document.getElementById('balance-total').innerHTML = `
+                <div class="card" style="text-align: center; border-bottom: 5px solid var(--glide-blue);">
+                    <label>Balance Neto</label>
+                    <h2 style="font-size: 36px; margin:0;">$${neto.toLocaleString()}</h2>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="glide-card p-4 text-center">
-                        <p class="text-[10px] font-bold text-emerald-500 uppercase">Ventas</p>
-                        <p class="text-xl font-bold text-slate-700">$${ingresos.toLocaleString()}</p>
-                    </div>
-                    <div class="glide-card p-4 text-center">
-                        <p class="text-[10px] font-bold text-red-400 uppercase">Gastos</p>
-                        <p class="text-xl font-bold text-slate-700">$${gastos.toLocaleString()}</p>
-                    </div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="card" style="flex:1; text-align:center;"><label>Ingresos</label><p style="color:#34c759; font-weight:700;">$${ingresos.toLocaleString()}</p></div>
+                    <div class="card" style="flex:1; text-align:center;"><label>Gastos</label><p style="color:#ff3b30; font-weight:700;">$${gastos.toLocaleString()}</p></div>
                 </div>
             `;
+        }
+
+        function actualizarDiezmos() {
+            let ingresos = 0, gastos = 0;
+            LARA_DB.registros.forEach(r => { if(r.tipo === 'Ingreso') ingresos += r.monto; else gastos += r.monto; });
+            const neto = ingresos - gastos;
+            const sugerido = neto > 0 ? neto * 0.10 : 0;
+            const pagado = LARA_DB.diezmos.reduce((a, b) => a + b, 0);
+
+            document.getElementById('card-diezmo-calculo').innerHTML = `
+                <label style="color:white; opacity:0.8;">Sugerido (10%)</label>
+                <h2 style="font-size: 40px; margin:5px 0;">$${sugerido.toLocaleString()}</h2>
+                <p style="font-size: 12px;">Pendiente: $${(sugerido - pagado).toLocaleString()}</p>
+            `;
+        }
+
+        function guardarDiezmo() {
+            const monto = document.getElementById('d-pago').value;
+            if(!monto) return;
+            LARA_DB.diezmos.push(parseFloat(monto));
+            persistir();
+            actualizarDiezmos();
+            document.getElementById('d-pago').value = "";
+            alert("🙏 Diezmo registrado");
+        }
+
+        function persistir() {
+            localStorage.setItem('LARA_STORAGE_V1', JSON.stringify(LARA_DB));
+        }
+
+        function exportarDatos() {
+            if(confirm("¿Borrar todos los datos permanentemente?")) {
+                localStorage.clear();
+                location.reload();
+            }
         }
     </script>
 </body>
