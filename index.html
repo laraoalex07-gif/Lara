@@ -8,44 +8,47 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
     <style>
         :root { --primary: #3b82f6; --bg: #0f172a; }
-        body { background-color: var(--bg); color: #f1f5f9; font-family: 'Segoe UI', sans-serif; margin:0; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; color: #94a3b8; flex: 1; padding: 10px 0; border:none; background:none; }
-        .nav-active { color: var(--primary); }
-        input, select, textarea { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; padding: 0.8rem; border-radius: 0.6rem; width: 100%; font-size: 16px; margin-bottom: 8px; }
-        .btn-blue { background: #2563eb; color: white; font-weight: bold; padding: 1rem; border-radius: 0.6rem; width: 100%; transition: 0.2s; border: none; cursor: pointer; }
+        body { background-color: var(--bg); color: #f1f5f9; font-family: sans-serif; margin:0; padding-bottom: 90px; }
+        .glass { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; color: #94a3b8; flex: 1; border:none; background:none; padding: 12px; cursor: pointer; }
+        .nav-active { color: var(--primary); font-weight: bold; }
+        input, select, textarea { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; padding: 14px; border-radius: 10px; width: 100%; font-size: 16px; margin-bottom: 12px; box-sizing: border-box; display: block; }
+        .btn-blue { background: #2563eb; color: white; font-weight: bold; padding: 16px; border-radius: 12px; width: 100%; border: none; cursor: pointer; -webkit-appearance: none; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         .btn-blue:active { background: #1d4ed8; transform: scale(0.98); }
+        label { font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; display: block; padding-left: 4px; }
     </style>
 </head>
-<body class="pb-24">
+<body>
 
     <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
-        <div class="w-32 h-32 bg-white p-4 rounded-3xl mb-6 shadow-2xl">
-            <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain">
+        <div class="w-32 h-32 bg-white p-2 rounded-3xl mb-4 shadow-2xl flex items-center justify-center">
+            <img src="aa.jpg" alt="Logo" class="max-w-full max-h-full object-contain">
         </div>
-        <h1 class="text-3xl font-black mb-2 uppercase">LARA CONTROL</h1>
-        <p class="text-slate-400 mb-10">Control Profesional de Gastos</p>
-        <button onclick="document.getElementById('welcome').style.display='none'" class="btn-blue w-full max-w-xs">ENTRAR</button>
+        <h1 class="text-3xl font-black mb-1 text-white uppercase tracking-tighter">LARA CONTROL</h1>
+        <p class="text-slate-400 mb-8 text-sm">Control de Viajes y Finanzas</p>
+        <button onclick="document.getElementById('welcome').style.display='none'" class="btn-blue max-w-xs">INGRESAR</button>
     </div>
 
-    <header class="p-4 flex justify-between items-center glass sticky top-0 z-30">
-        <span id="section-title" class="font-bold text-blue-400 uppercase tracking-tighter text-sm">REGISTROS</span>
-        <img src="logo.jpg" class="h-8 w-8 rounded-lg object-cover bg-white">
+    <header class="p-4 flex justify-between items-center glass sticky top-0 z-30 border-b border-white/5">
+        <span id="section-title" class="font-black text-blue-400 tracking-widest text-sm">REGISTROS</span>
+        <div class="h-10 w-10 bg-white rounded-lg p-1 flex items-center justify-center overflow-hidden">
+            <img src="aa.jpg" class="max-w-full max-h-full object-contain">
+        </div>
     </header>
 
     <main class="p-4 max-w-md mx-auto">
-        <section id="sec-registros" class="space-y-4">
-            <div class="glass p-5 rounded-2xl">
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Fecha</label>
+        <section id="sec-registros">
+            <div class="glass p-5 rounded-3xl space-y-1">
+                <label>Fecha del movimiento</label>
                 <input type="date" id="reg-fecha">
                 
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Flujo</label>
+                <label>Tipo de flujo</label>
                 <select id="reg-tipo-flujo">
-                    <option value="Ingreso">🟢 Ingreso</option>
-                    <option value="Gasto">🔴 Gasto</option>
+                    <option value="Ingreso">🟢 Ingreso (Dinero entra)</option>
+                    <option value="Gasto">🔴 Gasto (Dinero sale)</option>
                 </select>
                 
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Categoría</label>
+                <label>Categoría</label>
                 <select id="reg-categoria">
                     <option value="Uber Diario">🚕 Uber Diario</option>
                     <option value="Renta Carro">🔑 Renta Carro</option>
@@ -56,50 +59,50 @@
                     <option value="Otros">📦 Otros</option>
                 </select>
                 
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Monto ($)</label>
+                <label>Monto en Pesos/Dólares</label>
                 <input type="number" id="reg-monto" placeholder="0.00" inputmode="decimal">
                 
-                <textarea id="reg-concepto" placeholder="Notas adicionales..."></textarea>
+                <label>Nota opcional</label>
+                <textarea id="reg-concepto" rows="2" placeholder="Ej: Pago de renta semana 45..."></textarea>
                 
-                <button type="button" onclick="saveRegistro()" class="btn-blue mt-2">GUARDAR REGISTRO</button>
+                <button onclick="saveRegistro()" class="btn-blue mt-4">💾 GUARDAR REGISTRO</button>
             </div>
         </section>
 
-        <section id="sec-viajes" class="hidden space-y-4">
-            <div class="glass p-5 rounded-2xl">
-                <input type="text" id="v-cliente" placeholder="Cliente">
-                <input type="text" id="v-inicio" placeholder="Origen">
-                <input type="text" id="v-fin" placeholder="Destino">
-                <input type="number" id="v-costo" placeholder="Costo $">
+        <section id="sec-viajes" class="hidden">
+            <div class="glass p-5 rounded-3xl space-y-1">
+                <input type="text" id="v-cliente" placeholder="Nombre del Cliente">
+                <input type="number" id="v-costo" placeholder="Costo del viaje $" inputmode="decimal">
                 <input type="date" id="v-fecha">
                 <select id="v-tipo">
                     <option value="Cotización">📄 Cotización</option>
                     <option value="Agendado">📅 Agendado</option>
                     <option value="Realizado">✅ Realizado</option>
                 </select>
-                <button type="button" onclick="saveViaje()" class="btn-blue">GUARDAR VIAJE</button>
+                <button onclick="saveViaje()" class="btn-blue">GUARDAR VIAJE</button>
             </div>
         </section>
 
-        <section id="sec-diezmos" class="hidden space-y-4">
-            <div id="diezmo-info" class="glass p-5 rounded-2xl bg-blue-900/20 border-blue-500/30"></div>
-            <div class="glass p-5 rounded-2xl">
-                <input type="number" id="d-pago" placeholder="Monto a pagar $">
-                <button type="button" onclick="saveDiezmo()" class="w-full bg-emerald-600 py-4 rounded-xl font-bold">REGISTRAR PAGO</button>
+        <section id="sec-diezmos" class="hidden">
+            <div id="diezmo-info" class="glass p-6 rounded-3xl mb-4 text-center border-2 border-blue-500/20"></div>
+            <div class="glass p-5 rounded-3xl">
+                <label>Registrar entrega de diezmo</label>
+                <input type="number" id="d-pago" placeholder="Monto entregado $" inputmode="decimal">
+                <button onclick="saveDiezmo()" class="btn-blue bg-emerald-600">PAGAR DIEZMO</button>
             </div>
         </section>
 
-        <section id="sec-resumen" class="hidden space-y-4">
+        <section id="sec-resumen" class="hidden">
             <div id="resumen-container"></div>
-            <button onclick="borrarDatos()" class="w-full text-red-500 text-[10px] opacity-30 mt-10">BORRAR TODOS LOS DATOS</button>
+            <button onclick="if(confirm('¿Seguro que quieres borrar todos los datos?')) {localStorage.clear(); location.reload();}" class="mt-12 text-red-500/50 text-[10px] w-full uppercase tracking-widest font-bold">Reiniciar Aplicación</button>
         </section>
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-[#1e293b] border-t border-slate-700 flex p-1 z-40">
-        <button onclick="nav('registros')" id="n-registros" class="nav-btn nav-active"><i data-lucide="pen-tool"></i>Reg.</button>
-        <button onclick="nav('viajes')" id="n-viajes" class="nav-btn"><i data-lucide="car"></i>Viajes</button>
-        <button onclick="nav('diezmos')" id="n-diezmos" class="nav-btn"><i data-lucide="heart"></i>Diezmos</button>
-        <button onclick="nav('resumen')" id="n-resumen" class="nav-btn"><i data-lucide="bar-chart-3"></i>Resumen</button>
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#0f172a] border-t border-white/10 flex z-40 pb-2">
+        <button onclick="nav('registros')" id="n-registros" class="nav-btn nav-active"><i data-lucide="edit-3"></i>Reg.</button>
+        <button onclick="nav('viajes')" id="n-viajes" class="nav-btn"><i data-lucide="map-pin"></i>Viajes</button>
+        <button onclick="nav('diezmos')" id="n-diezmos" class="nav-btn"><i data-lucide="heart"></i>Diezmo</button>
+        <button onclick="nav('resumen')" id="n-resumen" class="nav-btn"><i data-lucide="pie-chart"></i>Total</button>
     </nav>
 
     <script>
@@ -107,111 +110,6 @@
         document.getElementById('reg-fecha').valueAsDate = new Date();
         document.getElementById('v-fecha').valueAsDate = new Date();
 
-        // Base de datos local
-        let db = JSON.parse(localStorage.getItem('lara_final_db')) || { registros: [], viajes: [], diezmos: [] };
-
-        function saveDB() { localStorage.setItem('lara_final_db', JSON.stringify(db)); }
+        let db = JSON.parse(localStorage.getItem('lara_control_db_v6')) || { registros: [], viajes: [], diezmos: [] };
 
         function nav(s) {
-            ['registros', 'viajes', 'diezmos', 'resumen'].forEach(sec => {
-                document.getElementById('sec-'+sec).classList.add('hidden');
-                document.getElementById('n-'+sec).classList.remove('nav-active');
-            });
-            document.getElementById('sec-'+s).classList.remove('hidden');
-            document.getElementById('n-'+s).classList.add('nav-active');
-            document.getElementById('section-title').innerText = s.toUpperCase();
-            if(s === 'resumen') updateResumen();
-            if(s === 'diezmos') updateDiezmosView();
-        }
-
-        function saveRegistro() {
-            const monto = parseFloat(document.getElementById('reg-monto').value);
-            if(!monto) { alert("Por favor ingresa un monto"); return; }
-            
-            db.registros.push({
-                fecha: document.getElementById('reg-fecha').value,
-                flujo: document.getElementById('reg-tipo-flujo').value,
-                cat: document.getElementById('reg-categoria').value,
-                monto: monto,
-                concepto: document.getElementById('reg-concepto').value
-            });
-            
-            saveDB();
-            alert("✅ Guardado correctamente");
-            document.getElementById('reg-monto').value = '';
-            document.getElementById('reg-concepto').value = '';
-        }
-
-        function saveViaje() {
-            db.viajes.push({
-                cliente: document.getElementById('v-cliente').value,
-                costo: parseFloat(document.getElementById('v-costo').value) || 0,
-                fecha: document.getElementById('v-fecha').value,
-                tipo: document.getElementById('v-tipo').value
-            });
-            saveDB(); alert("✅ Viaje guardado");
-        }
-
-        function updateResumen() {
-            const hoy = new Date();
-            const day = hoy.getDay() || 7;
-            const lunes = new Date(hoy); lunes.setDate(hoy.getDate() - day + 1); lunes.setHours(0,0,0,0);
-            const dom = new Date(lunes); dom.setDate(lunes.getDate() + 6); dom.setHours(23,59,59,999);
-
-            let ing = 0, gas = 0;
-            db.registros.forEach(r => {
-                const f = new Date(r.fecha + 'T00:00:00');
-                if(f >= lunes && f <= dom) {
-                    if(r.flujo === 'Ingreso') ing += r.monto; else gas += r.monto;
-                }
-            });
-            
-            const neta = ing - gas;
-            document.getElementById('resumen-container').innerHTML = `
-                <div class="glass p-6 rounded-3xl text-center border-b-4 border-blue-500 mb-4">
-                    <p class="text-slate-400 text-[10px] uppercase">Ganancia Neta Semanal</p>
-                    <h4 class="text-4xl font-black text-blue-400 my-2">$${neta.toFixed(2)}</h4>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">INGRESOS</p><p class="text-lg font-bold text-emerald-400">$${ing.toFixed(2)}</p></div>
-                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">GASTOS</p><p class="text-lg font-bold text-red-400">$${gas.toFixed(2)}</p></div>
-                </div>`;
-            return neta;
-        }
-
-        function updateDiezmosView() {
-            const neta = updateResumen();
-            const sug = neta > 0 ? neta * 0.10 : 0;
-            
-            const hoy = new Date();
-            const day = hoy.getDay() || 7;
-            const lun = new Date(hoy); lun.setDate(hoy.getDate() - day + 1); lun.setHours(0,0,0,0);
-            const dom = new Date(lun); dom.setDate(lun.getDate() + 6); dom.setHours(23,59,59,999);
-
-            let pagado = db.diezmos.reduce((acc, d) => {
-                const f = new Date(d.fecha);
-                return (f >= lun && f <= dom) ? acc + d.monto : acc;
-            }, 0);
-
-            document.getElementById('diezmo-info').innerHTML = `
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between"><span>Neta Semanal:</span><b>$${neta.toFixed(2)}</b></div>
-                    <div class="flex justify-between text-blue-400"><span>Diezmo (10%):</span><b>$${sug.toFixed(2)}</b></div>
-                    <div class="flex justify-between text-emerald-400 border-t border-white/10 pt-2"><span>Pagado:</span><b>$${pagado.toFixed(2)}</b></div>
-                    <div class="flex justify-between text-red-400 font-black text-lg"><span>FALTANTE:</span><span>$${Math.max(0, sug - pagado).toFixed(2)}</span></div>
-                </div>`;
-        }
-
-        function saveDiezmo() {
-            const m = parseFloat(document.getElementById('d-pago').value);
-            if(!m) return;
-            db.diezmos.push({ monto: m, fecha: new Date().toISOString() });
-            saveDB(); updateDiezmosView();
-            document.getElementById('d-pago').value = '';
-            alert("🙏 Diezmo registrado");
-        }
-
-        function borrarDatos() { if(confirm("¿Seguro que quieres borrar todo?")) { localStorage.clear(); location.reload(); } }
-    </script>
-</body>
-</html>
