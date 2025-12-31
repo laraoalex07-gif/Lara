@@ -6,6 +6,8 @@
     <title>Lara Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
+    <!-- NUEVA LIBRERÍA: localForage para usar IndexedDB (más robusto que localStorage) -->
+    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <style>
         :root { --primary: #3b82f6; --bg: #0f172a; }
         body { background-color: var(--bg); color: #f1f5f9; font-family: 'Segoe UI', sans-serif; margin:0; }
@@ -103,14 +105,25 @@
     </nav>
 
     <script>
-        lucide.createIcons();
-        document.getElementById('reg-fecha').valueAsDate = new Date();
-        document.getElementById('v-fecha').valueAsDate = new Date();
+        // Variable global para la base de datos. Se inicializará en initApp.
+        let db = { registros: [], viajes: [], diezmos: [] };
 
-        // Base de datos local
-        let db = JSON.parse(localStorage.getItem('lara_final_db')) || { registros: [], viajes: [], diezmos: [] };
+        // Función auxiliar para normalizar fechas a medianoche local
+        function normalizeDate(dateString) {
+            const date = new Date(dateString);
+            // Crea una nueva fecha en la zona horaria local a medianoche
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        }
 
-        function saveDB() { localStorage.setItem('lara_final_db', JSON.stringify(db)); }
+        // Función asíncrona para guardar la base de datos
+        async function saveDB() { 
+            try {
+                await localforage.setItem('lara_final_db', db);
+            } catch (err) {
+                console.error("Error al guardar en IndexedDB:", err);
+                alert("Error al guardar los datos. El almacenamiento local podría estar lleno o bloqueado.");
+            }
+        }
 
         function nav(s) {
             ['registros', 'viajes', 'diezmos', 'resumen'].forEach(sec => {
@@ -124,18 +137,14 @@
             if(s === 'diezmos') updateDiezmosView();
         }
 
-        function saveRegistro() {
+        async function saveRegistro() {
             const monto = parseFloat(document.getElementById('reg-monto').value);
             
-            // CORRECCIÓN 1: Mejorar la validación de monto.
-            // Se permite guardar si el monto es 0, pero se requiere que sea un número válido.
             if(isNaN(monto)) { 
                 alert("Por favor ingresa un monto válido (solo números)."); 
                 return; 
             }
             
-            // CORRECCIÓN 2: Asegurar que el objeto 'db' y 'db.registros' existen antes de hacer push.
-            // Aunque el código de inicialización lo hace, es una buena práctica defensiva.
             if (!db.registros) {
                 db.registros = [];
             }
@@ -148,13 +157,13 @@
                 concepto: document.getElementById('reg-concepto').value
             });
             
-            saveDB();
+            await saveDB();
             alert("✅ Guardado correctamente");
             document.getElementById('reg-monto').value = '';
             document.getElementById('reg-concepto').value = '';
         }
 
-        function saveViaje() {
+        async function saveViaje() {
             const costo = parseFloat(document.getElementById('v-costo').value);
             if(isNaN(costo)) { 
                 alert("Por favor ingresa un costo válido (solo números)."); 
@@ -171,7 +180,8 @@
                 fecha: document.getElementById('v-fecha').value,
                 tipo: document.getElementById('v-tipo').value
             });
-            saveDB(); alert("✅ Viaje guardado");
+            await saveDB(); 
+            alert("✅ Viaje guardado");
             // Limpiar campos después de guardar
             document.getElementById('v-cliente').value = '';
             document.getElementById('v-inicio').value = '';
@@ -179,18 +189,10 @@
             document.getElementById('v-costo').value = '';
         }
 
-        // Función auxiliar para normalizar fechas a medianoche local
-        function normalizeDate(dateString) {
-            const date = new Date(dateString);
-            // Crea una nueva fecha en la zona horaria local a medianoche
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        }
-
         function updateResumen() {
             const hoy = new Date();
             const day = hoy.getDay() || 7; // 1 para Lunes, 7 para Domingo
             
-            // CORRECCIÓN 3: Normalizar las fechas de inicio y fin de semana para evitar problemas de zona horaria.
             const lunes = new Date(hoy); 
             lunes.setDate(hoy.getDate() - day + 1); 
             lunes.setHours(0,0,0,0); // Lunes a las 00:00:00
@@ -201,13 +203,10 @@
 
             let ing = 0, gas = 0;
             
-            // CORRECCIÓN 4: Asegurar que db.registros existe antes de iterar
             if (db.registros) {
                 db.registros.forEach(r => {
-                    // Usar la función auxiliar para crear la fecha sin problemas de zona horaria
                     const f = normalizeDate(r.fecha); 
                     
-                    // Comparación de fechas
                     if(f >= lunes && f <= dom) {
                         if(r.flujo === 'Ingreso') ing += r.monto; else gas += r.monto;
                     }
@@ -238,10 +237,8 @@
 
             let pagado = 0;
             
-            // CORRECCIÓN 5: Asegurar que db.diezmos existe antes de iterar
             if (db.diezmos) {
                 pagado = db.diezmos.reduce((acc, d) => {
-                    // Usar la función auxiliar para crear la fecha sin problemas de zona horaria
                     const f = normalizeDate(d.fecha);
                     return (f >= lun && f <= dom) ? acc + d.monto : acc;
                 }, 0);
@@ -256,7 +253,7 @@
                 </div>`;
         }
 
-        function saveDiezmo() {
+        async function saveDiezmo() {
             const m = parseFloat(document.getElementById('d-pago').value);
             if(isNaN(m) || m <= 0) {
                 alert("Por favor ingresa un monto de pago válido.");
@@ -268,12 +265,48 @@
             }
 
             db.diezmos.push({ monto: m, fecha: new Date().toISOString().split('T')[0] }); // Guardar solo la fecha YYYY-MM-DD
-            saveDB(); updateDiezmosView();
+            await saveDB(); 
+            updateDiezmosView();
             document.getElementById('d-pago').value = '';
             alert("🙏 Diezmo registrado");
         }
 
-        function borrarDatos() { if(confirm("¿Seguro que quieres borrar todo?")) { localStorage.clear(); location.reload(); } }
+        async function borrarDatos() { 
+            if(confirm("¿Seguro que quieres borrar todos los datos? Esta acción es irreversible.")) { 
+                try {
+                    await localforage.clear();
+                    location.reload(); 
+                } catch (err) {
+                    console.error("Error al borrar datos:", err);
+                    alert("Error al borrar los datos. Intenta de nuevo.");
+                }
+            } 
+        }
+
+        // Función principal para inicializar la aplicación
+        async function initApp() {
+            // 1. Cargar la base de datos de IndexedDB
+            try {
+                const loadedDb = await localforage.getItem('lara_final_db');
+                if (loadedDb) {
+                    db = loadedDb;
+                }
+            } catch (err) {
+                console.error("Error al cargar la base de datos:", err);
+                // Si falla la carga, se usa el objeto db inicial vacío.
+            }
+
+            // 2. Inicializar iconos y fechas
+            lucide.createIcons();
+            document.getElementById('reg-fecha').valueAsDate = new Date();
+            document.getElementById('v-fecha').valueAsDate = new Date();
+
+            // 3. Ejecutar la navegación inicial (que mostrará la sección de registros)
+            nav('registros');
+        }
+
+        // Iniciar la aplicación
+        initApp();
     </script>
 </body>
 </html>
