@@ -1,7 +1,7 @@
 {
   "name": "Multi Servicios LARA",
   "short_name": "LARA",
-  "description": "Aplicación personal para el control de registros, viajes y cálculo de diezmos de Multi Servicios LARA.",
+  "description": "App de control para Multi Servicios LARA",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#0f172a",
