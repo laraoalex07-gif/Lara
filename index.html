@@ -3,49 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lara Control</title>
+    <title>Lara Control Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
     <style>
-        :root { --primary: #3b82f6; --bg: #0f172a; }
-        body { background-color: var(--bg); color: #f1f5f9; font-family: sans-serif; margin:0; padding-bottom: 90px; }
-        .glass { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; color: #94a3b8; flex: 1; border:none; background:none; padding: 12px; cursor: pointer; }
-        .nav-active { color: var(--primary); font-weight: bold; }
-        input, select, textarea { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; padding: 14px; border-radius: 10px; width: 100%; font-size: 16px; margin-bottom: 12px; box-sizing: border-box; display: block; }
-        .btn-blue { background: #2563eb; color: white; font-weight: bold; padding: 16px; border-radius: 12px; width: 100%; border: none; cursor: pointer; -webkit-appearance: none; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .btn-blue:active { background: #1d4ed8; transform: scale(0.98); }
-        label { font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; display: block; padding-left: 4px; }
+        :root { --primary: #3b82f6; --bg: #f8fafc; }
+        body { background-color: #f1f5f9; color: #1e293b; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin:0; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; }
+        
+        /* Estilo Glide-like */
+        .app-card { background: white; border-radius: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.8); }
+        .nav-bar { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border-top: 1px solid rgba(0,0,0,0.05); }
+        
+        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: #64748b; flex: 1; border:none; background:none; transition: all 0.2s; height: 60px; }
+        .nav-active { color: #2563eb; }
+        .nav-active i { transform: translateY(-2px); color: #2563eb; }
+
+        input, select, textarea { background: #f8fafc !important; border: 1px solid #e2e8f0 !important; color: #1e293b !important; padding: 16px; border-radius: 16px; width: 100%; font-size: 16px; margin-bottom: 12px; transition: all 0.2s; -webkit-appearance: none; }
+        input:focus { border-color: #3b82f6 !important; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        
+        .btn-main { background: #2563eb; color: white; font-weight: 700; padding: 18px; border-radius: 18px; width: 100%; border: none; cursor: pointer; font-size: 16px; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
+        .btn-main:active { transform: scale(0.96); opacity: 0.9; }
+        
+        label { font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 6px; display: block; margin-left: 4px; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
-        <div class="w-32 h-32 bg-white p-2 rounded-3xl mb-4 shadow-2xl flex items-center justify-center">
-            <img src="aa.jpg" alt="Logo" class="max-w-full max-h-full object-contain">
+    <div id="welcome" class="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-8 text-center">
+        <div class="w-32 h-32 bg-slate-50 p-3 rounded-[32px] mb-8 shadow-inner flex items-center justify-center">
+            <img src="aa.jpg" alt="Logo" class="max-w-full max-h-full object-contain rounded-xl">
         </div>
-        <h1 class="text-3xl font-black mb-1 text-white uppercase tracking-tighter">LARA CONTROL</h1>
-        <p class="text-slate-400 mb-8 text-sm">Control de Viajes y Finanzas</p>
-        <button onclick="document.getElementById('welcome').style.display='none'" class="btn-blue max-w-xs">INGRESAR</button>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2 tracking-tight">Lara Control</h1>
+        <p class="text-slate-500 mb-12">Gestiona tu negocio de forma profesional</p>
+        <button onclick="document.getElementById('welcome').classList.add('hidden')" class="btn-main max-w-xs">Comenzar ahora</button>
     </div>
 
-    <header class="p-4 flex justify-between items-center glass sticky top-0 z-30 border-b border-white/5">
-        <span id="section-title" class="font-black text-blue-400 tracking-widest text-sm">REGISTROS</span>
-        <div class="h-10 w-10 bg-white rounded-lg p-1 flex items-center justify-center overflow-hidden">
-            <img src="aa.jpg" class="max-w-full max-h-full object-contain">
+    <header class="p-6 flex justify-between items-center bg-white sticky top-0 z-30">
+        <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Panel de Control</p>
+            <h2 id="section-title" class="text-xl font-bold text-slate-800">Registros</h2>
+        </div>
+        <div class="h-12 w-12 bg-slate-100 rounded-2xl p-1 shadow-sm overflow-hidden">
+            <img src="aa.jpg" class="w-full h-full object-contain rounded-lg">
         </div>
     </header>
 
-    <main class="p-4 max-w-md mx-auto">
-        <section id="sec-registros">
-            <div class="glass p-5 rounded-3xl space-y-1">
-                <label>Fecha del movimiento</label>
+    <main class="p-5 max-w-md mx-auto">
+        
+        <div id="sec-registros" class="tab-content space-y-6">
+            <div class="app-card p-6">
+                <label>Fecha</label>
                 <input type="date" id="reg-fecha">
                 
-                <label>Tipo de flujo</label>
+                <label>Tipo de movimiento</label>
                 <select id="reg-tipo-flujo">
-                    <option value="Ingreso">🟢 Ingreso (Dinero entra)</option>
-                    <option value="Gasto">🔴 Gasto (Dinero sale)</option>
+                    <option value="Ingreso">🟢 Ingreso</option>
+                    <option value="Gasto">🔴 Gasto</option>
                 </select>
                 
                 <label>Categoría</label>
@@ -59,57 +73,175 @@
                     <option value="Otros">📦 Otros</option>
                 </select>
                 
-                <label>Monto en Pesos/Dólares</label>
-                <input type="number" id="reg-monto" placeholder="0.00" inputmode="decimal">
+                <label>Monto</label>
+                <input type="number" id="reg-monto" placeholder="$0.00" inputmode="decimal">
                 
-                <label>Nota opcional</label>
-                <textarea id="reg-concepto" rows="2" placeholder="Ej: Pago de renta semana 45..."></textarea>
+                <label>Notas</label>
+                <textarea id="reg-concepto" rows="2" placeholder="Escribe un detalle..."></textarea>
                 
-                <button onclick="saveRegistro()" class="btn-blue mt-4">💾 GUARDAR REGISTRO</button>
+                <button onclick="handleSaveRegistro()" class="btn-main mt-4">Guardar Registro</button>
             </div>
-        </section>
+        </div>
 
-        <section id="sec-viajes" class="hidden">
-            <div class="glass p-5 rounded-3xl space-y-1">
-                <input type="text" id="v-cliente" placeholder="Nombre del Cliente">
-                <input type="number" id="v-costo" placeholder="Costo del viaje $" inputmode="decimal">
-                <input type="date" id="v-fecha">
+        <div id="sec-viajes" class="tab-content hidden space-y-6">
+            <div class="app-card p-6">
+                <label>Nombre del Cliente</label>
+                <input type="text" id="v-cliente" placeholder="Nombre completo">
+                <label>Precio acordado</label>
+                <input type="number" id="v-costo" placeholder="$0.00" inputmode="decimal">
+                <label>Estado</label>
                 <select id="v-tipo">
                     <option value="Cotización">📄 Cotización</option>
                     <option value="Agendado">📅 Agendado</option>
                     <option value="Realizado">✅ Realizado</option>
                 </select>
-                <button onclick="saveViaje()" class="btn-blue">GUARDAR VIAJE</button>
+                <button onclick="handleSaveViaje()" class="btn-main">Agendar Viaje</button>
             </div>
-        </section>
+        </div>
 
-        <section id="sec-diezmos" class="hidden">
-            <div id="diezmo-info" class="glass p-6 rounded-3xl mb-4 text-center border-2 border-blue-500/20"></div>
-            <div class="glass p-5 rounded-3xl">
-                <label>Registrar entrega de diezmo</label>
-                <input type="number" id="d-pago" placeholder="Monto entregado $" inputmode="decimal">
-                <button onclick="saveDiezmo()" class="btn-blue bg-emerald-600">PAGAR DIEZMO</button>
+        <div id="sec-diezmos" class="tab-content hidden space-y-6">
+            <div id="diezmo-card" class="app-card p-8 text-center bg-gradient-to-br from-blue-600 to-blue-700 text-white">
+                </div>
+            <div class="app-card p-6">
+                <label>Monto a entregar</label>
+                <input type="number" id="d-pago" placeholder="$0.00" inputmode="decimal">
+                <button onclick="handleSaveDiezmo()" class="btn-main bg-emerald-600 shadow-emerald-200">Registrar Pago</button>
             </div>
-        </section>
+        </div>
 
-        <section id="sec-resumen" class="hidden">
-            <div id="resumen-container"></div>
-            <button onclick="if(confirm('¿Seguro que quieres borrar todos los datos?')) {localStorage.clear(); location.reload();}" class="mt-12 text-red-500/50 text-[10px] w-full uppercase tracking-widest font-bold">Reiniciar Aplicación</button>
-        </section>
+        <div id="sec-resumen" class="tab-content hidden space-y-6">
+            <div id="resumen-visual"></div>
+            <button onclick="resetData()" class="w-full py-4 text-red-400 text-xs font-bold uppercase tracking-widest opacity-40">Borrar Base de Datos</button>
+        </div>
+
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-[#0f172a] border-t border-white/10 flex z-40 pb-2">
-        <button onclick="nav('registros')" id="n-registros" class="nav-btn nav-active"><i data-lucide="edit-3"></i>Reg.</button>
-        <button onclick="nav('viajes')" id="n-viajes" class="nav-btn"><i data-lucide="map-pin"></i>Viajes</button>
-        <button onclick="nav('diezmos')" id="n-diezmos" class="nav-btn"><i data-lucide="heart"></i>Diezmo</button>
-        <button onclick="nav('resumen')" id="n-resumen" class="nav-btn"><i data-lucide="pie-chart"></i>Total</button>
+    <nav class="nav-bar fixed bottom-0 left-0 right-0 flex px-2 pb-6 pt-2 z-40">
+        <button onclick="switchTab('registros')" class="nav-btn nav-active" id="btn-registros">
+            <i data-lucide="plus-circle" class="w-6 h-6 mb-1"></i>Nuevo
+        </button>
+        <button onclick="switchTab('viajes')" class="nav-btn" id="btn-viajes">
+            <i data-lucide="map" class="w-6 h-6 mb-1"></i>Viajes
+        </button>
+        <button onclick="switchTab('diezmos')" class="nav-btn" id="btn-diezmos">
+            <i data-lucide="heart" class="w-6 h-6 mb-1"></i>Diezmo
+        </button>
+        <button onclick="switchTab('resumen')" class="nav-btn" id="btn-resumen">
+            <i data-lucide="layout-grid" class="w-6 h-6 mb-1"></i>Resumen
+        </button>
     </nav>
 
     <script>
         lucide.createIcons();
         document.getElementById('reg-fecha').valueAsDate = new Date();
-        document.getElementById('v-fecha').valueAsDate = new Date();
 
-        let db = JSON.parse(localStorage.getItem('lara_control_db_v6')) || { registros: [], viajes: [], diezmos: [] };
+        // BASE DE DATOS MEJORADA
+        let laraDB = JSON.parse(localStorage.getItem('LARA_PRO_DATA')) || { r: [], v: [], d: [] };
 
-        function nav(s) {
+        function switchTab(tabId) {
+            // Ocultar todos
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('nav-active'));
+            
+            // Mostrar seleccionado
+            document.getElementById('sec-' + tabId).classList.remove('hidden');
+            document.getElementById('btn-' + tabId).classList.add('nav-active');
+            
+            // Título
+            const titles = {registros:'Registros', viajes:'Agenda de Viajes', diezmos:'Control de Diezmo', resumen:'Resumen General'};
+            document.getElementById('section-title').innerText = titles[tabId];
+
+            if(tabId === 'resumen') renderResumen();
+            if(tabId === 'diezmos') renderDiezmoCard();
+            window.scrollTo(0,0);
+        }
+
+        function handleSaveRegistro() {
+            const monto = document.getElementById('reg-monto').value;
+            if(!monto || monto <= 0) { alert("Ingresa un monto válido"); return; }
+
+            laraDB.r.push({
+                f: document.getElementById('reg-fecha').value,
+                t: document.getElementById('reg-tipo-flujo').value,
+                c: document.getElementById('reg-categoria').value,
+                m: parseFloat(monto),
+                n: document.getElementById('reg-concepto').value
+            });
+
+            localStorage.setItem('LARA_PRO_DATA', JSON.stringify(laraDB));
+            alert("✅ Guardado con éxito");
+            document.getElementById('reg-monto').value = "";
+            document.getElementById('reg-concepto').value = "";
+        }
+
+        function handleSaveViaje() {
+            const cliente = document.getElementById('v-cliente').value;
+            const costo = document.getElementById('v-costo').value;
+            if(!cliente || !costo) { alert("Faltan datos"); return; }
+
+            laraDB.v.push({ cl: cliente, co: parseFloat(costo), s: document.getElementById('v-tipo').value });
+            localStorage.setItem('LARA_PRO_DATA', JSON.stringify(laraDB));
+            alert("✅ Viaje agendado");
+            document.getElementById('v-cliente').value = "";
+            document.getElementById('v-costo').value = "";
+        }
+
+        function renderResumen() {
+            let ing = 0, gas = 0;
+            laraDB.r.forEach(x => { if(x.t === 'Ingreso') ing += x.m; else gas += x.m; });
+            const total = ing - gas;
+
+            document.getElementById('resumen-visual').innerHTML = `
+                <div class="app-card p-8 text-center mb-6">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Balance Disponible</p>
+                    <h2 class="text-5xl font-black ${total >=0 ? 'text-slate-800' : 'text-red-500'}">$${total.toLocaleString()}</h2>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="app-card p-5 text-center">
+                        <p class="text-[10px] font-bold text-emerald-500 uppercase">Ingresos</p>
+                        <p class="text-xl font-bold text-slate-700">$${ing.toLocaleString()}</p>
+                    </div>
+                    <div class="app-card p-5 text-center">
+                        <p class="text-[10px] font-bold text-red-400 uppercase">Gastos</p>
+                        <p class="text-xl font-bold text-slate-700">$${gas.toLocaleString()}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDiezmoCard() {
+            let ing = 0, gas = 0;
+            laraDB.r.forEach(x => { if(x.t === 'Ingreso') ing += x.m; else gas += x.m; });
+            const neta = ing - gas;
+            const sug = neta > 0 ? neta * 0.10 : 0;
+            const pagado = laraDB.d.reduce((a, b) => a + b, 0);
+
+            document.getElementById('diezmo-card').innerHTML = `
+                <p class="text-blue-100 text-xs font-bold uppercase tracking-widest mb-2">Diezmo Sugerido (10%)</p>
+                <h2 class="text-5xl font-black mb-4">$${sug.toLocaleString()}</h2>
+                <div class="bg-white/20 py-3 px-4 rounded-2xl flex justify-between items-center">
+                    <span class="text-xs font-medium">Restante:</span>
+                    <span class="text-xl font-bold">$${Math.max(0, sug - pagado).toLocaleString()}</span>
+                </div>
+            `;
+        }
+
+        function handleSaveDiezmo() {
+            const m = document.getElementById('d-pago').value;
+            if(!m || m <= 0) return;
+            laraDB.d.push(parseFloat(m));
+            localStorage.setItem('LARA_PRO_DATA', JSON.stringify(laraDB));
+            renderDiezmoCard();
+            document.getElementById('d-pago').value = "";
+            alert("🙏 Gracias. Diezmo registrado.");
+        }
+
+        function resetData() {
+            if(confirm("¿Seguro? Se borrarán todos tus registros de la App.")) {
+                localStorage.removeItem('LARA_PRO_DATA');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
