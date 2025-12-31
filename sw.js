@@ -1,14 +1,3 @@
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open('lara-store').then((cache) => cache.addAll([
-      'index.html',
-      'aa.jpg'
-    ]))
-  );
-});
-
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((response) => response || fetch(e.request))
-  );
+self.addEventListener('fetch', (event) => {
+  event.respondWith(fetch(event.request));
 });
