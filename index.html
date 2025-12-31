@@ -3,203 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lara Control Pro</title>
+    <title>Lara Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
     <style>
-        :root { --glide-blue: #007aff; --glide-bg: #f2f2f7; }
-        body { background-color: var(--glide-bg); font-family: -apple-system, system-ui, sans-serif; margin: 0; padding-bottom: 100px; color: #1c1c1e; }
-        
-        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.02); }
-        .header { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; padding: 15px 20px; border-bottom: 1px solid #e5e5ea; display: flex; justify-content: space-between; align-items: center; }
-        
-        label { display: block; font-size: 11px; font-weight: 600; color: #8e8e93; text-transform: uppercase; margin: 0 0 6px 4px; }
-        input, select, textarea { width: 100%; background: #f2f2f7; border: none; border-radius: 12px; padding: 12px; font-size: 16px; margin-bottom: 15px; box-sizing: border-box; -webkit-appearance: none; }
-        input:focus { background: #e5e5ea; outline: none; }
-        
-        .btn-main { background: var(--glide-blue); color: white; border: none; width: 100%; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
-        .btn-main:active { opacity: 0.7; transform: scale(0.99); }
-        .btn-diezmo { background: #34c759; }
-
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e5e5ea; display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
-        .nav-item { flex: 1; text-align: center; padding: 10px 0; color: #8e8e93; background: none; border: none; font-size: 10px; font-weight: 500; display: flex; flex-direction: column; align-items: center; }
-        .nav-item.active { color: var(--glide-blue); }
-        .nav-item i { margin-bottom: 4px; }
-        
-        .hidden { display: none !important; }
+        :root { --primary: #3b82f6; --bg: #0f172a; }
+        body { background-color: var(--bg); color: #f1f5f9; font-family: 'Segoe UI', sans-serif; margin:0; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; color: #94a3b8; flex: 1; padding: 10px 0; border:none; background:none; }
+        .nav-active { color: var(--primary); }
+        input, select, textarea { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; padding: 0.8rem; border-radius: 0.6rem; width: 100%; font-size: 16px; margin-bottom: 8px; }
+        .btn-blue { background: #2563eb; color: white; font-weight: bold; padding: 1rem; border-radius: 0.6rem; width: 100%; transition: 0.2s; border: none; cursor: pointer; }
+        .btn-blue:active { background: #1d4ed8; transform: scale(0.98); }
     </style>
 </head>
-<body>
+<body class="pb-24">
 
-    <header class="header">
-        <div>
-            <span style="color: var(--glide-blue); font-size: 10px; font-weight: 800; letter-spacing: 1px;">LARA CONTROL</span>
-            <h1 id="view-title" style="margin:0; font-size: 20px; font-weight: 800;">Registros</h1>
+    <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-32 h-32 bg-white p-4 rounded-3xl mb-6 shadow-2xl">
+            <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain">
         </div>
-        <img src="aa.jpg" style="width: 42px; height: 42px; border-radius: 12px; object-fit: cover; background: #eee;">
+        <h1 class="text-3xl font-black mb-2 uppercase">LARA CONTROL</h1>
+        <p class="text-slate-400 mb-10">Control Profesional de Gastos</p>
+        <button onclick="document.getElementById('welcome').style.display='none'" class="btn-blue w-full max-w-xs">ENTRAR</button>
+    </div>
+
+    <header class="p-4 flex justify-between items-center glass sticky top-0 z-30">
+        <span id="section-title" class="font-bold text-blue-400 uppercase tracking-tighter text-sm">REGISTROS</span>
+        <img src="logo.jpg" class="h-8 w-8 rounded-lg object-cover bg-white">
     </header>
 
-    <main style="padding: 16px;">
-        
-        <div id="sec-registros" class="content-sec">
-            <div class="card">
-                <label>Fecha</label>
+    <main class="p-4 max-w-md mx-auto">
+        <section id="sec-registros" class="space-y-4">
+            <div class="glass p-5 rounded-2xl">
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Fecha</label>
                 <input type="date" id="reg-fecha">
-                <label>Tipo</label>
-                <select id="reg-tipo"><option value="Ingreso">🟢 Ingreso</option><option value="Gasto">🔴 Gasto</option></select>
-                <label>Categoría</label>
-                <select id="reg-cat">
-                    <option>Uber Diario</option><option>Renta Carro</option><option>Gasolina</option>
-                    <option>Mantenimiento</option><option>Internet</option><option>Privado</option><option>Otros</option>
+                
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Flujo</label>
+                <select id="reg-tipo-flujo">
+                    <option value="Ingreso">🟢 Ingreso</option>
+                    <option value="Gasto">🔴 Gasto</option>
                 </select>
-                <label>Monto $</label>
+                
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Categoría</label>
+                <select id="reg-categoria">
+                    <option value="Uber Diario">🚕 Uber Diario</option>
+                    <option value="Renta Carro">🔑 Renta Carro</option>
+                    <option value="Mantenimiento">🛠️ Mantenimiento</option>
+                    <option value="Internet">🌐 Internet</option>
+                    <option value="Gasolina">⛽ Gasolina</option>
+                    <option value="Privado">👤 Privado</option>
+                    <option value="Otros">📦 Otros</option>
+                </select>
+                
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Monto ($)</label>
                 <input type="number" id="reg-monto" placeholder="0.00" inputmode="decimal">
-                <label>Nota</label>
-                <input type="text" id="reg-nota" placeholder="Opcional">
-                <button onclick="guardarMovimiento()" class="btn-main">Guardar Registro</button>
+                
+                <textarea id="reg-concepto" placeholder="Notas adicionales..."></textarea>
+                
+                <button type="button" onclick="saveRegistro()" class="btn-blue mt-2">GUARDAR REGISTRO</button>
             </div>
-        </div>
+        </section>
 
-        <div id="sec-viajes" class="content-sec hidden">
-            <div class="card">
-                <label>Cliente</label>
-                <input type="text" id="v-cliente" placeholder="Nombre">
-                <label>Costo del Viaje</label>
-                <input type="number" id="v-costo" placeholder="$0.00">
-                <label>Estado</label>
-                <select id="v-estado">
-                    <option>Cotización</option><option>Agendado</option><option>Realizado</option>
+        <section id="sec-viajes" class="hidden space-y-4">
+            <div class="glass p-5 rounded-2xl">
+                <input type="text" id="v-cliente" placeholder="Cliente">
+                <input type="text" id="v-inicio" placeholder="Origen">
+                <input type="text" id="v-fin" placeholder="Destino">
+                <input type="number" id="v-costo" placeholder="Costo $">
+                <input type="date" id="v-fecha">
+                <select id="v-tipo">
+                    <option value="Cotización">📄 Cotización</option>
+                    <option value="Agendado">📅 Agendado</option>
+                    <option value="Realizado">✅ Realizado</option>
                 </select>
-                <button onclick="guardarViaje()" class="btn-main">Agendar Viaje</button>
+                <button type="button" onclick="saveViaje()" class="btn-blue">GUARDAR VIAJE</button>
             </div>
-            <div id="lista-viajes"></div>
-        </div>
+        </section>
 
-        <div id="sec-diezmos" class="content-sec hidden">
-            <div id="card-diezmo-calculo" class="card" style="text-align: center; background: linear-gradient(135deg, #007aff, #5856d6); color: white;">
-                </div>
-            <div class="card">
-                <label>Monto a abonar</label>
-                <input type="number" id="d-pago" placeholder="$0.00">
-                <button onclick="guardarDiezmo()" class="btn-main btn-diezmo">Registrar Pago</button>
+        <section id="sec-diezmos" class="hidden space-y-4">
+            <div id="diezmo-info" class="glass p-5 rounded-2xl bg-blue-900/20 border-blue-500/30"></div>
+            <div class="glass p-5 rounded-2xl">
+                <input type="number" id="d-pago" placeholder="Monto a pagar $">
+                <button type="button" onclick="saveDiezmo()" class="w-full bg-emerald-600 py-4 rounded-xl font-bold">REGISTRAR PAGO</button>
             </div>
-        </div>
+        </section>
 
-        <div id="sec-balance" class="content-sec hidden">
-            <div id="balance-total"></div>
-            <div class="card" style="padding: 10px;">
-                <button onclick="exportarDatos()" style="background: none; border: none; color: #8e8e93; width: 100%; font-size: 12px;">Resetear Aplicación (Borrar todo)</button>
-            </div>
-        </div>
-
+        <section id="sec-resumen" class="hidden space-y-4">
+            <div id="resumen-container"></div>
+            <button onclick="borrarDatos()" class="w-full text-red-500 text-[10px] opacity-30 mt-10">BORRAR TODOS LOS DATOS</button>
+        </section>
     </main>
 
-    <nav class="nav-bar">
-        <button class="nav-item active" onclick="nav('registros')"><i data-lucide="plus-circle"></i>Nuevo</button>
-        <button class="nav-item" onclick="nav('viajes')"><i data-lucide="map-pin"></i>Viajes</button>
-        <button class="nav-item" onclick="nav('diezmos')"><i data-lucide="heart"></i>Diezmos</button>
-        <button class="nav-item" onclick="nav('balance')"><i data-lucide="pie-chart"></i>Balance</button>
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#1e293b] border-t border-slate-700 flex p-1 z-40">
+        <button onclick="nav('registros')" id="n-registros" class="nav-btn nav-active"><i data-lucide="pen-tool"></i>Reg.</button>
+        <button onclick="nav('viajes')" id="n-viajes" class="nav-btn"><i data-lucide="car"></i>Viajes</button>
+        <button onclick="nav('diezmos')" id="n-diezmos" class="nav-btn"><i data-lucide="heart"></i>Diezmos</button>
+        <button onclick="nav('resumen')" id="n-resumen" class="nav-btn"><i data-lucide="bar-chart-3"></i>Resumen</button>
     </nav>
 
     <script>
         lucide.createIcons();
         document.getElementById('reg-fecha').valueAsDate = new Date();
+        document.getElementById('v-fecha').valueAsDate = new Date();
 
-        // BASE DE DATOS ÚNICA
-        let LARA_DB = JSON.parse(localStorage.getItem('LARA_STORAGE_V1')) || { registros: [], viajes: [], diezmos: [] };
+        // Base de datos local
+        let db = JSON.parse(localStorage.getItem('lara_final_db')) || { registros: [], viajes: [], diezmos: [] };
 
-        function nav(id) {
-            document.querySelectorAll('.content-sec').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById('sec-'+id).classList.remove('hidden');
-            event.currentTarget.classList.add('active');
-            document.getElementById('view-title').innerText = id.charAt(0).toUpperCase() + id.slice(1);
-            if(id === 'balance') actualizarBalance();
-            if(id === 'diezmos') actualizarDiezmos();
+        function saveDB() { localStorage.setItem('lara_final_db', JSON.stringify(db)); }
+
+        function nav(s) {
+            ['registros', 'viajes', 'diezmos', 'resumen'].forEach(sec => {
+                document.getElementById('sec-'+sec).classList.add('hidden');
+                document.getElementById('n-'+sec).classList.remove('nav-active');
+            });
+            document.getElementById('sec-'+s).classList.remove('hidden');
+            document.getElementById('n-'+s).classList.add('nav-active');
+            document.getElementById('section-title').innerText = s.toUpperCase();
+            if(s === 'resumen') updateResumen();
+            if(s === 'diezmos') updateDiezmosView();
         }
 
-        function guardarMovimiento() {
-            const monto = document.getElementById('reg-monto').value;
-            if(!monto) return alert("Ingresa un monto");
+        function saveRegistro() {
+            const monto = parseFloat(document.getElementById('reg-monto').value);
             
-            LARA_DB.registros.push({
+            // CORRECCIÓN 1: Mejorar la validación de monto.
+            // Se permite guardar si el monto es 0, pero se requiere que sea un número válido.
+            if(isNaN(monto)) { 
+                alert("Por favor ingresa un monto válido (solo números)."); 
+                return; 
+            }
+            
+            // CORRECCIÓN 2: Asegurar que el objeto 'db' y 'db.registros' existen antes de hacer push.
+            // Aunque el código de inicialización lo hace, es una buena práctica defensiva.
+            if (!db.registros) {
+                db.registros = [];
+            }
+
+            db.registros.push({
                 fecha: document.getElementById('reg-fecha').value,
-                tipo: document.getElementById('reg-tipo').value,
-                cat: document.getElementById('reg-cat').value,
-                monto: parseFloat(monto),
-                nota: document.getElementById('reg-nota').value
+                flujo: document.getElementById('reg-tipo-flujo').value,
+                cat: document.getElementById('reg-categoria').value,
+                monto: monto,
+                concepto: document.getElementById('reg-concepto').value
             });
             
-            persistir();
-            alert("✅ Registro Guardado");
-            document.getElementById('reg-monto').value = "";
+            saveDB();
+            alert("✅ Guardado correctamente");
+            document.getElementById('reg-monto').value = '';
+            document.getElementById('reg-concepto').value = '';
         }
 
-        function guardarViaje() {
-            const cliente = document.getElementById('v-cliente').value;
-            const costo = document.getElementById('v-costo').value;
-            if(!cliente || !costo) return alert("Faltan datos");
+        function saveViaje() {
+            const costo = parseFloat(document.getElementById('v-costo').value);
+            if(isNaN(costo)) { 
+                alert("Por favor ingresa un costo válido (solo números)."); 
+                return; 
+            }
 
-            LARA_DB.viajes.push({ cliente, costo: parseFloat(costo), estado: document.getElementById('v-estado').value });
-            persistir();
-            alert("✅ Viaje Guardado");
-            document.getElementById('v-cliente').value = "";
-            document.getElementById('v-costo').value = "";
-        }
+            if (!db.viajes) {
+                db.viajes = [];
+            }
 
-        function actualizarBalance() {
-            let ingresos = 0, gastos = 0;
-            LARA_DB.registros.forEach(r => {
-                if(r.tipo === 'Ingreso') ingresos += r.monto; else gastos += r.monto;
+            db.viajes.push({
+                cliente: document.getElementById('v-cliente').value,
+                costo: costo,
+                fecha: document.getElementById('v-fecha').value,
+                tipo: document.getElementById('v-tipo').value
             });
-            const neto = ingresos - gastos;
+            saveDB(); alert("✅ Viaje guardado");
+            // Limpiar campos después de guardar
+            document.getElementById('v-cliente').value = '';
+            document.getElementById('v-inicio').value = '';
+            document.getElementById('v-fin').value = '';
+            document.getElementById('v-costo').value = '';
+        }
+
+        // Función auxiliar para normalizar fechas a medianoche local
+        function normalizeDate(dateString) {
+            const date = new Date(dateString);
+            // Crea una nueva fecha en la zona horaria local a medianoche
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        }
+
+        function updateResumen() {
+            const hoy = new Date();
+            const day = hoy.getDay() || 7; // 1 para Lunes, 7 para Domingo
             
-            document.getElementById('balance-total').innerHTML = `
-                <div class="card" style="text-align: center; border-bottom: 5px solid var(--glide-blue);">
-                    <label>Balance Neto</label>
-                    <h2 style="font-size: 36px; margin:0;">$${neto.toLocaleString()}</h2>
+            // CORRECCIÓN 3: Normalizar las fechas de inicio y fin de semana para evitar problemas de zona horaria.
+            const lunes = new Date(hoy); 
+            lunes.setDate(hoy.getDate() - day + 1); 
+            lunes.setHours(0,0,0,0); // Lunes a las 00:00:00
+
+            const dom = new Date(lunes); 
+            dom.setDate(lunes.getDate() + 6); 
+            dom.setHours(23,59,59,999); // Domingo a las 23:59:59.999
+
+            let ing = 0, gas = 0;
+            
+            // CORRECCIÓN 4: Asegurar que db.registros existe antes de iterar
+            if (db.registros) {
+                db.registros.forEach(r => {
+                    // Usar la función auxiliar para crear la fecha sin problemas de zona horaria
+                    const f = normalizeDate(r.fecha); 
+                    
+                    // Comparación de fechas
+                    if(f >= lunes && f <= dom) {
+                        if(r.flujo === 'Ingreso') ing += r.monto; else gas += r.monto;
+                    }
+                });
+            }
+            
+            const neta = ing - gas;
+            document.getElementById('resumen-container').innerHTML = `
+                <div class="glass p-6 rounded-3xl text-center border-b-4 border-blue-500 mb-4">
+                    <p class="text-slate-400 text-[10px] uppercase">Ganancia Neta Semanal</p>
+                    <h4 class="text-4xl font-black text-blue-400 my-2">$${neta.toFixed(2)}</h4>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <div class="card" style="flex:1; text-align:center;"><label>Ingresos</label><p style="color:#34c759; font-weight:700;">$${ingresos.toLocaleString()}</p></div>
-                    <div class="card" style="flex:1; text-align:center;"><label>Gastos</label><p style="color:#ff3b30; font-weight:700;">$${gastos.toLocaleString()}</p></div>
-                </div>
-            `;
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">INGRESOS</p><p class="text-lg font-bold text-emerald-400">$${ing.toFixed(2)}</p></div>
+                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">GASTOS</p><p class="text-lg font-bold text-red-400">$${gas.toFixed(2)}</p></div>
+                </div>`;
+            return neta;
         }
 
-        function actualizarDiezmos() {
-            let ingresos = 0, gastos = 0;
-            LARA_DB.registros.forEach(r => { if(r.tipo === 'Ingreso') ingresos += r.monto; else gastos += r.monto; });
-            const neto = ingresos - gastos;
-            const sugerido = neto > 0 ? neto * 0.10 : 0;
-            const pagado = LARA_DB.diezmos.reduce((a, b) => a + b, 0);
+        function updateDiezmosView() {
+            const neta = updateResumen();
+            const sug = neta > 0 ? neta * 0.10 : 0;
+            
+            const hoy = new Date();
+            const day = hoy.getDay() || 7;
+            const lun = new Date(hoy); lun.setDate(hoy.getDate() - day + 1); lun.setHours(0,0,0,0);
+            const dom = new Date(lun); dom.setDate(lun.getDate() + 6); dom.setHours(23,59,59,999);
 
-            document.getElementById('card-diezmo-calculo').innerHTML = `
-                <label style="color:white; opacity:0.8;">Sugerido (10%)</label>
-                <h2 style="font-size: 40px; margin:5px 0;">$${sugerido.toLocaleString()}</h2>
-                <p style="font-size: 12px;">Pendiente: $${(sugerido - pagado).toLocaleString()}</p>
-            `;
+            let pagado = 0;
+            
+            // CORRECCIÓN 5: Asegurar que db.diezmos existe antes de iterar
+            if (db.diezmos) {
+                pagado = db.diezmos.reduce((acc, d) => {
+                    // Usar la función auxiliar para crear la fecha sin problemas de zona horaria
+                    const f = normalizeDate(d.fecha);
+                    return (f >= lun && f <= dom) ? acc + d.monto : acc;
+                }, 0);
+            }
+
+            document.getElementById('diezmo-info').innerHTML = `
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between"><span>Neta Semanal:</span><b>$${neta.toFixed(2)}</b></div>
+                    <div class="flex justify-between text-blue-400"><span>Diezmo (10%):</span><b>$${sug.toFixed(2)}</b></div>
+                    <div class="flex justify-between text-emerald-400 border-t border-white/10 pt-2"><span>Pagado:</span><b>$${pagado.toFixed(2)}</b></div>
+                    <div class="flex justify-between text-red-400 font-black text-lg"><span>FALTANTE:</span><span>$${Math.max(0, sug - pagado).toFixed(2)}</span></div>
+                </div>`;
         }
 
-        function guardarDiezmo() {
-            const monto = document.getElementById('d-pago').value;
-            if(!monto) return;
-            LARA_DB.diezmos.push(parseFloat(monto));
-            persistir();
-            actualizarDiezmos();
-            document.getElementById('d-pago').value = "";
+        function saveDiezmo() {
+            const m = parseFloat(document.getElementById('d-pago').value);
+            if(isNaN(m) || m <= 0) {
+                alert("Por favor ingresa un monto de pago válido.");
+                return;
+            }
+
+            if (!db.diezmos) {
+                db.diezmos = [];
+            }
+
+            db.diezmos.push({ monto: m, fecha: new Date().toISOString().split('T')[0] }); // Guardar solo la fecha YYYY-MM-DD
+            saveDB(); updateDiezmosView();
+            document.getElementById('d-pago').value = '';
             alert("🙏 Diezmo registrado");
         }
 
-        function persistir() {
-            localStorage.setItem('LARA_STORAGE_V1', JSON.stringify(LARA_DB));
-        }
-
-        function exportarDatos() {
-            if(confirm("¿Borrar todos los datos permanentemente?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
+        function borrarDatos() { if(confirm("¿Seguro que quieres borrar todo?")) { localStorage.clear(); location.reload(); } }
     </script>
 </body>
 </html>
