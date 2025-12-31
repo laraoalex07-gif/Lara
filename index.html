@@ -23,7 +23,7 @@
             background: rgba(30, 41, 59, 0.8); 
             backdrop-filter: blur(12px); 
             border: 1px solid rgba(255,255,255,0.1); 
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
         
         /* Estilo de Inputs y Selects */
@@ -57,7 +57,7 @@
         }
         .btn-blue:active { background: #1d4ed8; transform: scale(0.98); }
 
-        /* Estilo de Navegación (Mejora tipo GLIDE) */
+        /* Estilo de Navegación (CORRECCIÓN UI/UX) */
         .nav-bar {
             background: var(--card-bg);
             border-top: 1px solid #334155;
@@ -74,11 +74,15 @@
             border:none; 
             background:none; 
             transition: color 0.2s, transform 0.1s;
+            border-radius: 8px; /* Para que se vea más como un botón */
+            margin: 0 4px;
         }
+        .nav-btn:hover { background: rgba(255, 255, 255, 0.05); }
         .nav-btn:active { transform: scale(0.95); }
         .nav-active { 
             color: var(--primary); 
             font-weight: bold;
+            background: rgba(59, 130, 246, 0.1); /* Fondo sutil para el activo */
         }
         .nav-btn i { margin-bottom: 2px; }
 
@@ -152,6 +156,11 @@
                 
                 <button type="button" onclick="saveRegistro()" class="btn-blue mt-2">GUARDAR REGISTRO</button>
             </div>
+            <!-- FILTRO DE FECHA -->
+            <div class="glass p-4 rounded-2xl">
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Filtrar por Fecha</label>
+                <input type="date" id="reg-filtro-fecha" onchange="renderRegistrosList()">
+            </div>
             <!-- VISTA DE REGISTROS -->
             <div id="registros-list" class="glass rounded-2xl">
                 <div class="p-4 text-center text-slate-400">Cargando registros...</div>
@@ -183,7 +192,7 @@
         <section id="sec-diezmos" class="hidden space-y-4">
             <div id="diezmo-info" class="glass p-5 rounded-2xl bg-blue-900/20 border-blue-500/30"></div>
             <div class="glass p-5 rounded-2xl">
-                <!-- CAMPO TIPO DE PAGO AÑADIDO -->
+                <!-- CAMPO TIPO DE PAGO -->
                 <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Pago</label>
                 <select id="d-tipo-pago">
                     <option value="Efectivo">💵 Efectivo</option>
@@ -204,7 +213,7 @@
             <div id="resumen-container"></div>
             <div id="resumen-categorias" class="glass p-4 rounded-2xl mb-4"></div>
             <div id="resumen-historial" class="glass p-4 rounded-2xl mb-4"></div>
-            <!-- NUEVAS VISTAS DE INGRESOS Y GASTOS -->
+            <!-- VISTAS DE INGRESOS Y GASTOS -->
             <div id="resumen-ingresos-gastos" class="space-y-4"></div>
             <button onclick="borrarDatos()" class="w-full text-red-500 text-[10px] opacity-30 mt-10">BORRAR TODOS LOS DATOS</button>
         </section>
@@ -289,6 +298,7 @@
 
         async function deleteItem(type, index) {
             if (confirm(`¿Estás seguro de que quieres borrar este ${type.slice(0, -1)}? Esta acción es irreversible.`)) {
+                // El index que se pasa es el original, no el del array ordenado/filtrado
                 db[type].splice(index, 1);
                 await saveDB();
                 
@@ -325,13 +335,26 @@
 
         function renderRegistrosList() {
             const container = document.getElementById('registros-list');
+            const filtroFecha = document.getElementById('reg-filtro-fecha').value;
+            
             if (!db.registros || db.registros.length === 0) {
                 container.innerHTML = '<div class="p-4 text-center text-slate-400">No hay registros guardados.</div>';
                 return;
             }
 
-            // Ordenar del más nuevo al más antiguo
-            const sortedRegistros = [...db.registros].map((r, index) => ({...r, originalIndex: index})).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            // 1. Filtrar
+            let filteredRegistros = db.registros.map((r, index) => ({...r, originalIndex: index}));
+            if (filtroFecha) {
+                filteredRegistros = filteredRegistros.filter(r => r.fecha === filtroFecha);
+            }
+
+            if (filteredRegistros.length === 0) {
+                container.innerHTML = '<div class="p-4 text-center text-slate-400">No hay registros para la fecha seleccionada.</div>';
+                return;
+            }
+
+            // 2. Ordenar: Más reciente primero (descendente)
+            const sortedRegistros = filteredRegistros.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
             let html = '';
             sortedRegistros.forEach((r) => {
@@ -365,8 +388,11 @@
                 return;
             }
 
-            // Ordenar del más nuevo al más antiguo
-            const sortedViajes = [...db.viajes].map((v, index) => ({...v, originalIndex: index})).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            // 1. Mapear con índice original
+            const viajesWithIndex = db.viajes.map((v, index) => ({...v, originalIndex: index}));
+
+            // 2. Ordenar: Más reciente primero (descendente)
+            const sortedViajes = viajesWithIndex.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
             let html = '';
             sortedViajes.forEach((v) => {
@@ -391,7 +417,7 @@
             lucide.createIcons(); // Re-renderizar iconos de lucide
         }
 
-        // --- FUNCIONES DE GUARDADO ---
+        // --- FUNCIONES DE GUARDADO (Sin cambios, ya estaban bien) ---
 
         async function saveRegistro() {
             const monto = parseFloat(document.getElementById('reg-monto').value);
@@ -462,11 +488,10 @@
                 db.diezmos = [];
             }
 
-            // El pago de diezmo se guarda con la fecha actual y el tipo de pago
             db.diezmos.push({ 
                 monto: m, 
                 fecha: new Date().toISOString().split('T')[0],
-                tipo: tipoPago // Guardar el tipo de pago
+                tipo: tipoPago
             }); 
             await saveDB(); 
             updateDiezmosView();
@@ -474,7 +499,7 @@
             alert("🙏 Diezmo registrado");
         }
 
-        // --- FUNCIONES DE RESUMEN Y DIEZMOS ---
+        // --- FUNCIONES DE RESUMEN Y DIEZMOS (Sin cambios, ya estaban bien) ---
 
         function renderMonthlyDetails() {
             const container = document.getElementById('resumen-ingresos-gastos');
@@ -486,7 +511,7 @@
             const registrosMes = db.registros.filter(r => {
                 const f = normalizeDate(r.fecha);
                 return f >= startOfMonth && f <= endOfMonth;
-            }).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            }).sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Orden descendente
 
             const ingresos = registrosMes.filter(r => r.flujo === 'Ingreso');
             const gastos = registrosMes.filter(r => r.flujo === 'Gasto');
@@ -541,6 +566,9 @@
         }
 
         function updateResumen() {
+            // ... (Lógica de Resumen Semanal, Categorías e Historial Mensual) ...
+            // Se mantiene la lógica de v3, ya que estaba correcta.
+            
             // 1. Resumen Semanal (Mantenido)
             const hoy = new Date();
             const day = hoy.getDay() || 7; // 1 para Lunes, 7 para Domingo
@@ -693,6 +721,7 @@
             });
 
             let pagosHtml = '<h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Historial de Pagos</h3>';
+            // Ordenar quincenas: Más reciente primero (descendente)
             const sortedQuincenas = Object.keys(historialDiezmos).sort().reverse();
 
             sortedQuincenas.forEach(key => {
