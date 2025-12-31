@@ -19,13 +19,13 @@
         .btn-blue:active { background: #1d4ed8; transform: scale(0.98); }
         .list-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
         .list-item:last-child { border-bottom: none; }
+        .delete-btn { background: none; border: none; color: #ef4444; cursor: pointer; padding: 0 8px; }
     </style>
 </head>
 <body class="pb-24">
 
     <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
         <div class="w-32 h-32 bg-white p-4 rounded-3xl mb-6 shadow-2xl">
-            <!-- CORRECCIÓN LOGO -->
             <img src="aa.jpg" alt="Logo" class="w-full h-full object-contain">
         </div>
         <h1 class="text-3xl font-black mb-2 uppercase">LARA CONTROL</h1>
@@ -35,7 +35,6 @@
 
     <header class="p-4 flex justify-between items-center glass sticky top-0 z-30">
         <span id="section-title" class="font-bold text-blue-400 uppercase tracking-tighter text-sm">REGISTROS</span>
-        <!-- CORRECCIÓN LOGO -->
         <img src="aa.jpg" class="h-8 w-8 rounded-lg object-cover bg-white">
     </header>
 
@@ -63,14 +62,14 @@
                     <option value="Otros">📦 Otros</option>
                 </select>
                 
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Monto ($)</label>
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Monto (Q)</label>
                 <input type="number" id="reg-monto" placeholder="0.00" inputmode="decimal">
                 
                 <textarea id="reg-concepto" placeholder="Notas adicionales..."></textarea>
                 
                 <button type="button" onclick="saveRegistro()" class="btn-blue mt-2">GUARDAR REGISTRO</button>
             </div>
-            <!-- NUEVA VISTA DE REGISTROS -->
+            <!-- VISTA DE REGISTROS -->
             <div id="registros-list" class="glass rounded-2xl">
                 <div class="p-4 text-center text-slate-400">Cargando registros...</div>
             </div>
@@ -82,7 +81,7 @@
                 <input type="text" id="v-cliente" placeholder="Cliente">
                 <input type="text" id="v-inicio" placeholder="Origen">
                 <input type="text" id="v-fin" placeholder="Destino">
-                <input type="number" id="v-costo" placeholder="Costo $">
+                <input type="number" id="v-costo" placeholder="Costo Q">
                 <input type="date" id="v-fecha">
                 <select id="v-tipo">
                     <option value="Cotización">📄 Cotización</option>
@@ -91,7 +90,7 @@
                 </select>
                 <button type="button" onclick="saveViaje()" class="btn-blue">GUARDAR VIAJE</button>
             </div>
-            <!-- NUEVA VISTA DE VIAJES -->
+            <!-- VISTA DE VIAJES -->
             <div id="viajes-list" class="glass rounded-2xl">
                 <div class="p-4 text-center text-slate-400">Cargando viajes...</div>
             </div>
@@ -101,10 +100,10 @@
         <section id="sec-diezmos" class="hidden space-y-4">
             <div id="diezmo-info" class="glass p-5 rounded-2xl bg-blue-900/20 border-blue-500/30"></div>
             <div class="glass p-5 rounded-2xl">
-                <input type="number" id="d-pago" placeholder="Monto a pagar $">
+                <input type="number" id="d-pago" placeholder="Monto a pagar Q">
                 <button type="button" onclick="saveDiezmo()" class="w-full bg-emerald-600 py-4 rounded-xl font-bold">REGISTRAR PAGO</button>
             </div>
-            <!-- NUEVA VISTA DE PAGOS DE DIEZMO -->
+            <!-- VISTA DE PAGOS DE DIEZMO -->
             <div id="diezmo-pagos-list" class="glass rounded-2xl">
                 <div class="p-4 text-center text-slate-400">Cargando historial de pagos...</div>
             </div>
@@ -113,8 +112,10 @@
         <!-- SECCIÓN RESUMEN DETALLADO -->
         <section id="sec-resumen" class="hidden space-y-4">
             <div id="resumen-container"></div>
-            <div id="resumen-categorias" class="glass p-4 rounded-2xl"></div>
-            <div id="resumen-historial" class="glass p-4 rounded-2xl"></div>
+            <div id="resumen-categorias" class="glass p-4 rounded-2xl mb-4"></div>
+            <div id="resumen-historial" class="glass p-4 rounded-2xl mb-4"></div>
+            <!-- NUEVAS VISTAS DE INGRESOS Y GASTOS -->
+            <div id="resumen-ingresos-gastos" class="space-y-4"></div>
             <button onclick="borrarDatos()" class="w-full text-red-500 text-[10px] opacity-30 mt-10">BORRAR TODOS LOS DATOS</button>
         </section>
     </main>
@@ -129,7 +130,14 @@
     <script>
         // Variable global para la base de datos.
         let db = { registros: [], viajes: [], diezmos: [] };
-        const formatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'USD' });
+        
+        // CAMBIO DE MONEDA: Quetzales (Q)
+        const formatter = new Intl.NumberFormat('es-GT', { 
+            style: 'currency', 
+            currency: 'GTQ',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
 
         // --- FUNCIONES AUXILIARES ---
 
@@ -174,7 +182,7 @@
                     }
                 });
             }
-            return ing - gas;
+            return { ing, gas, neto: ing - gas };
         }
 
         // --- FUNCIONES DE BASE DE DATOS (localForage) ---
@@ -185,6 +193,23 @@
             } catch (err) {
                 console.error("Error al guardar en IndexedDB:", err);
                 alert("Error al guardar los datos. El almacenamiento local podría estar lleno o bloqueado.");
+            }
+        }
+
+        async function deleteItem(type, index) {
+            if (confirm(`¿Estás seguro de que quieres borrar este ${type.slice(0, -1)}? Esta acción es irreversible.`)) {
+                db[type].splice(index, 1);
+                await saveDB();
+                
+                // Re-renderizar la vista actual
+                if (type === 'registros') renderRegistrosList();
+                else if (type === 'viajes') renderViajesList();
+                else if (type === 'diezmos') updateDiezmosView();
+                
+                // Si estamos en resumen, actualizarlo también
+                if (document.getElementById('sec-resumen').classList.contains('hidden') === false) {
+                    updateResumen();
+                }
             }
         }
 
@@ -200,9 +225,9 @@
             document.getElementById('section-title').innerText = s.toUpperCase();
             
             if(s === 'registros') renderRegistrosList();
-            if(s === 'viajes') renderViajesList();
-            if(s === 'resumen') updateResumen();
-            if(s === 'diezmos') updateDiezmosView();
+            else if(s === 'viajes') renderViajesList();
+            else if(s === 'resumen') updateResumen();
+            else if(s === 'diezmos') updateDiezmosView();
         }
 
         // --- VISTAS DETALLADAS ---
@@ -215,10 +240,10 @@
             }
 
             // Ordenar del más nuevo al más antiguo
-            const sortedRegistros = [...db.registros].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            const sortedRegistros = [...db.registros].map((r, index) => ({...r, originalIndex: index})).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
             let html = '';
-            sortedRegistros.forEach((r, index) => {
+            sortedRegistros.forEach((r) => {
                 const isIngreso = r.flujo === 'Ingreso';
                 const color = isIngreso ? 'text-emerald-400' : 'text-red-400';
                 const sign = isIngreso ? '+' : '-';
@@ -230,14 +255,16 @@
                             <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
                             <p class="text-xs text-slate-500">${r.concepto || 'Sin notas'}</p>
                         </div>
-                        <div class="text-right">
-                            <p class="text-lg font-black ${color}">${sign}${formatter.format(r.monto)}</p>
+                        <div class="text-right flex items-center">
+                            <p class="text-lg font-black ${color} mr-2">${sign}${formatter.format(r.monto).replace('GTQ', 'Q')}</p>
+                            <button class="delete-btn" onclick="deleteItem('registros', ${r.originalIndex})"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </div>
                 `;
             });
 
             container.innerHTML = html;
+            lucide.createIcons(); // Re-renderizar iconos de lucide
         }
 
         function renderViajesList() {
@@ -248,10 +275,10 @@
             }
 
             // Ordenar del más nuevo al más antiguo
-            const sortedViajes = [...db.viajes].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            const sortedViajes = [...db.viajes].map((v, index) => ({...v, originalIndex: index})).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
             let html = '';
-            sortedViajes.forEach((v, index) => {
+            sortedViajes.forEach((v) => {
                 const color = v.tipo === 'Realizado' ? 'text-emerald-400' : 'text-blue-400';
                 
                 html += `
@@ -261,14 +288,16 @@
                             <p class="text-xs text-slate-400">${formatDate(v.fecha)} - ${v.tipo}</p>
                             <p class="text-xs text-slate-500">${v.inicio} a ${v.fin}</p>
                         </div>
-                        <div class="text-right">
-                            <p class="text-lg font-black ${color}">${formatter.format(v.costo)}</p>
+                        <div class="text-right flex items-center">
+                            <p class="text-lg font-black ${color} mr-2">${formatter.format(v.costo).replace('GTQ', 'Q')}</p>
+                            <button class="delete-btn" onclick="deleteItem('viajes', ${v.originalIndex})"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </div>
                 `;
             });
 
             container.innerHTML = html;
+            lucide.createIcons(); // Re-renderizar iconos de lucide
         }
 
         // --- FUNCIONES DE GUARDADO ---
@@ -340,7 +369,8 @@
                 db.diezmos = [];
             }
 
-            db.diezmos.push({ monto: m, fecha: new Date().toISOString().split('T')[0] }); // Guardar solo la fecha YYYY-MM-DD
+            // El pago de diezmo se guarda con la fecha actual
+            db.diezmos.push({ monto: m, fecha: new Date().toISOString().split('T')[0] }); 
             await saveDB(); 
             updateDiezmosView();
             document.getElementById('d-pago').value = '';
@@ -349,25 +379,87 @@
 
         // --- FUNCIONES DE RESUMEN Y DIEZMOS ---
 
+        function renderMonthlyDetails() {
+            const container = document.getElementById('resumen-ingresos-gastos');
+            const hoy = new Date();
+            const startOfMonth = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            const endOfMonth = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+            endOfMonth.setHours(23, 59, 59, 999);
+
+            const registrosMes = db.registros.filter(r => {
+                const f = normalizeDate(r.fecha);
+                return f >= startOfMonth && f <= endOfMonth;
+            }).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            const ingresos = registrosMes.filter(r => r.flujo === 'Ingreso');
+            const gastos = registrosMes.filter(r => r.flujo === 'Gasto');
+
+            let html = `
+                <h3 class="text-sm font-bold text-emerald-400 mb-3 uppercase">Ingresos del Mes (${hoy.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })})</h3>
+                <div class="glass rounded-2xl">
+            `;
+            if (ingresos.length === 0) {
+                html += '<div class="p-4 text-center text-slate-400">No hay ingresos este mes.</div>';
+            } else {
+                ingresos.forEach(r => {
+                    html += `
+                        <div class="list-item">
+                            <div class="flex-1">
+                                <p class="text-sm font-bold">${r.cat}</p>
+                                <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-black text-emerald-400">+${formatter.format(r.monto).replace('GTQ', 'Q')}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            html += '</div>';
+
+            html += `
+                <h3 class="text-sm font-bold text-red-400 mb-3 uppercase mt-6">Gastos del Mes (${hoy.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })})</h3>
+                <div class="glass rounded-2xl">
+            `;
+            if (gastos.length === 0) {
+                html += '<div class="p-4 text-center text-slate-400">No hay gastos este mes.</div>';
+            } else {
+                gastos.forEach(r => {
+                    html += `
+                        <div class="list-item">
+                            <div class="flex-1">
+                                <p class="text-sm font-bold">${r.cat}</p>
+                                <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-black text-red-400">-${formatter.format(r.monto).replace('GTQ', 'Q')}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
         function updateResumen() {
-            // 1. Resumen Semanal (Mantenido para la vista de Diezmos)
+            // 1. Resumen Semanal (Mantenido)
             const hoy = new Date();
             const day = hoy.getDay() || 7; // 1 para Lunes, 7 para Domingo
             const lunes = new Date(hoy); lunes.setDate(hoy.getDate() - day + 1); lunes.setHours(0,0,0,0);
             const dom = new Date(lunes); dom.setDate(lunes.getDate() + 6); dom.setHours(23,59,59,999);
 
-            const netoSemanal = getNetoForRange(lunes, dom);
-            const ingSemanal = db.registros.filter(r => r.flujo === 'Ingreso' && normalizeDate(r.fecha) >= lunes && normalizeDate(r.fecha) <= dom).reduce((sum, r) => sum + r.monto, 0);
-            const gasSemanal = db.registros.filter(r => r.flujo === 'Gasto' && normalizeDate(r.fecha) >= lunes && normalizeDate(r.fecha) <= dom).reduce((sum, r) => sum + r.monto, 0);
+            const { ing: ingSemanal, gas: gasSemanal, neto: netoSemanal } = getNetoForRange(lunes, dom);
 
             document.getElementById('resumen-container').innerHTML = `
                 <div class="glass p-6 rounded-3xl text-center border-b-4 border-blue-500 mb-4">
                     <p class="text-slate-400 text-[10px] uppercase">Ganancia Neta Semanal</p>
-                    <h4 class="text-4xl font-black text-blue-400 my-2">${formatter.format(netoSemanal)}</h4>
+                    <h4 class="text-4xl font-black text-blue-400 my-2">${formatter.format(netoSemanal).replace('GTQ', 'Q')}</h4>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">INGRESOS</p><p class="text-lg font-bold text-emerald-400">${formatter.format(ingSemanal)}</p></div>
-                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">GASTOS</p><p class="text-lg font-bold text-red-400">${formatter.format(gasSemanal)}</p></div>
+                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">INGRESOS</p><p class="text-lg font-bold text-emerald-400">${formatter.format(ingSemanal).replace('GTQ', 'Q')}</p></div>
+                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">GASTOS</p><p class="text-lg font-bold text-red-400">${formatter.format(gasSemanal).replace('GTQ', 'Q')}</p></div>
                 </div>`;
 
             // 2. Resumen por Categorías
@@ -392,10 +484,10 @@
                     <div class="list-item">
                         <div class="flex-1">
                             <p class="text-sm font-bold">${cat}</p>
-                            <p class="text-xs text-slate-400">Ingresos: ${formatter.format(ing)} / Gastos: ${formatter.format(gas)}</p>
+                            <p class="text-xs text-slate-400">Ingresos: ${formatter.format(ing).replace('GTQ', 'Q')} / Gastos: ${formatter.format(gas).replace('GTQ', 'Q')}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-lg font-black ${color}">${formatter.format(neto)}</p>
+                            <p class="text-lg font-black ${color}">${formatter.format(neto).replace('GTQ', 'Q')}</p>
                         </div>
                     </div>
                 `;
@@ -432,10 +524,10 @@
                     <div class="list-item">
                         <div class="flex-1">
                             <p class="text-sm font-bold">${monthName.charAt(0).toUpperCase() + monthName.slice(1)}</p>
-                            <p class="text-xs text-slate-400">Ingresos: ${formatter.format(ing)} / Gastos: ${formatter.format(gas)}</p>
+                            <p class="text-xs text-slate-400">Ingresos: ${formatter.format(ing).replace('GTQ', 'Q')} / Gastos: ${formatter.format(gas).replace('GTQ', 'Q')}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-lg font-black ${color}">${formatter.format(neto)}</p>
+                            <p class="text-lg font-black ${color}">${formatter.format(neto).replace('GTQ', 'Q')}</p>
                         </div>
                     </div>
                 `;
@@ -444,18 +536,23 @@
             histHtml = `
                 <div class="text-center p-4">
                     <p class="text-slate-400 text-[10px] uppercase">Ganancia Neta Total</p>
-                    <h4 class="text-3xl font-black ${totalNetoGlobal >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatter.format(totalNetoGlobal)}</h4>
+                    <h4 class="text-3xl font-black ${totalNetoGlobal >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatter.format(totalNetoGlobal).replace('GTQ', 'Q')}</h4>
                 </div>
                 ${histHtml}
             `;
             document.getElementById('resumen-historial').innerHTML = histHtml;
+
+            // 4. Vistas de Ingresos y Gastos del Mes
+            renderMonthlyDetails();
         }
 
         function updateDiezmosView() {
             const hoy = new Date();
             const { start: qStart, end: qEnd } = getQuincenaRange(hoy);
-            const netoQuincenal = getNetoForRange(qStart, qEnd);
-            const sug = netoQuincenal > 0 ? netoQuincenal * 0.10 : 0;
+            const { neto: netoQuincenal } = getNetoForRange(qStart, qEnd);
+            
+            // Lógica de Diezmo Sugerido: 10% de la ganancia neta (solo si es positiva)
+            const diezmoSugerido = netoQuincenal > 0 ? netoQuincenal * 0.10 : 0;
             
             // Calcular pagos realizados en la quincena actual
             let pagadoQuincenal = 0;
@@ -468,16 +565,17 @@
                 });
             }
 
-            const faltante = Math.max(0, sug - pagadoQuincenal);
+            // CORRECCIÓN LÓGICA FALTANTE: Diezmo Sugerido - Pagado
+            const faltante = Math.max(0, diezmoSugerido - pagadoQuincenal);
 
             // Mostrar el resumen de la quincena actual
             document.getElementById('diezmo-info').innerHTML = `
                 <h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Quincena Actual: ${qStart.getDate()} - ${qEnd.getDate()} de ${qStart.toLocaleDateString('es-MX', { month: 'long' })}</h3>
                 <div class="space-y-2 text-sm">
-                    <div class="flex justify-between"><span>Neta Quincenal:</span><b>${formatter.format(netoQuincenal)}</b></div>
-                    <div class="flex justify-between text-blue-400"><span>Diezmo Sugerido (10%):</span><b>${formatter.format(sug)}</b></div>
-                    <div class="flex justify-between text-emerald-400 border-t border-white/10 pt-2"><span>Pagado en Quincena:</span><b>${formatter.format(pagadoQuincenal)}</b></div>
-                    <div class="flex justify-between text-red-400 font-black text-lg"><span>FALTANTE:</span><span>${formatter.format(faltante)}</span></div>
+                    <div class="flex justify-between"><span>Neta Quincenal:</span><b>${formatter.format(netoQuincenal).replace('GTQ', 'Q')}</b></div>
+                    <div class="flex justify-between text-blue-400"><span>Diezmo Sugerido (10%):</span><b>${formatter.format(diezmoSugerido).replace('GTQ', 'Q')}</b></div>
+                    <div class="flex justify-between text-emerald-400 border-t border-white/10 pt-2"><span>Pagado en Quincena:</span><b>${formatter.format(pagadoQuincenal).replace('GTQ', 'Q')}</b></div>
+                    <div class="flex justify-between text-red-400 font-black text-lg"><span>FALTANTE:</span><span>${formatter.format(faltante).replace('GTQ', 'Q')}</span></div>
                 </div>`;
 
             // Historial de Pagos de Diezmo
@@ -489,44 +587,59 @@
 
             // Agrupar pagos por quincena
             const historialDiezmos = {};
-            db.diezmos.forEach(d => {
+            db.diezmos.forEach((d, index) => {
                 const date = new Date(d.fecha);
                 const { start } = getQuincenaRange(date);
                 const key = start.toISOString().split('T')[0]; // Usar la fecha de inicio como clave
                 if (!historialDiezmos[key]) {
-                    historialDiezmos[key] = { pagos: 0, fechaInicio: start };
+                    historialDiezmos[key] = { pagos: 0, fechaInicio: start, pagosDetalle: [] };
                 }
                 historialDiezmos[key].pagos += d.monto;
+                historialDiezmos[key].pagosDetalle.push({ monto: d.monto, fecha: d.fecha, originalIndex: index });
             });
 
             let pagosHtml = '<h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Historial de Pagos</h3>';
             const sortedQuincenas = Object.keys(historialDiezmos).sort().reverse();
 
             sortedQuincenas.forEach(key => {
-                const { pagos, fechaInicio } = historialDiezmos[key];
+                const { pagos, fechaInicio, pagosDetalle } = historialDiezmos[key];
                 const { end: fechaFin } = getQuincenaRange(fechaInicio);
-                const neto = getNetoForRange(fechaInicio, fechaFin);
+                const { neto } = getNetoForRange(fechaInicio, fechaFin);
                 const diezmoSug = neto > 0 ? neto * 0.10 : 0;
                 const balance = diezmoSug - pagos;
                 const color = balance <= 0 ? 'text-emerald-400' : 'text-red-400';
                 const status = balance <= 0 ? '✅ Pagado' : '❌ Pendiente';
 
                 pagosHtml += `
-                    <div class="list-item">
-                        <div class="flex-1">
-                            <p class="text-sm font-bold">Quincena: ${fechaInicio.getDate()} - ${fechaFin.getDate()} ${fechaInicio.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}</p>
-                            <p class="text-xs text-slate-400">Neta: ${formatter.format(neto)} | Sugerido: ${formatter.format(diezmoSug)}</p>
-                            <p class="text-xs text-slate-500">Pagado: ${formatter.format(pagos)}</p>
+                    <div class="list-item flex-col items-start">
+                        <div class="w-full flex justify-between items-center pb-2 border-b border-white/10">
+                            <div class="flex-1">
+                                <p class="text-sm font-bold">Quincena: ${fechaInicio.getDate()} - ${fechaFin.getDate()} ${fechaInicio.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}</p>
+                                <p class="text-xs text-slate-400">Neta: ${formatter.format(neto).replace('GTQ', 'Q')} | Sugerido: ${formatter.format(diezmoSug).replace('GTQ', 'Q')}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-black ${color}">${formatter.format(balance).replace('GTQ', 'Q')}</p>
+                                <p class="text-xs ${color}">${status}</p>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-lg font-black ${color}">${formatter.format(balance)}</p>
-                            <p class="text-xs ${color}">${status}</p>
+                        <div class="w-full pt-2">
+                            <p class="text-xs font-bold text-slate-500 mb-1">Pagos Realizados (${formatter.format(pagos).replace('GTQ', 'Q')}):</p>
+                            ${pagosDetalle.map(p => `
+                                <div class="flex justify-between items-center text-xs pl-2">
+                                    <span>${formatDate(p.fecha)}</span>
+                                    <div class="flex items-center">
+                                        <span class="text-emerald-400 font-bold">${formatter.format(p.monto).replace('GTQ', 'Q')}</span>
+                                        <button class="delete-btn" onclick="deleteItem('diezmos', ${p.originalIndex})"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                                    </div>
+                                </div>
+                            `).join('')}
                         </div>
                     </div>
                 `;
             });
 
             pagosContainer.innerHTML = pagosHtml;
+            lucide.createIcons(); // Re-renderizar iconos de lucide
         }
 
         async function borrarDatos() { 
