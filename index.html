@@ -6,7 +6,7 @@
     <title>Lara Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
-    <!-- NUEVA LIBRERÍA: localForage para usar IndexedDB (más robusto que localStorage) -->
+    <!-- localForage para usar IndexedDB (más robusto que localStorage) -->
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <style>
         :root { --primary: #3b82f6; --bg: #0f172a; }
@@ -17,13 +17,16 @@
         input, select, textarea { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; padding: 0.8rem; border-radius: 0.6rem; width: 100%; font-size: 16px; margin-bottom: 8px; }
         .btn-blue { background: #2563eb; color: white; font-weight: bold; padding: 1rem; border-radius: 0.6rem; width: 100%; transition: 0.2s; border: none; cursor: pointer; }
         .btn-blue:active { background: #1d4ed8; transform: scale(0.98); }
+        .list-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .list-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body class="pb-24">
 
     <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
         <div class="w-32 h-32 bg-white p-4 rounded-3xl mb-6 shadow-2xl">
-            <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain">
+            <!-- CORRECCIÓN LOGO -->
+            <img src="aa.jpg" alt="Logo" class="w-full h-full object-contain">
         </div>
         <h1 class="text-3xl font-black mb-2 uppercase">LARA CONTROL</h1>
         <p class="text-slate-400 mb-10">Control Profesional de Gastos</p>
@@ -32,10 +35,12 @@
 
     <header class="p-4 flex justify-between items-center glass sticky top-0 z-30">
         <span id="section-title" class="font-bold text-blue-400 uppercase tracking-tighter text-sm">REGISTROS</span>
-        <img src="logo.jpg" class="h-8 w-8 rounded-lg object-cover bg-white">
+        <!-- CORRECCIÓN LOGO -->
+        <img src="aa.jpg" class="h-8 w-8 rounded-lg object-cover bg-white">
     </header>
 
     <main class="p-4 max-w-md mx-auto">
+        <!-- SECCIÓN REGISTROS -->
         <section id="sec-registros" class="space-y-4">
             <div class="glass p-5 rounded-2xl">
                 <label class="text-[10px] font-bold text-slate-500 uppercase">Fecha</label>
@@ -65,8 +70,13 @@
                 
                 <button type="button" onclick="saveRegistro()" class="btn-blue mt-2">GUARDAR REGISTRO</button>
             </div>
+            <!-- NUEVA VISTA DE REGISTROS -->
+            <div id="registros-list" class="glass rounded-2xl">
+                <div class="p-4 text-center text-slate-400">Cargando registros...</div>
+            </div>
         </section>
 
+        <!-- SECCIÓN VIAJES -->
         <section id="sec-viajes" class="hidden space-y-4">
             <div class="glass p-5 rounded-2xl">
                 <input type="text" id="v-cliente" placeholder="Cliente">
@@ -81,18 +91,30 @@
                 </select>
                 <button type="button" onclick="saveViaje()" class="btn-blue">GUARDAR VIAJE</button>
             </div>
+            <!-- NUEVA VISTA DE VIAJES -->
+            <div id="viajes-list" class="glass rounded-2xl">
+                <div class="p-4 text-center text-slate-400">Cargando viajes...</div>
+            </div>
         </section>
 
+        <!-- SECCIÓN DIEZMOS -->
         <section id="sec-diezmos" class="hidden space-y-4">
             <div id="diezmo-info" class="glass p-5 rounded-2xl bg-blue-900/20 border-blue-500/30"></div>
             <div class="glass p-5 rounded-2xl">
                 <input type="number" id="d-pago" placeholder="Monto a pagar $">
                 <button type="button" onclick="saveDiezmo()" class="w-full bg-emerald-600 py-4 rounded-xl font-bold">REGISTRAR PAGO</button>
             </div>
+            <!-- NUEVA VISTA DE PAGOS DE DIEZMO -->
+            <div id="diezmo-pagos-list" class="glass rounded-2xl">
+                <div class="p-4 text-center text-slate-400">Cargando historial de pagos...</div>
+            </div>
         </section>
 
+        <!-- SECCIÓN RESUMEN DETALLADO -->
         <section id="sec-resumen" class="hidden space-y-4">
             <div id="resumen-container"></div>
+            <div id="resumen-categorias" class="glass p-4 rounded-2xl"></div>
+            <div id="resumen-historial" class="glass p-4 rounded-2xl"></div>
             <button onclick="borrarDatos()" class="w-full text-red-500 text-[10px] opacity-30 mt-10">BORRAR TODOS LOS DATOS</button>
         </section>
     </main>
@@ -105,17 +127,58 @@
     </nav>
 
     <script>
-        // Variable global para la base de datos. Se inicializará en initApp.
+        // Variable global para la base de datos.
         let db = { registros: [], viajes: [], diezmos: [] };
+        const formatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'USD' });
 
-        // Función auxiliar para normalizar fechas a medianoche local
+        // --- FUNCIONES AUXILIARES ---
+
         function normalizeDate(dateString) {
             const date = new Date(dateString);
-            // Crea una nueva fecha en la zona horaria local a medianoche
             return new Date(date.getFullYear(), date.getMonth(), date.getDate());
         }
 
-        // Función asíncrona para guardar la base de datos
+        function formatDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00'); // Evitar problemas de zona horaria
+            return date.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function getQuincenaRange(date) {
+            const day = date.getDate();
+            let start, end;
+
+            if (day <= 15) {
+                start = new Date(date.getFullYear(), date.getMonth(), 1);
+                end = new Date(date.getFullYear(), date.getMonth(), 15);
+            } else {
+                start = new Date(date.getFullYear(), date.getMonth(), 16);
+                end = new Date(date.getFullYear(), date.getMonth() + 1, 0); // Último día del mes
+            }
+            
+            // Normalizar a 00:00:00 y 23:59:59.999
+            start.setHours(0, 0, 0, 0);
+            end.setHours(23, 59, 59, 999);
+
+            return { start, end };
+        }
+
+        function getNetoForRange(startDate, endDate) {
+            let ing = 0, gas = 0;
+            
+            if (db.registros) {
+                db.registros.forEach(r => {
+                    const f = normalizeDate(r.fecha); 
+                    
+                    if(f >= startDate && f <= endDate) {
+                        if(r.flujo === 'Ingreso') ing += r.monto; else gas += r.monto;
+                    }
+                });
+            }
+            return ing - gas;
+        }
+
+        // --- FUNCIONES DE BASE DE DATOS (localForage) ---
+
         async function saveDB() { 
             try {
                 await localforage.setItem('lara_final_db', db);
@@ -125,6 +188,8 @@
             }
         }
 
+        // --- FUNCIONES DE NAVEGACIÓN Y VISTAS ---
+
         function nav(s) {
             ['registros', 'viajes', 'diezmos', 'resumen'].forEach(sec => {
                 document.getElementById('sec-'+sec).classList.add('hidden');
@@ -133,9 +198,80 @@
             document.getElementById('sec-'+s).classList.remove('hidden');
             document.getElementById('n-'+s).classList.add('nav-active');
             document.getElementById('section-title').innerText = s.toUpperCase();
+            
+            if(s === 'registros') renderRegistrosList();
+            if(s === 'viajes') renderViajesList();
             if(s === 'resumen') updateResumen();
             if(s === 'diezmos') updateDiezmosView();
         }
+
+        // --- VISTAS DETALLADAS ---
+
+        function renderRegistrosList() {
+            const container = document.getElementById('registros-list');
+            if (!db.registros || db.registros.length === 0) {
+                container.innerHTML = '<div class="p-4 text-center text-slate-400">No hay registros guardados.</div>';
+                return;
+            }
+
+            // Ordenar del más nuevo al más antiguo
+            const sortedRegistros = [...db.registros].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            let html = '';
+            sortedRegistros.forEach((r, index) => {
+                const isIngreso = r.flujo === 'Ingreso';
+                const color = isIngreso ? 'text-emerald-400' : 'text-red-400';
+                const sign = isIngreso ? '+' : '-';
+                
+                html += `
+                    <div class="list-item">
+                        <div class="flex-1">
+                            <p class="text-sm font-bold ${color}">${r.cat} (${r.flujo})</p>
+                            <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
+                            <p class="text-xs text-slate-500">${r.concepto || 'Sin notas'}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-black ${color}">${sign}${formatter.format(r.monto)}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderViajesList() {
+            const container = document.getElementById('viajes-list');
+            if (!db.viajes || db.viajes.length === 0) {
+                container.innerHTML = '<div class="p-4 text-center text-slate-400">No hay viajes guardados.</div>';
+                return;
+            }
+
+            // Ordenar del más nuevo al más antiguo
+            const sortedViajes = [...db.viajes].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            let html = '';
+            sortedViajes.forEach((v, index) => {
+                const color = v.tipo === 'Realizado' ? 'text-emerald-400' : 'text-blue-400';
+                
+                html += `
+                    <div class="list-item">
+                        <div class="flex-1">
+                            <p class="text-sm font-bold">${v.cliente}</p>
+                            <p class="text-xs text-slate-400">${formatDate(v.fecha)} - ${v.tipo}</p>
+                            <p class="text-xs text-slate-500">${v.inicio} a ${v.fin}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-black ${color}">${formatter.format(v.costo)}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // --- FUNCIONES DE GUARDADO ---
 
         async function saveRegistro() {
             const monto = parseFloat(document.getElementById('reg-monto').value);
@@ -161,6 +297,7 @@
             alert("✅ Guardado correctamente");
             document.getElementById('reg-monto').value = '';
             document.getElementById('reg-concepto').value = '';
+            renderRegistrosList(); // Actualizar la lista
         }
 
         async function saveViaje() {
@@ -176,6 +313,8 @@
 
             db.viajes.push({
                 cliente: document.getElementById('v-cliente').value,
+                inicio: document.getElementById('v-inicio').value,
+                fin: document.getElementById('v-fin').value,
                 costo: costo,
                 fecha: document.getElementById('v-fecha').value,
                 tipo: document.getElementById('v-tipo').value
@@ -187,70 +326,7 @@
             document.getElementById('v-inicio').value = '';
             document.getElementById('v-fin').value = '';
             document.getElementById('v-costo').value = '';
-        }
-
-        function updateResumen() {
-            const hoy = new Date();
-            const day = hoy.getDay() || 7; // 1 para Lunes, 7 para Domingo
-            
-            const lunes = new Date(hoy); 
-            lunes.setDate(hoy.getDate() - day + 1); 
-            lunes.setHours(0,0,0,0); // Lunes a las 00:00:00
-
-            const dom = new Date(lunes); 
-            dom.setDate(lunes.getDate() + 6); 
-            dom.setHours(23,59,59,999); // Domingo a las 23:59:59.999
-
-            let ing = 0, gas = 0;
-            
-            if (db.registros) {
-                db.registros.forEach(r => {
-                    const f = normalizeDate(r.fecha); 
-                    
-                    if(f >= lunes && f <= dom) {
-                        if(r.flujo === 'Ingreso') ing += r.monto; else gas += r.monto;
-                    }
-                });
-            }
-            
-            const neta = ing - gas;
-            document.getElementById('resumen-container').innerHTML = `
-                <div class="glass p-6 rounded-3xl text-center border-b-4 border-blue-500 mb-4">
-                    <p class="text-slate-400 text-[10px] uppercase">Ganancia Neta Semanal</p>
-                    <h4 class="text-4xl font-black text-blue-400 my-2">$${neta.toFixed(2)}</h4>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">INGRESOS</p><p class="text-lg font-bold text-emerald-400">$${ing.toFixed(2)}</p></div>
-                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">GASTOS</p><p class="text-lg font-bold text-red-400">$${gas.toFixed(2)}</p></div>
-                </div>`;
-            return neta;
-        }
-
-        function updateDiezmosView() {
-            const neta = updateResumen();
-            const sug = neta > 0 ? neta * 0.10 : 0;
-            
-            const hoy = new Date();
-            const day = hoy.getDay() || 7;
-            const lun = new Date(hoy); lun.setDate(hoy.getDate() - day + 1); lun.setHours(0,0,0,0);
-            const dom = new Date(lun); dom.setDate(lun.getDate() + 6); dom.setHours(23,59,59,999);
-
-            let pagado = 0;
-            
-            if (db.diezmos) {
-                pagado = db.diezmos.reduce((acc, d) => {
-                    const f = normalizeDate(d.fecha);
-                    return (f >= lun && f <= dom) ? acc + d.monto : acc;
-                }, 0);
-            }
-
-            document.getElementById('diezmo-info').innerHTML = `
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between"><span>Neta Semanal:</span><b>$${neta.toFixed(2)}</b></div>
-                    <div class="flex justify-between text-blue-400"><span>Diezmo (10%):</span><b>$${sug.toFixed(2)}</b></div>
-                    <div class="flex justify-between text-emerald-400 border-t border-white/10 pt-2"><span>Pagado:</span><b>$${pagado.toFixed(2)}</b></div>
-                    <div class="flex justify-between text-red-400 font-black text-lg"><span>FALTANTE:</span><span>$${Math.max(0, sug - pagado).toFixed(2)}</span></div>
-                </div>`;
+            renderViajesList(); // Actualizar la lista
         }
 
         async function saveDiezmo() {
@@ -271,6 +347,188 @@
             alert("🙏 Diezmo registrado");
         }
 
+        // --- FUNCIONES DE RESUMEN Y DIEZMOS ---
+
+        function updateResumen() {
+            // 1. Resumen Semanal (Mantenido para la vista de Diezmos)
+            const hoy = new Date();
+            const day = hoy.getDay() || 7; // 1 para Lunes, 7 para Domingo
+            const lunes = new Date(hoy); lunes.setDate(hoy.getDate() - day + 1); lunes.setHours(0,0,0,0);
+            const dom = new Date(lunes); dom.setDate(lunes.getDate() + 6); dom.setHours(23,59,59,999);
+
+            const netoSemanal = getNetoForRange(lunes, dom);
+            const ingSemanal = db.registros.filter(r => r.flujo === 'Ingreso' && normalizeDate(r.fecha) >= lunes && normalizeDate(r.fecha) <= dom).reduce((sum, r) => sum + r.monto, 0);
+            const gasSemanal = db.registros.filter(r => r.flujo === 'Gasto' && normalizeDate(r.fecha) >= lunes && normalizeDate(r.fecha) <= dom).reduce((sum, r) => sum + r.monto, 0);
+
+            document.getElementById('resumen-container').innerHTML = `
+                <div class="glass p-6 rounded-3xl text-center border-b-4 border-blue-500 mb-4">
+                    <p class="text-slate-400 text-[10px] uppercase">Ganancia Neta Semanal</p>
+                    <h4 class="text-4xl font-black text-blue-400 my-2">${formatter.format(netoSemanal)}</h4>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">INGRESOS</p><p class="text-lg font-bold text-emerald-400">${formatter.format(ingSemanal)}</p></div>
+                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">GASTOS</p><p class="text-lg font-bold text-red-400">${formatter.format(gasSemanal)}</p></div>
+                </div>`;
+
+            // 2. Resumen por Categorías
+            const categorias = {};
+            if (db.registros) {
+                db.registros.forEach(r => {
+                    if (!categorias[r.cat]) {
+                        categorias[r.cat] = { Ingreso: 0, Gasto: 0 };
+                    }
+                    categorias[r.cat][r.flujo] += r.monto;
+                });
+            }
+
+            let catHtml = '<h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Desglose por Categoría</h3>';
+            for (const cat in categorias) {
+                const ing = categorias[cat].Ingreso;
+                const gas = categorias[cat].Gasto;
+                const neto = ing - gas;
+                const color = neto >= 0 ? 'text-emerald-400' : 'text-red-400';
+
+                catHtml += `
+                    <div class="list-item">
+                        <div class="flex-1">
+                            <p class="text-sm font-bold">${cat}</p>
+                            <p class="text-xs text-slate-400">Ingresos: ${formatter.format(ing)} / Gastos: ${formatter.format(gas)}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-black ${color}">${formatter.format(neto)}</p>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('resumen-categorias').innerHTML = catHtml;
+
+            // 3. Historial Mensual
+            const historial = {};
+            if (db.registros) {
+                db.registros.forEach(r => {
+                    const [year, month] = r.fecha.split('-');
+                    const key = `${year}-${month}`;
+                    if (!historial[key]) {
+                        historial[key] = { Ingreso: 0, Gasto: 0 };
+                    }
+                    historial[key][r.flujo] += r.monto;
+                });
+            }
+
+            let histHtml = '<h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Historial Mensual</h3>';
+            const sortedMonths = Object.keys(historial).sort().reverse();
+            let totalNetoGlobal = 0;
+
+            sortedMonths.forEach(key => {
+                const [year, month] = key.split('-');
+                const monthName = new Date(year, month - 1).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+                const ing = historial[key].Ingreso;
+                const gas = historial[key].Gasto;
+                const neto = ing - gas;
+                totalNetoGlobal += neto;
+                const color = neto >= 0 ? 'text-emerald-400' : 'text-red-400';
+
+                histHtml += `
+                    <div class="list-item">
+                        <div class="flex-1">
+                            <p class="text-sm font-bold">${monthName.charAt(0).toUpperCase() + monthName.slice(1)}</p>
+                            <p class="text-xs text-slate-400">Ingresos: ${formatter.format(ing)} / Gastos: ${formatter.format(gas)}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-black ${color}">${formatter.format(neto)}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            histHtml = `
+                <div class="text-center p-4">
+                    <p class="text-slate-400 text-[10px] uppercase">Ganancia Neta Total</p>
+                    <h4 class="text-3xl font-black ${totalNetoGlobal >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatter.format(totalNetoGlobal)}</h4>
+                </div>
+                ${histHtml}
+            `;
+            document.getElementById('resumen-historial').innerHTML = histHtml;
+        }
+
+        function updateDiezmosView() {
+            const hoy = new Date();
+            const { start: qStart, end: qEnd } = getQuincenaRange(hoy);
+            const netoQuincenal = getNetoForRange(qStart, qEnd);
+            const sug = netoQuincenal > 0 ? netoQuincenal * 0.10 : 0;
+            
+            // Calcular pagos realizados en la quincena actual
+            let pagadoQuincenal = 0;
+            if (db.diezmos) {
+                db.diezmos.forEach(d => {
+                    const f = normalizeDate(d.fecha);
+                    if (f >= qStart && f <= qEnd) {
+                        pagadoQuincenal += d.monto;
+                    }
+                });
+            }
+
+            const faltante = Math.max(0, sug - pagadoQuincenal);
+
+            // Mostrar el resumen de la quincena actual
+            document.getElementById('diezmo-info').innerHTML = `
+                <h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Quincena Actual: ${qStart.getDate()} - ${qEnd.getDate()} de ${qStart.toLocaleDateString('es-MX', { month: 'long' })}</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between"><span>Neta Quincenal:</span><b>${formatter.format(netoQuincenal)}</b></div>
+                    <div class="flex justify-between text-blue-400"><span>Diezmo Sugerido (10%):</span><b>${formatter.format(sug)}</b></div>
+                    <div class="flex justify-between text-emerald-400 border-t border-white/10 pt-2"><span>Pagado en Quincena:</span><b>${formatter.format(pagadoQuincenal)}</b></div>
+                    <div class="flex justify-between text-red-400 font-black text-lg"><span>FALTANTE:</span><span>${formatter.format(faltante)}</span></div>
+                </div>`;
+
+            // Historial de Pagos de Diezmo
+            const pagosContainer = document.getElementById('diezmo-pagos-list');
+            if (!db.diezmos || db.diezmos.length === 0) {
+                pagosContainer.innerHTML = '<div class="p-4 text-center text-slate-400">No hay pagos de diezmo registrados.</div>';
+                return;
+            }
+
+            // Agrupar pagos por quincena
+            const historialDiezmos = {};
+            db.diezmos.forEach(d => {
+                const date = new Date(d.fecha);
+                const { start } = getQuincenaRange(date);
+                const key = start.toISOString().split('T')[0]; // Usar la fecha de inicio como clave
+                if (!historialDiezmos[key]) {
+                    historialDiezmos[key] = { pagos: 0, fechaInicio: start };
+                }
+                historialDiezmos[key].pagos += d.monto;
+            });
+
+            let pagosHtml = '<h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Historial de Pagos</h3>';
+            const sortedQuincenas = Object.keys(historialDiezmos).sort().reverse();
+
+            sortedQuincenas.forEach(key => {
+                const { pagos, fechaInicio } = historialDiezmos[key];
+                const { end: fechaFin } = getQuincenaRange(fechaInicio);
+                const neto = getNetoForRange(fechaInicio, fechaFin);
+                const diezmoSug = neto > 0 ? neto * 0.10 : 0;
+                const balance = diezmoSug - pagos;
+                const color = balance <= 0 ? 'text-emerald-400' : 'text-red-400';
+                const status = balance <= 0 ? '✅ Pagado' : '❌ Pendiente';
+
+                pagosHtml += `
+                    <div class="list-item">
+                        <div class="flex-1">
+                            <p class="text-sm font-bold">Quincena: ${fechaInicio.getDate()} - ${fechaFin.getDate()} ${fechaInicio.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}</p>
+                            <p class="text-xs text-slate-400">Neta: ${formatter.format(neto)} | Sugerido: ${formatter.format(diezmoSug)}</p>
+                            <p class="text-xs text-slate-500">Pagado: ${formatter.format(pagos)}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-black ${color}">${formatter.format(balance)}</p>
+                            <p class="text-xs ${color}">${status}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            pagosContainer.innerHTML = pagosHtml;
+        }
+
         async function borrarDatos() { 
             if(confirm("¿Seguro que quieres borrar todos los datos? Esta acción es irreversible.")) { 
                 try {
@@ -283,7 +541,8 @@
             } 
         }
 
-        // Función principal para inicializar la aplicación
+        // --- INICIALIZACIÓN ---
+
         async function initApp() {
             // 1. Cargar la base de datos de IndexedDB
             try {
@@ -293,7 +552,6 @@
                 }
             } catch (err) {
                 console.error("Error al cargar la base de datos:", err);
-                // Si falla la carga, se usa el objeto db inicial vacío.
             }
 
             // 2. Inicializar iconos y fechas
@@ -301,7 +559,7 @@
             document.getElementById('reg-fecha').valueAsDate = new Date();
             document.getElementById('v-fecha').valueAsDate = new Date();
 
-            // 3. Ejecutar la navegación inicial (que mostrará la sección de registros)
+            // 3. Ejecutar la navegación inicial (que mostrará la sección de registros y su lista)
             nav('registros');
         }
 
