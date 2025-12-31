@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión Empresarial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
+    <style>
+        :root { --primary: #3b82f6; --bg: #0f172a; }
+        body { background-color: var(--bg); color: #f1f5f9; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; margin:0; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; color: #94a3b8; border: none; background: none; cursor: pointer; flex: 1; padding: 10px 0; }
+        .nav-active { color: var(--primary); }
+        input, select, textarea { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; padding: 0.75rem; border-radius: 0.5rem; width: 100%; font-size: 16px; margin-bottom: 10px; }
+        .logo-container { width: 120px; height: 120px; border-radius: 24px; overflow: hidden; margin-bottom: 20px; background: white; padding: 15px; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body class="pb-24">
+
+    <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
+        <div class="logo-container shadow-2xl shadow-blue-500/30">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6A7zX0Y2F2T_2-L3v7p0U-nLz5_e5T8t6Pg&s" alt="Logo" class="w-full object-contain">
+        </div>
+        <h1 class="text-3xl font-black tracking-tight mb-2 uppercase">Mi Empresa</h1>
+        <p class="text-slate-400 mb-10 max-w-xs">Control de Registros, Viajes y Diezmos.</p>
+        <button onclick="document.getElementById('welcome').style.display='none'" class="w-full max-w-xs bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95">INGRESAR AL PANEL</button>
+    </div>
+
+    <header class="p-4 flex justify-between items-center glass sticky top-0 z-30">
+        <span id="section-title" class="font-bold text-blue-400 uppercase tracking-widest text-sm">Registros</span>
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6A7zX0Y2F2T_2-L3v7p0U-nLz5_e5T8t6Pg&s" class="h-8 rounded">
+    </header>
+
+    <main class="p-4 max-w-md mx-auto">
+        
+        <section id="sec-registros" class="space-y-4">
+            <div class="glass p-5 rounded-2xl">
+                <input type="date" id="reg-fecha">
+                <select id="reg-tipo-flujo">
+                    <option value="Ingreso">🟢 Ingreso</option>
+                    <option value="Gasto">🔴 Gasto</option>
+                </select>
+                <select id="reg-categoria">
+                    <option value="Uber">🚕 Uber</option>
+                    <option value="Gasolina">⛽ Gasolina</option>
+                    <option value="Privado">👤 Privado</option>
+                    <option value="Mantenimiento">🛠️ Mantenimiento</option>
+                    <option value="Otros">📦 Otros</option>
+                </select>
+                <input type="number" id="reg-monto" placeholder="Monto $0.00">
+                <textarea id="reg-concepto" placeholder="Concepto o descripción..."></textarea>
+                <button onclick="saveRegistro()" class="w-full bg-blue-600 py-3 rounded-lg font-bold">GUARDAR</button>
+            </div>
+        </section>
+
+        <section id="sec-viajes" class="hidden space-y-4">
+            <div class="glass p-5 rounded-2xl">
+                <input type="text" id="v-cliente" placeholder="Nombre del Cliente">
+                <input type="text" id="v-inicio" placeholder="Punto Inicio">
+                <input type="text" id="v-fin" placeholder="Destino Final">
+                <input type="number" id="v-costo" placeholder="Costo del viaje">
+                <input type="date" id="v-fecha">
+                <select id="v-tipo">
+                    <option value="Cotización">📄 Cotización</option>
+                    <option value="Agendado">📅 Agendado</option>
+                    <option value="Realizado">✅ Realizado</option>
+                </select>
+                <button onclick="saveViaje()" class="w-full bg-blue-600 py-3 rounded-lg font-bold">GUARDAR VIAJE</button>
+            </div>
+        </section>
+
+        <section id="sec-diezmos" class="hidden space-y-4">
+            <div id="diezmo-info" class="glass p-5 rounded-2xl bg-blue-900/20 border-blue-500/30 mb-4"></div>
+            <div class="glass p-5 rounded-2xl space-y-3">
+                <h3 class="font-bold text-sm">Registrar Pago</h3>
+                <input type="number" id="d-pago" placeholder="Monto a pagar">
+                <select id="d-metodo">
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Transferencia">Transferencia</option>
+                </select>
+                <button onclick="saveDiezmo()" class="w-full bg-emerald-600 py-3 rounded-lg font-bold">PAGAR DIEZMO</button>
+            </div>
+        </section>
+
+        <section id="sec-resumen" class="hidden space-y-4">
+            <div id="resumen-container" class="space-y-4"></div>
+        </section>
+
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#1e293b] border-t border-slate-700 flex p-2 z-40">
+        <button onclick="nav('registros')" id="n-registros" class="nav-btn nav-active"><i data-lucide="pen-tool"></i>Reg.</button>
+        <button onclick="nav('viajes')" id="n-viajes" class="nav-btn"><i data-lucide="car"></i>Viajes</button>
+        <button onclick="nav('diezmos')" id="n-diezmos" class="nav-btn"><i data-lucide="heart"></i>Diezmos</button>
+        <button onclick="nav('resumen')" id="n-resumen" class="nav-btn"><i data-lucide="bar-chart-3"></i>Resumen</button>
+    </nav>
+
+    <script>
+        lucide.createIcons();
+        document.getElementById('reg-fecha').valueAsDate = new Date();
+        document.getElementById('v-fecha').valueAsDate = new Date();
+
+        let db = JSON.parse(localStorage.getItem('app_v3_db')) || { registros: [], viajes: [], diezmos: [] };
+
+        function nav(section) {
+            ['registros', 'viajes', 'diezmos', 'resumen'].forEach(s => {
+                document.getElementById('sec-' + s).classList.add('hidden');
+                document.getElementById('n-' + s).classList.remove('nav-active');
+            });
+            document.getElementById('sec-' + section).classList.remove('hidden');
+            document.getElementById('n-' + section).classList.add('nav-active');
+            document.getElementById('section-title').innerText = section;
+            if(section === 'resumen') updateResumen();
+            if(section === 'diezmos') updateDiezmosView();
+        }
+
+        function saveRegistro() {
+            const m = parseFloat(document.getElementById('reg-monto').value);
+            if(!m) return alert("Ingresa un monto");
+            db.registros.push({
+                fecha: document.getElementById('reg-fecha').value,
+                flujo: document.getElementById('reg-tipo-flujo').value,
+                monto: m,
+                cat: document.getElementById('reg-categoria').value
+            });
+            localStorage.setItem('app_v3_db', JSON.stringify(db));
+            alert("Guardado");
+            document.getElementById('reg-monto').value = '';
+        }
+
+        function saveViaje() {
+            db.viajes.push({ cliente: document.getElementById('v-cliente').value, costo: parseFloat(document.getElementById('v-costo').value) || 0, fecha: document.getElementById('v-fecha').value, tipo: document.getElementById('v-tipo').value });
+            localStorage.setItem('app_v3_db', JSON.stringify(db));
+            alert("Viaje Guardado");
+        }
+
+        function updateResumen() {
+            const ahora = new Date();
+            const diaS = ahora.getDay() || 7;
+            const lunes = new Date(ahora); lunes.setDate(ahora.getDate() - diaS + 1); lunes.setHours(0,0,0,0);
+            const dom = new Date(lunes); dom.setDate(lunes.getDate() + 6); dom.setHours(23,59,59,999);
+
+            let ing = 0, gas = 0;
+            db.registros.forEach(r => {
+                const f = new Date(r.fecha + 'T00:00:00');
+                if(f >= lunes && f <= dom) {
+                    if(r.flujo === 'Ingreso') ing += r.monto; else gas += r.monto;
+                }
+            });
+            const neta = ing - gas;
+            document.getElementById('resumen-container').innerHTML = `
+                <div class="glass p-6 rounded-2xl text-center border-b-4 border-blue-500">
+                    <p class="text-slate-400 text-xs">GANANCIA NETA SEMANAL</p>
+                    <h4 class="text-4xl font-black text-blue-400 my-2">$${neta.toFixed(2)}</h4>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="glass p-4 rounded-xl"><p class="text-xs text-slate-400">Ingresos</p><p class="text-lg font-bold text-emerald-400">$${ing.toFixed(2)}</p></div>
+                    <div class="glass p-4 rounded-xl"><p class="text-xs text-slate-400">Gastos</p><p class="text-lg font-bold text-red-400">$${gas.toFixed(2)}</p></div>
+                </div>`;
+            return neta;
+        }
+
+        function updateDiezmosView() {
+            const neta = updateResumen();
+            const sug = neta > 0 ? neta * 0.10 : 0;
+            const ahora = new Date();
+            const diaS = ahora.getDay() || 7;
+            const lun = new Date(ahora); lun.setDate(ahora.getDate() - diaS + 1); lun.setHours(0,0,0,0);
+            const dom = new Date(lun); dom.setDate(lun.getDate() + 6); dom.setHours(23,59,59,999);
+            
+            let pagado = db.diezmos.reduce((acc, d) => {
+                const f = new Date(d.fecha);
+                return (f >= lun && f <= dom) ? acc + d.monto : acc;
+            }, 0);
+
+            document.getElementById('diezmo-info').innerHTML = `
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between"><span>Ganancia Neta:</span><b>$${neta.toFixed(2)}</b></div>
+                    <div class="flex justify-between text-blue-400"><span>Diezmo (10%):</span><b>$${sug.toFixed(2)}</b></div>
+                    <div class="flex justify-between text-emerald-400"><span>Pagado:</span><b>$${pagado.toFixed(2)}</b></div>
+                    <div class="flex justify-between text-red-400 font-bold border-t border-white/10 pt-2"><span>Faltante:</span><b>$${Math.max(0, sug - pagado).toFixed(2)}</b></div>
+                </div>`;
+        }
+
+        function saveDiezmo() {
+            const m = parseFloat(document.getElementById('d-pago').value);
+            if(!m) return;
+            db.diezmos.push({ monto: m, fecha: new Date().toISOString() });
+            localStorage.setItem('app_v3_db', JSON.stringify(db));
+            updateDiezmosView();
+            document.getElementById('d-pago').value = '';
+            alert("Pago Registrado");
+        }
+    </script>
+</body>
+</html>
