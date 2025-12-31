@@ -3,33 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lara Control</title>
+    <title>Multi Servicios LARA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
     <!-- localForage para usar IndexedDB (más robusto que localStorage) -->
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
     <style>
-        :root { --primary: #3b82f6; --bg: #0f172a; }
-        body { background-color: var(--bg); color: #f1f5f9; font-family: 'Segoe UI', sans-serif; margin:0; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; color: #94a3b8; flex: 1; padding: 10px 0; border:none; background:none; }
-        .nav-active { color: var(--primary); }
-        input, select, textarea { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; padding: 0.8rem; border-radius: 0.6rem; width: 100%; font-size: 16px; margin-bottom: 8px; }
-        .btn-blue { background: #2563eb; color: white; font-weight: bold; padding: 1rem; border-radius: 0.6rem; width: 100%; transition: 0.2s; border: none; cursor: pointer; }
+        /* Estilos Base y Variables */
+        :root { 
+            --primary: #3b82f6; /* Blue 500 */
+            --bg: #0f172a; /* Slate 900 */
+            --card-bg: #1e293b; /* Slate 800 */
+            --text-color: #f1f5f9; /* Slate 100 */
+        }
+        body { background-color: var(--bg); color: var(--text-color); font-family: 'Segoe UI', sans-serif; margin:0; }
+        
+        /* Estilo Glass mejorado */
+        .glass { 
+            background: rgba(30, 41, 59, 0.8); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Estilo de Inputs y Selects */
+        input, select, textarea { 
+            background: var(--card-bg) !important; 
+            border: 1px solid #334155 !important; 
+            color: var(--text-color) !important; 
+            padding: 0.8rem; 
+            border-radius: 0.6rem; 
+            width: 100%; 
+            font-size: 16px; 
+            margin-bottom: 8px; 
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary) !important;
+            outline: none;
+        }
+
+        /* Estilo de Botón Principal */
+        .btn-blue { 
+            background: #2563eb; 
+            color: white; 
+            font-weight: bold; 
+            padding: 1rem; 
+            border-radius: 0.6rem; 
+            width: 100%; 
+            transition: 0.2s; 
+            border: none; 
+            cursor: pointer; 
+        }
         .btn-blue:active { background: #1d4ed8; transform: scale(0.98); }
-        .list-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
+
+        /* Estilo de Navegación (Mejora tipo GLIDE) */
+        .nav-bar {
+            background: var(--card-bg);
+            border-top: 1px solid #334155;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .nav-btn { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            font-size: 0.65rem; 
+            color: #94a3b8; 
+            flex: 1; 
+            padding: 8px 0; 
+            border:none; 
+            background:none; 
+            transition: color 0.2s, transform 0.1s;
+        }
+        .nav-btn:active { transform: scale(0.95); }
+        .nav-active { 
+            color: var(--primary); 
+            font-weight: bold;
+        }
+        .nav-btn i { margin-bottom: 2px; }
+
+        /* Estilos de Lista */
+        .list-item { 
+            padding: 12px; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
         .list-item:last-child { border-bottom: none; }
-        .delete-btn { background: none; border: none; color: #ef4444; cursor: pointer; padding: 0 8px; }
+        .delete-btn { 
+            background: none; 
+            border: none; 
+            color: #ef4444; 
+            cursor: pointer; 
+            padding: 0 8px; 
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .delete-btn:hover { opacity: 1; }
     </style>
 </head>
 <body class="pb-24">
 
+    <!-- PANTALLA DE BIENVENIDA PERSONALIZADA -->
     <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
         <div class="w-32 h-32 bg-white p-4 rounded-3xl mb-6 shadow-2xl">
             <img src="aa.jpg" alt="Logo" class="w-full h-full object-contain">
         </div>
-        <h1 class="text-3xl font-black mb-2 uppercase">LARA CONTROL</h1>
-        <p class="text-slate-400 mb-10">Control Profesional de Gastos</p>
+        <h1 class="text-3xl font-black mb-1 uppercase text-blue-400">MULTI SERVICIOS LARA</h1>
+        <p class="text-slate-400 text-lg mb-1">Servicio de Transporte Privado</p>
+        <p class="text-blue-300 font-semibold mb-10 italic">"Moviendo Vidas"</p>
         <button onclick="document.getElementById('welcome').style.display='none'" class="btn-blue w-full max-w-xs">ENTRAR</button>
     </div>
 
@@ -100,6 +183,13 @@
         <section id="sec-diezmos" class="hidden space-y-4">
             <div id="diezmo-info" class="glass p-5 rounded-2xl bg-blue-900/20 border-blue-500/30"></div>
             <div class="glass p-5 rounded-2xl">
+                <!-- CAMPO TIPO DE PAGO AÑADIDO -->
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Pago</label>
+                <select id="d-tipo-pago">
+                    <option value="Efectivo">💵 Efectivo</option>
+                    <option value="Transferencia">💳 Transferencia</option>
+                </select>
+                
                 <input type="number" id="d-pago" placeholder="Monto a pagar Q">
                 <button type="button" onclick="saveDiezmo()" class="w-full bg-emerald-600 py-4 rounded-xl font-bold">REGISTRAR PAGO</button>
             </div>
@@ -120,8 +210,9 @@
         </section>
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-[#1e293b] border-t border-slate-700 flex p-1 z-40">
-        <button onclick="nav('registros')" id="n-registros" class="nav-btn nav-active"><i data-lucide="pen-tool"></i>Reg.</button>
+    <!-- BARRA DE NAVEGACIÓN MEJORADA -->
+    <nav class="fixed bottom-0 left-0 right-0 nav-bar flex p-1 z-40">
+        <button onclick="nav('registros')" id="n-registros" class="nav-btn nav-active"><i data-lucide="pen-tool"></i>Registros</button>
         <button onclick="nav('viajes')" id="n-viajes" class="nav-btn"><i data-lucide="car"></i>Viajes</button>
         <button onclick="nav('diezmos')" id="n-diezmos" class="nav-btn"><i data-lucide="heart"></i>Diezmos</button>
         <button onclick="nav('resumen')" id="n-resumen" class="nav-btn"><i data-lucide="bar-chart-3"></i>Resumen</button>
@@ -360,6 +451,8 @@
 
         async function saveDiezmo() {
             const m = parseFloat(document.getElementById('d-pago').value);
+            const tipoPago = document.getElementById('d-tipo-pago').value; // Nuevo campo
+            
             if(isNaN(m) || m <= 0) {
                 alert("Por favor ingresa un monto de pago válido.");
                 return;
@@ -369,8 +462,12 @@
                 db.diezmos = [];
             }
 
-            // El pago de diezmo se guarda con la fecha actual
-            db.diezmos.push({ monto: m, fecha: new Date().toISOString().split('T')[0] }); 
+            // El pago de diezmo se guarda con la fecha actual y el tipo de pago
+            db.diezmos.push({ 
+                monto: m, 
+                fecha: new Date().toISOString().split('T')[0],
+                tipo: tipoPago // Guardar el tipo de pago
+            }); 
             await saveDB(); 
             updateDiezmosView();
             document.getElementById('d-pago').value = '';
@@ -551,10 +648,8 @@
             const { start: qStart, end: qEnd } = getQuincenaRange(hoy);
             const { neto: netoQuincenal } = getNetoForRange(qStart, qEnd);
             
-            // Lógica de Diezmo Sugerido: 10% de la ganancia neta (solo si es positiva)
             const diezmoSugerido = netoQuincenal > 0 ? netoQuincenal * 0.10 : 0;
             
-            // Calcular pagos realizados en la quincena actual
             let pagadoQuincenal = 0;
             if (db.diezmos) {
                 db.diezmos.forEach(d => {
@@ -565,7 +660,6 @@
                 });
             }
 
-            // CORRECCIÓN LÓGICA FALTANTE: Diezmo Sugerido - Pagado
             const faltante = Math.max(0, diezmoSugerido - pagadoQuincenal);
 
             // Mostrar el resumen de la quincena actual
@@ -595,7 +689,7 @@
                     historialDiezmos[key] = { pagos: 0, fechaInicio: start, pagosDetalle: [] };
                 }
                 historialDiezmos[key].pagos += d.monto;
-                historialDiezmos[key].pagosDetalle.push({ monto: d.monto, fecha: d.fecha, originalIndex: index });
+                historialDiezmos[key].pagosDetalle.push({ monto: d.monto, fecha: d.fecha, tipo: d.tipo, originalIndex: index });
             });
 
             let pagosHtml = '<h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Historial de Pagos</h3>';
@@ -626,7 +720,7 @@
                             <p class="text-xs font-bold text-slate-500 mb-1">Pagos Realizados (${formatter.format(pagos).replace('GTQ', 'Q')}):</p>
                             ${pagosDetalle.map(p => `
                                 <div class="flex justify-between items-center text-xs pl-2">
-                                    <span>${formatDate(p.fecha)}</span>
+                                    <span>${formatDate(p.fecha)} (${p.tipo})</span>
                                     <div class="flex items-center">
                                         <span class="text-emerald-400 font-bold">${formatter.format(p.monto).replace('GTQ', 'Q')}</span>
                                         <button class="delete-btn" onclick="deleteItem('diezmos', ${p.originalIndex})"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
