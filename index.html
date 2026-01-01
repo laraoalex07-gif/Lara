@@ -62,7 +62,7 @@
             background: var(--card-bg);
             border-top: 1px solid #334155;
             box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
-            padding: 4px; /* Más espacio para los botones */
+            padding: 4px; 
         }
         .nav-btn { 
             display: flex; 
@@ -83,31 +83,22 @@
         .nav-active { 
             color: var(--primary); 
             font-weight: bold;
-            background: rgba(59, 130, 246, 0.15); /* Fondo más visible para el activo */
+            background: rgba(59, 130, 246, 0.15); 
         }
         .nav-btn i { margin-bottom: 2px; }
 
-        /* Estilos de Lista */
-        .list-item { 
-            padding: 12px; 
-            border-bottom: 1px solid rgba(255,255,255,0.05); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
+        /* Estilos de Tarjeta (Card) - Nuevo Estilo */
+        .card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            transition: background 0.2s;
         }
-        .list-item:last-child { border-bottom: none; }
-        .delete-btn { 
-            background: none; 
-            border: none; 
-            color: #ef4444; 
-            cursor: pointer; 
-            padding: 0 8px; 
-            opacity: 0.7;
-            transition: opacity 0.2s;
-            display: flex; /* Asegura que el icono esté centrado */
-            align-items: center;
+        .card.selected {
+            background: rgba(59, 130, 246, 0.3); /* Fondo azul para selección */
         }
-        .delete-btn:hover { opacity: 1; }
 
         /* Estilo para la Notificación Sutil */
         #notification {
@@ -128,6 +119,27 @@
         #notification.show {
             opacity: 1;
         }
+
+        /* Botón Flotante de Edición */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #ef4444; /* Rojo para Borrar */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            z-index: 900;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .fab:active { transform: scale(0.95); }
+        .fab.active { background-color: #10b981; } /* Verde para Salir del modo */
     </style>
 </head>
 <body class="pb-24">
@@ -154,7 +166,7 @@
     <main class="p-4 max-w-md mx-auto">
         <!-- SECCIÓN REGISTROS -->
         <section id="sec-registros" class="space-y-4">
-            <div class="glass p-5 rounded-2xl">
+            <div class="card">
                 <label class="text-[10px] font-bold text-slate-500 uppercase">Fecha</label>
                 <input type="date" id="reg-fecha">
                 
@@ -183,19 +195,19 @@
                 <button type="button" onclick="saveRegistro()" class="btn-blue mt-2">GUARDAR REGISTRO</button>
             </div>
             <!-- FILTRO DE FECHA -->
-            <div class="glass p-4 rounded-2xl">
+            <div class="card">
                 <label class="text-[10px] font-bold text-slate-500 uppercase">Filtrar por Fecha</label>
                 <input type="date" id="reg-filtro-fecha" onchange="renderRegistrosList()">
             </div>
             <!-- VISTA DE REGISTROS -->
-            <div id="registros-list" class="glass rounded-2xl">
+            <div id="registros-list" class="space-y-3">
                 <div class="p-4 text-center text-slate-400">Cargando registros...</div>
             </div>
         </section>
 
         <!-- SECCIÓN VIAJES -->
         <section id="sec-viajes" class="hidden space-y-4">
-            <div class="glass p-5 rounded-2xl">
+            <div class="card">
                 <input type="text" id="v-cliente" placeholder="Cliente">
                 <input type="text" id="v-inicio" placeholder="Origen">
                 <input type="text" id="v-fin" placeholder="Destino">
@@ -209,15 +221,15 @@
                 <button type="button" onclick="saveViaje()" class="btn-blue">GUARDAR VIAJE</button>
             </div>
             <!-- VISTA DE VIAJES -->
-            <div id="viajes-list" class="glass rounded-2xl">
+            <div id="viajes-list" class="space-y-3">
                 <div class="p-4 text-center text-slate-400">Cargando viajes...</div>
             </div>
         </section>
 
         <!-- SECCIÓN DIEZMOS -->
         <section id="sec-diezmos" class="hidden space-y-4">
-            <div id="diezmo-info" class="glass p-5 rounded-2xl bg-blue-900/20 border-blue-500/30"></div>
-            <div class="glass p-5 rounded-2xl">
+            <div id="diezmo-info" class="card bg-blue-900/20 border-blue-500/30"></div>
+            <div class="card">
                 <!-- CAMPO TIPO DE PAGO -->
                 <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Pago</label>
                 <select id="d-tipo-pago">
@@ -229,7 +241,7 @@
                 <button type="button" onclick="saveDiezmo()" class="w-full bg-emerald-600 py-4 rounded-xl font-bold">REGISTRAR PAGO</button>
             </div>
             <!-- VISTA DE PAGOS DE DIEZMO -->
-            <div id="diezmo-pagos-list" class="glass rounded-2xl">
+            <div id="diezmo-pagos-list" class="space-y-3">
                 <div class="p-4 text-center text-slate-400">Cargando historial de pagos...</div>
             </div>
         </section>
@@ -237,8 +249,8 @@
         <!-- SECCIÓN RESUMEN DETALLADO -->
         <section id="sec-resumen" class="hidden space-y-4">
             <div id="resumen-container"></div>
-            <div id="resumen-categorias" class="glass p-4 rounded-2xl mb-4"></div>
-            <div id="resumen-historial" class="glass p-4 rounded-2xl mb-4"></div>
+            <div id="resumen-categorias" class="card mb-4"></div>
+            <div id="resumen-historial" class="card mb-4"></div>
             <!-- VISTAS DE INGRESOS Y GASTOS -->
             <div id="resumen-ingresos-gastos" class="space-y-4"></div>
             <button onclick="borrarDatos()" class="w-full text-red-500 text-[10px] opacity-30 mt-10">BORRAR TODOS LOS DATOS</button>
@@ -253,9 +265,17 @@
         <button onclick="nav('resumen')" id="n-resumen" class="nav-btn"><i data-lucide="bar-chart-3"></i>Resumen</button>
     </nav>
 
+    <!-- BOTÓN FLOTANTE DE EDICIÓN/BORRADO -->
+    <div id="fab-edit" class="fab hidden" onclick="toggleEditMode()">
+        <i id="fab-icon" data-lucide="trash-2" class="w-6 h-6"></i>
+    </div>
+
     <script>
         // Variable global para la base de datos.
         let db = { registros: [], viajes: [], diezmos: [] };
+        let editMode = false;
+        let selectedItems = [];
+        let currentSection = 'registros';
         
         // CAMBIO DE MONEDA: Quetzales (Q)
         const formatter = new Intl.NumberFormat('es-GT', { 
@@ -331,28 +351,10 @@
             }
         }
 
-        async function deleteItem(type, index) {
-            if (confirm(`¿Estás seguro de que quieres borrar este ${type.slice(0, -1)}? Esta acción es irreversible.`)) {
-                // El index que se pasa es el original, no el del array ordenado/filtrado
-                db[type].splice(index, 1);
-                await saveDB();
-                showNotification("🗑️ Elemento borrado.");
-                
-                // Re-renderizar la vista actual
-                if (type === 'registros') renderRegistrosList();
-                else if (type === 'viajes') renderViajesList();
-                else if (type === 'diezmos') updateDiezmosView();
-                
-                // Si estamos en resumen, actualizarlo también
-                if (document.getElementById('sec-resumen').classList.contains('hidden') === false) {
-                    updateResumen();
-                }
-            }
-        }
-
         // --- FUNCIONES DE NAVEGACIÓN Y VISTAS ---
 
         function nav(s) {
+            currentSection = s;
             ['registros', 'viajes', 'diezmos', 'resumen'].forEach(sec => {
                 document.getElementById('sec-'+sec).classList.add('hidden');
                 document.getElementById('n-'+sec).classList.remove('nav-active');
@@ -361,10 +363,109 @@
             document.getElementById('n-'+s).classList.add('nav-active');
             document.getElementById('section-title').innerText = s.toUpperCase();
             
+            // Mostrar/Ocultar FAB
+            const fab = document.getElementById('fab-edit');
+            if (s === 'registros' || s === 'viajes' || s === 'diezmos') {
+                fab.classList.remove('hidden');
+            } else {
+                fab.classList.add('hidden');
+            }
+
+            // Renderizar la vista y salir del modo edición
+            editMode = false;
+            selectedItems = [];
+            fab.classList.remove('active');
+            document.getElementById('fab-icon').setAttribute('data-lucide', 'trash-2');
+            
             if(s === 'registros') renderRegistrosList();
             else if(s === 'viajes') renderViajesList();
             else if(s === 'resumen') updateResumen();
             else if(s === 'diezmos') updateDiezmosView();
+            lucide.createIcons();
+        }
+
+        // --- MODO EDICIÓN/BORRADO ---
+
+        function toggleEditMode() {
+            if (!editMode) {
+                // Entrar en modo edición
+                editMode = true;
+                selectedItems = [];
+                document.getElementById('fab-edit').classList.add('active');
+                document.getElementById('fab-icon').setAttribute('data-lucide', 'x');
+                showNotification("Modo Borrado Activado. Selecciona elementos.");
+            } else {
+                // Salir o Borrar
+                if (selectedItems.length > 0) {
+                    if (confirm(`¿Estás seguro de que quieres borrar ${selectedItems.length} elementos?`)) {
+                        deleteSelectedItems();
+                    }
+                }
+                
+                // Salir del modo edición
+                editMode = false;
+                selectedItems = [];
+                document.getElementById('fab-edit').classList.remove('active');
+                document.getElementById('fab-icon').setAttribute('data-lucide', 'trash-2');
+                showNotification("Modo Borrado Desactivado.");
+            }
+            
+            // Re-renderizar la lista para mostrar/ocultar checkboxes
+            if (currentSection === 'registros') renderRegistrosList();
+            else if (currentSection === 'viajes') renderViajesList();
+            else if (currentSection === 'diezmos') updateDiezmosView();
+        }
+
+        function selectItem(index, element) {
+            const id = `${currentSection}-${index}`;
+            const existingIndex = selectedItems.indexOf(id);
+
+            if (existingIndex === -1) {
+                selectedItems.push(id);
+                element.classList.add('selected');
+            } else {
+                selectedItems.splice(existingIndex, 1);
+                element.classList.remove('selected');
+            }
+            
+            // Actualizar el icono del FAB para reflejar si hay elementos seleccionados
+            const fab = document.getElementById('fab-edit');
+            if (selectedItems.length > 0) {
+                fab.style.backgroundColor = '#ef4444'; // Rojo para borrar
+                document.getElementById('fab-icon').setAttribute('data-lucide', 'trash-2');
+            } else {
+                fab.style.backgroundColor = '#10b981'; // Verde para salir
+                document.getElementById('fab-icon').setAttribute('data-lucide', 'x');
+            }
+            lucide.createIcons();
+        }
+
+        async function deleteSelectedItems() {
+            // Obtener los índices originales a borrar
+            const indicesToDelete = selectedItems
+                .filter(id => id.startsWith(currentSection))
+                .map(id => parseInt(id.split('-')[1]))
+                .sort((a, b) => b - a); // Ordenar descendente para borrar sin afectar índices
+
+            if (indicesToDelete.length === 0) return;
+
+            // Borrar de la base de datos
+            indicesToDelete.forEach(index => {
+                db[currentSection].splice(index, 1);
+            });
+
+            await saveDB();
+            showNotification(`🗑️ ${indicesToDelete.length} elementos borrados.`);
+            
+            // Re-renderizar la vista
+            if (currentSection === 'registros') renderRegistrosList();
+            else if (currentSection === 'viajes') renderViajesList();
+            else if (currentSection === 'diezmos') updateDiezmosView();
+            
+            // Actualizar resumen si es necesario
+            if (document.getElementById('sec-resumen').classList.contains('hidden') === false) {
+                updateResumen();
+            }
         }
 
         // --- VISTAS DETALLADAS ---
@@ -378,7 +479,7 @@
                 return;
             }
 
-            // 1. Filtrar
+            // 1. Filtrar y mapear con índice original
             let filteredRegistros = db.registros.map((r, index) => ({...r, originalIndex: index}));
             if (filtroFecha) {
                 filteredRegistros = filteredRegistros.filter(r => r.fecha === filtroFecha);
@@ -397,24 +498,25 @@
                 const isIngreso = r.flujo === 'Ingreso';
                 const color = isIngreso ? 'text-emerald-400' : 'text-red-400';
                 const sign = isIngreso ? '+' : '-';
+                const isSelected = selectedItems.includes(`registros-${r.originalIndex}`) ? 'selected' : '';
                 
                 html += `
-                    <div class="list-item">
+                    <div class="card flex items-center ${isSelected}" onclick="if(editMode) selectItem(${r.originalIndex}, this)">
+                        ${editMode ? `<input type="checkbox" class="mr-3 w-5 h-5" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); selectItem(${r.originalIndex}, this.parentNode)">` : ''}
                         <div class="flex-1">
                             <p class="text-sm font-bold ${color}">${r.cat} (${r.flujo})</p>
                             <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
                             <p class="text-xs text-slate-500">${r.concepto || 'Sin notas'}</p>
                         </div>
-                        <div class="text-right flex items-center">
-                            <p class="text-lg font-black ${color} mr-2">${sign}${formatter.format(r.monto).replace('GTQ', 'Q')}</p>
-                            <button class="delete-btn" onclick="deleteItem('registros', ${r.originalIndex})"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <div class="text-right">
+                            <p class="text-lg font-black ${color}">${sign}${formatter.format(r.monto).replace('GTQ', 'Q')}</p>
                         </div>
                     </div>
                 `;
             });
 
             container.innerHTML = html;
-            lucide.createIcons(); // Re-renderizar iconos de lucide
+            lucide.createIcons(); 
         }
 
         function renderViajesList() {
@@ -433,24 +535,25 @@
             let html = '';
             sortedViajes.forEach((v) => {
                 const color = v.tipo === 'Realizado' ? 'text-emerald-400' : 'text-blue-400';
-                
+                const isSelected = selectedItems.includes(`viajes-${v.originalIndex}`) ? 'selected' : '';
+
                 html += `
-                    <div class="list-item">
+                    <div class="card flex items-center ${isSelected}" onclick="if(editMode) selectItem(${v.originalIndex}, this)">
+                        ${editMode ? `<input type="checkbox" class="mr-3 w-5 h-5" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); selectItem(${v.originalIndex}, this.parentNode)">` : ''}
                         <div class="flex-1">
                             <p class="text-sm font-bold">${v.cliente}</p>
                             <p class="text-xs text-slate-400">${formatDate(v.fecha)} - ${v.tipo}</p>
                             <p class="text-xs text-slate-500">${v.inicio} a ${v.fin}</p>
                         </div>
-                        <div class="text-right flex items-center">
-                            <p class="text-lg font-black ${color} mr-2">${formatter.format(v.costo).replace('GTQ', 'Q')}</p>
-                            <button class="delete-btn" onclick="deleteItem('viajes', ${v.originalIndex})"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <div class="text-right">
+                            <p class="text-lg font-black ${color}">${formatter.format(v.costo).replace('GTQ', 'Q')}</p>
                         </div>
                     </div>
                 `;
             });
 
             container.innerHTML = html;
-            lucide.createIcons(); // Re-renderizar iconos de lucide
+            lucide.createIcons(); 
         }
 
         // --- FUNCIONES DE GUARDADO ---
@@ -479,7 +582,7 @@
             showNotification("✅ Registro guardado.");
             document.getElementById('reg-monto').value = '';
             document.getElementById('reg-concepto').value = '';
-            renderRegistrosList(); // Actualizar la lista
+            renderRegistrosList(); 
         }
 
         async function saveViaje() {
@@ -508,12 +611,12 @@
             document.getElementById('v-inicio').value = '';
             document.getElementById('v-fin').value = '';
             document.getElementById('v-costo').value = '';
-            renderViajesList(); // Actualizar la lista
+            renderViajesList(); 
         }
 
         async function saveDiezmo() {
             const m = parseFloat(document.getElementById('d-pago').value);
-            const tipoPago = document.getElementById('d-tipo-pago').value; // Nuevo campo
+            const tipoPago = document.getElementById('d-tipo-pago').value; 
             
             if(isNaN(m) || m <= 0) {
                 showNotification("❌ Ingresa un monto de pago válido.");
@@ -535,7 +638,7 @@
             showNotification("🙏 Diezmo registrado.");
         }
 
-        // --- FUNCIONES DE RESUMEN Y DIEZMOS (Sin cambios, ya estaban bien) ---
+        // --- FUNCIONES DE RESUMEN Y DIEZMOS ---
 
         function renderMonthlyDetails() {
             const container = document.getElementById('resumen-ingresos-gastos');
@@ -547,21 +650,21 @@
             const registrosMes = db.registros.filter(r => {
                 const f = normalizeDate(r.fecha);
                 return f >= startOfMonth && f <= endOfMonth;
-            }).sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Orden descendente
+            }).sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); 
 
             const ingresos = registrosMes.filter(r => r.flujo === 'Ingreso');
             const gastos = registrosMes.filter(r => r.flujo === 'Gasto');
 
             let html = `
                 <h3 class="text-sm font-bold text-emerald-400 mb-3 uppercase">Ingresos del Mes (${hoy.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })})</h3>
-                <div class="glass rounded-2xl">
+                <div class="space-y-3">
             `;
             if (ingresos.length === 0) {
-                html += '<div class="p-4 text-center text-slate-400">No hay ingresos este mes.</div>';
+                html += '<div class="card text-center text-slate-400">No hay ingresos este mes.</div>';
             } else {
                 ingresos.forEach(r => {
                     html += `
-                        <div class="list-item">
+                        <div class="card flex justify-between items-center">
                             <div class="flex-1">
                                 <p class="text-sm font-bold">${r.cat}</p>
                                 <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
@@ -577,14 +680,14 @@
 
             html += `
                 <h3 class="text-sm font-bold text-red-400 mb-3 uppercase mt-6">Gastos del Mes (${hoy.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })})</h3>
-                <div class="glass rounded-2xl">
+                <div class="space-y-3">
             `;
             if (gastos.length === 0) {
-                html += '<div class="p-4 text-center text-slate-400">No hay gastos este mes.</div>';
+                html += '<div class="card text-center text-slate-400">No hay gastos este mes.</div>';
             } else {
                 gastos.forEach(r => {
                     html += `
-                        <div class="list-item">
+                        <div class="card flex justify-between items-center">
                             <div class="flex-1">
                                 <p class="text-sm font-bold">${r.cat}</p>
                                 <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
@@ -604,20 +707,20 @@
         function updateResumen() {
             // 1. Resumen Semanal (Mantenido)
             const hoy = new Date();
-            const day = hoy.getDay() || 7; // 1 para Lunes, 7 para Domingo
+            const day = hoy.getDay() || 7; 
             const lunes = new Date(hoy); lunes.setDate(hoy.getDate() - day + 1); lunes.setHours(0,0,0,0);
             const dom = new Date(lunes); dom.setDate(lunes.getDate() + 6); dom.setHours(23,59,59,999);
 
             const { ing: ingSemanal, gas: gasSemanal, neto: netoSemanal } = getNetoForRange(lunes, dom);
 
             document.getElementById('resumen-container').innerHTML = `
-                <div class="glass p-6 rounded-3xl text-center border-b-4 border-blue-500 mb-4">
+                <div class="card p-6 text-center border-b-4 border-blue-500 mb-4">
                     <p class="text-slate-400 text-[10px] uppercase">Ganancia Neta Semanal</p>
                     <h4 class="text-4xl font-black text-blue-400 my-2">${formatter.format(netoSemanal).replace('GTQ', 'Q')}</h4>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">INGRESOS</p><p class="text-lg font-bold text-emerald-400">${formatter.format(ingSemanal).replace('GTQ', 'Q')}</p></div>
-                    <div class="glass p-4 rounded-2xl text-center"><p class="text-[10px] text-slate-400">GASTOS</p><p class="text-lg font-bold text-red-400">${formatter.format(gasSemanal).replace('GTQ', 'Q')}</p></div>
+                    <div class="card p-4 text-center"><p class="text-[10px] text-slate-400">INGRESOS</p><p class="text-lg font-bold text-emerald-400">${formatter.format(ingSemanal).replace('GTQ', 'Q')}</p></div>
+                    <div class="card p-4 text-center"><p class="text-[10px] text-slate-400">GASTOS</p><p class="text-lg font-bold text-red-400">${formatter.format(gasSemanal).replace('GTQ', 'Q')}</p></div>
                 </div>`;
 
             // 2. Resumen por Categorías
@@ -639,7 +742,7 @@
                 const color = neto >= 0 ? 'text-emerald-400' : 'text-red-400';
 
                 catHtml += `
-                    <div class="list-item">
+                    <div class="flex justify-between items-center py-2 border-b border-white/10 last:border-b-0">
                         <div class="flex-1">
                             <p class="text-sm font-bold">${cat}</p>
                             <p class="text-xs text-slate-400">Ingresos: ${formatter.format(ing).replace('GTQ', 'Q')} / Gastos: ${formatter.format(gas).replace('GTQ', 'Q')}</p>
@@ -679,7 +782,7 @@
                 const color = neto >= 0 ? 'text-emerald-400' : 'text-red-400';
 
                 histHtml += `
-                    <div class="list-item">
+                    <div class="flex justify-between items-center py-2 border-b border-white/10 last:border-b-0">
                         <div class="flex-1">
                             <p class="text-sm font-bold">${monthName.charAt(0).toUpperCase() + monthName.slice(1)}</p>
                             <p class="text-xs text-slate-400">Ingresos: ${formatter.format(ing).replace('GTQ', 'Q')} / Gastos: ${formatter.format(gas).replace('GTQ', 'Q')}</p>
@@ -736,7 +839,7 @@
             // Historial de Pagos de Diezmo
             const pagosContainer = document.getElementById('diezmo-pagos-list');
             if (!db.diezmos || db.diezmos.length === 0) {
-                pagosContainer.innerHTML = '<div class="p-4 text-center text-slate-400">No hay pagos de diezmo registrados.</div>';
+                pagosContainer.innerHTML = '<div class="card text-center text-slate-400">No hay pagos de diezmo registrados.</div>';
                 return;
             }
 
@@ -767,7 +870,7 @@
                 const status = balance <= 0 ? '✅ Pagado' : '❌ Pendiente';
 
                 pagosHtml += `
-                    <div class="list-item flex-col items-start">
+                    <div class="card flex-col items-start">
                         <div class="w-full flex justify-between items-center pb-2 border-b border-white/10">
                             <div class="flex-1">
                                 <p class="text-sm font-bold">Quincena: ${fechaInicio.getDate()} - ${fechaFin.getDate()} ${fechaInicio.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}</p>
@@ -780,22 +883,22 @@
                         </div>
                         <div class="w-full pt-2">
                             <p class="text-xs font-bold text-slate-500 mb-1">Pagos Realizados (${formatter.format(pagos).replace('GTQ', 'Q')}):</p>
-                            ${pagosDetalle.map(p => `
-                                <div class="flex justify-between items-center text-xs pl-2">
+                            ${pagosDetalle.map(p => {
+                                const isSelected = selectedItems.includes(`diezmos-${p.originalIndex}`) ? 'selected' : '';
+                                return `
+                                <div class="flex justify-between items-center text-xs pl-2 py-1 ${isSelected}" onclick="if(editMode) selectItem(${p.originalIndex}, this)">
+                                    ${editMode ? `<input type="checkbox" class="mr-3 w-4 h-4" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); selectItem(${p.originalIndex}, this.parentNode)">` : ''}
                                     <span>${formatDate(p.fecha)} (${p.tipo})</span>
-                                    <div class="flex items-center">
-                                        <span class="text-emerald-400 font-bold">${formatter.format(p.monto).replace('GTQ', 'Q')}</span>
-                                        <button class="delete-btn" onclick="deleteItem('diezmos', ${p.originalIndex})"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
-                                    </div>
+                                    <span class="text-emerald-400 font-bold">${formatter.format(p.monto).replace('GTQ', 'Q')}</span>
                                 </div>
-                            `).join('')}
+                            `;}).join('')}
                         </div>
                     </div>
                 `;
             });
 
             pagosContainer.innerHTML = pagosHtml;
-            lucide.createIcons(); // Re-renderizar iconos de lucide
+            lucide.createIcons(); 
         }
 
         async function borrarDatos() { 
