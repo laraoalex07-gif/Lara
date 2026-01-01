@@ -218,6 +218,7 @@
     </div>
 
     <!-- PANTALLA DE BIENVENIDA PERSONALIZADA -->
+    <!-- CORRECCIÓN V9: Z-index del welcome screen debe ser mayor que el nav-bar (z-50 vs z-40) -->
     <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
         <div class="w-32 h-32 bg-white p-4 rounded-3xl mb-6 shadow-2xl">
             <img src="aa.jpg" alt="Logo" class="w-full h-full object-contain">
@@ -331,7 +332,8 @@
     </div>
 
     <!-- BARRA DE NAVEGACIÓN -->
-    <nav class="nav-bar fixed bottom-0 left-0 right-0 z-50">
+    <!-- CORRECCIÓN V9: Se cambia z-index a z-40 para que el welcome screen (z-50) lo cubra -->
+    <nav class="nav-bar fixed bottom-0 left-0 right-0 z-40">
         <div class="flex justify-around max-w-md mx-auto">
             <button class="nav-btn nav-active" onclick="showSection('registros')">
                 <i data-lucide="wallet" class="w-5 h-5"></i>
@@ -454,6 +456,7 @@
 
             // Si se cambia de sección, salir del modo edición
             if (editMode) {
+                // CORRECCIÓN V9: Llamar a toggleEditMode sin argumentos para que se encargue de la lógica de salida
                 toggleEditMode();
             }
 
@@ -475,7 +478,7 @@
             renderDiezmoPagosList();
         }
 
-        // --- MANEJO DEL MODO EDICIÓN/BORRADO (v8) ---
+        // --- MANEJO DEL MODO EDICIÓN/BORRADO (v9 - Corregido) ---
 
         function toggleEditMode() {
             editMode = !editMode;
@@ -489,17 +492,20 @@
                 // Entrando en modo edición
                 fabIcon.setAttribute('data-lucide', 'x');
                 fabText.innerText = 'SALIR';
+                fab.style.backgroundColor = '#10b981'; // Verde para salir
                 selectedItems = [];
             } else {
                 // Saliendo de modo edición
                 if (selectedItems.length > 0) {
                     // Si hay elementos seleccionados, preguntar si borrar
+                    // CORRECCIÓN V9: deleteSelectedItems ahora maneja el reseteo del modo edición
                     deleteSelectedItems();
-                    return; // Esperar la respuesta del modal
+                    return; 
                 } else {
                     // Si no hay selección, simplemente salir del modo
                     fabIcon.setAttribute('data-lucide', 'trash-2');
                     fabText.innerText = 'BORRAR';
+                    fab.style.backgroundColor = '#ef4444'; // Rojo para borrar
                 }
             }
             
@@ -542,15 +548,20 @@
             const message = `¿Estás seguro de que deseas borrar ${selectedItems.length} elementos seleccionados? Esta acción es irreversible.`;
 
             showConfirmModal(message, async (confirmed) => {
+                // CORRECCIÓN V9: La lógica de reseteo del FAB y modo edición se movió aquí
+                const fab = document.getElementById('fab');
+                const fabIcon = fab.querySelector('i');
+                const fabText = document.getElementById('fab-text');
+
                 if (confirmed) {
                     let count = 0;
-                    const itemsToDelete = [...selectedItems]; // Copia para evitar mutación durante el borrado
+                    const itemsToDelete = [...selectedItems]; 
 
                     // Borrar registros
                     const regIndices = itemsToDelete
                         .filter(id => id.startsWith('registros-'))
                         .map(id => parseInt(id.split('-')[1]))
-                        .sort((a, b) => b - a); // Ordenar descendente para borrar sin afectar índices menores
+                        .sort((a, b) => b - a); 
                     
                     regIndices.forEach(index => {
                         db.registros.splice(index, 1);
@@ -581,32 +592,22 @@
 
                     await saveDB();
                     showNotification(`🗑️ ${count} elementos borrados.`);
-                    selectedItems = []; // Limpiar selección después de borrar
+                    selectedItems = []; 
                     
-                    // Resetear el FAB y el modo edición
-                    const fab = document.getElementById('fab');
-                    const fabIcon = fab.querySelector('i');
-                    const fabText = document.getElementById('fab-text');
-                    fabIcon.setAttribute('data-lucide', 'trash-2');
-                    fabText.innerText = 'BORRAR';
-                    fab.classList.remove('active');
-                    editMode = false;
-
-                    renderAllLists();
-                    lucide.createIcons();
                 } else {
-                    // Si el usuario cancela, salir del modo edición y limpiar selección
+                    // Si el usuario cancela, simplemente limpiar selección
                     selectedItems = [];
-                    const fab = document.getElementById('fab');
-                    const fabIcon = fab.querySelector('i');
-                    const fabText = document.getElementById('fab-text');
-                    fabIcon.setAttribute('data-lucide', 'trash-2');
-                    fabText.innerText = 'BORRAR';
-                    fab.classList.remove('active');
-                    editMode = false;
-                    renderAllLists();
-                    lucide.createIcons();
                 }
+
+                // Resetear el FAB y el modo edición
+                fabIcon.setAttribute('data-lucide', 'trash-2');
+                fabText.innerText = 'BORRAR';
+                fab.style.backgroundColor = '#ef4444'; // Rojo para borrar
+                fab.classList.remove('active');
+                editMode = false;
+
+                renderAllLists();
+                lucide.createIcons();
             });
         }
 
