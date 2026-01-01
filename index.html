@@ -8,14 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
     <!-- localForage para usar IndexedDB (más robusto que localStorage) -->
     <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
-
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-      }
-    </script>
     <style>
         /* Estilos Base y Variables */
         :root { 
@@ -65,11 +57,12 @@
         }
         .btn-blue:active { background: #1d4ed8; transform: scale(0.98); }
 
-        /* Estilo de Navegación (CORRECCIÓN UI/UX) */
+        /* Estilo de Navegación (Ajuste Final UI/UX) */
         .nav-bar {
             background: var(--card-bg);
             border-top: 1px solid #334155;
             box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+            padding: 4px; /* Más espacio para los botones */
         }
         .nav-btn { 
             display: flex; 
@@ -81,8 +74,8 @@
             padding: 8px 0; 
             border:none; 
             background:none; 
-            transition: color 0.2s, transform 0.1s;
-            border-radius: 8px; /* Para que se vea más como un botón */
+            transition: color 0.2s, transform 0.1s, background 0.2s;
+            border-radius: 8px; 
             margin: 0 4px;
         }
         .nav-btn:hover { background: rgba(255, 255, 255, 0.05); }
@@ -90,7 +83,7 @@
         .nav-active { 
             color: var(--primary); 
             font-weight: bold;
-            background: rgba(59, 130, 246, 0.1); /* Fondo sutil para el activo */
+            background: rgba(59, 130, 246, 0.15); /* Fondo más visible para el activo */
         }
         .nav-btn i { margin-bottom: 2px; }
 
@@ -111,11 +104,36 @@
             padding: 0 8px; 
             opacity: 0.7;
             transition: opacity 0.2s;
+            display: flex; /* Asegura que el icono esté centrado */
+            align-items: center;
         }
         .delete-btn:hover { opacity: 1; }
+
+        /* Estilo para la Notificación Sutil */
+        #notification {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #10b981; /* Emerald 500 */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            font-weight: bold;
+        }
+        #notification.show {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="pb-24">
+
+    <!-- NOTIFICACIÓN SUTIL -->
+    <div id="notification"></div>
 
     <!-- PANTALLA DE BIENVENIDA PERSONALIZADA -->
     <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
@@ -249,6 +267,15 @@
 
         // --- FUNCIONES AUXILIARES ---
 
+        function showNotification(message) {
+            const notif = document.getElementById('notification');
+            notif.innerText = message;
+            notif.classList.add('show');
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 2000);
+        }
+
         function normalizeDate(dateString) {
             const date = new Date(dateString);
             return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -300,7 +327,7 @@
                 await localforage.setItem('lara_final_db', db);
             } catch (err) {
                 console.error("Error al guardar en IndexedDB:", err);
-                alert("Error al guardar los datos. El almacenamiento local podría estar lleno o bloqueado.");
+                showNotification("❌ Error al guardar los datos.");
             }
         }
 
@@ -309,6 +336,7 @@
                 // El index que se pasa es el original, no el del array ordenado/filtrado
                 db[type].splice(index, 1);
                 await saveDB();
+                showNotification("🗑️ Elemento borrado.");
                 
                 // Re-renderizar la vista actual
                 if (type === 'registros') renderRegistrosList();
@@ -425,13 +453,13 @@
             lucide.createIcons(); // Re-renderizar iconos de lucide
         }
 
-        // --- FUNCIONES DE GUARDADO (Sin cambios, ya estaban bien) ---
+        // --- FUNCIONES DE GUARDADO ---
 
         async function saveRegistro() {
             const monto = parseFloat(document.getElementById('reg-monto').value);
             
             if(isNaN(monto)) { 
-                alert("Por favor ingresa un monto válido (solo números)."); 
+                showNotification("❌ Ingresa un monto válido."); 
                 return; 
             }
             
@@ -448,7 +476,7 @@
             });
             
             await saveDB();
-            alert("✅ Guardado correctamente");
+            showNotification("✅ Registro guardado.");
             document.getElementById('reg-monto').value = '';
             document.getElementById('reg-concepto').value = '';
             renderRegistrosList(); // Actualizar la lista
@@ -457,7 +485,7 @@
         async function saveViaje() {
             const costo = parseFloat(document.getElementById('v-costo').value);
             if(isNaN(costo)) { 
-                alert("Por favor ingresa un costo válido (solo números)."); 
+                showNotification("❌ Ingresa un costo válido."); 
                 return; 
             }
 
@@ -474,7 +502,7 @@
                 tipo: document.getElementById('v-tipo').value
             });
             await saveDB(); 
-            alert("✅ Viaje guardado");
+            showNotification("✅ Viaje guardado.");
             // Limpiar campos después de guardar
             document.getElementById('v-cliente').value = '';
             document.getElementById('v-inicio').value = '';
@@ -488,7 +516,7 @@
             const tipoPago = document.getElementById('d-tipo-pago').value; // Nuevo campo
             
             if(isNaN(m) || m <= 0) {
-                alert("Por favor ingresa un monto de pago válido.");
+                showNotification("❌ Ingresa un monto de pago válido.");
                 return;
             }
 
@@ -504,7 +532,7 @@
             await saveDB(); 
             updateDiezmosView();
             document.getElementById('d-pago').value = '';
-            alert("🙏 Diezmo registrado");
+            showNotification("🙏 Diezmo registrado.");
         }
 
         // --- FUNCIONES DE RESUMEN Y DIEZMOS (Sin cambios, ya estaban bien) ---
@@ -574,9 +602,6 @@
         }
 
         function updateResumen() {
-            // ... (Lógica de Resumen Semanal, Categorías e Historial Mensual) ...
-            // Se mantiene la lógica de v3, ya que estaba correcta.
-            
             // 1. Resumen Semanal (Mantenido)
             const hoy = new Date();
             const day = hoy.getDay() || 7; // 1 para Lunes, 7 para Domingo
@@ -780,7 +805,7 @@
                     location.reload(); 
                 } catch (err) {
                     console.error("Error al borrar datos:", err);
-                    alert("Error al borrar los datos. Intenta de nuevo.");
+                    showNotification("❌ Error al borrar los datos.");
                 }
             } 
         }
