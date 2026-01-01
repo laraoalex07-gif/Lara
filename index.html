@@ -120,13 +120,14 @@
             opacity: 1;
         }
 
-        /* Botón Flotante de Edición (FAB) - Rediseño v8 */
+        /* Botón Flotante de Edición */
         .fab {
             position: fixed;
             bottom: 80px;
             right: 20px;
-            padding: 12px 18px; /* Nuevo padding para botón rectangular */
-            border-radius: 10px; /* Bordes redondeados */
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
             background-color: #ef4444; /* Rojo para Borrar */
             color: white;
             display: flex;
@@ -136,69 +137,9 @@
             z-index: 900;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.2s;
-            font-weight: bold;
-            font-size: 1rem;
         }
         .fab:active { transform: scale(0.95); }
         .fab.active { background-color: #10b981; } /* Verde para Salir del modo */
-        .fab i { margin-right: 8px; }
-
-        /* Modal de Confirmación Personalizado (v8) */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-        .modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .modal-content {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 1rem;
-            max-width: 300px;
-            text-align: center;
-            transform: scale(0.9);
-            transition: transform 0.3s;
-        }
-        .modal-overlay.show .modal-content {
-            transform: scale(1);
-        }
-        .modal-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        .modal-buttons button {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .modal-buttons .btn-cancel {
-            background: #334155;
-            color: white;
-            margin-right: 10px;
-        }
-        .modal-buttons .btn-confirm {
-            background: #ef4444;
-            color: white;
-        }
-        .modal-buttons .btn-cancel:hover { background: #475569; }
-        .modal-buttons .btn-confirm:hover { background: #dc2626; }
     </style>
 </head>
 <body class="pb-24">
@@ -206,19 +147,7 @@
     <!-- NOTIFICACIÓN SUTIL -->
     <div id="notification"></div>
 
-    <!-- MODAL DE CONFIRMACIÓN PERSONALIZADO (v8) -->
-    <div id="custom-confirm-modal" class="modal-overlay">
-        <div class="modal-content">
-            <p id="modal-message" class="text-lg font-semibold mb-4"></p>
-            <div class="modal-buttons">
-                <button class="btn-cancel" onclick="modalCallback(false)">CANCELAR</button>
-                <button class="btn-confirm" onclick="modalCallback(true)">CONFIRMAR</button>
-            </div>
-        </div>
-    </div>
-
     <!-- PANTALLA DE BIENVENIDA PERSONALIZADA -->
-    <!-- CORRECCIÓN V9: Z-index del welcome screen debe ser mayor que el nav-bar (z-50 vs z-40) -->
     <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
         <div class="w-32 h-32 bg-white p-4 rounded-3xl mb-6 shadow-2xl">
             <img src="aa.jpg" alt="Logo" class="w-full h-full object-contain">
@@ -320,329 +249,260 @@
         <!-- SECCIÓN RESUMEN DETALLADO -->
         <section id="sec-resumen" class="hidden space-y-4">
             <div id="resumen-container"></div>
-            <div id="resumen-ingresos-gastos"></div>
-            <div id="resumen-categorias"></div>
+            <div id="resumen-categorias" class="card mb-4"></div>
+            <div id="resumen-historial" class="card mb-4"></div>
+            <!-- VISTAS DE INGRESOS Y GASTOS -->
+            <div id="resumen-ingresos-gastos" class="space-y-4"></div>
+            <button onclick="borrarDatos()" class="w-full text-red-500 text-[10px] opacity-30 mt-10">BORRAR TODOS LOS DATOS</button>
         </section>
     </main>
 
-    <!-- Botón Flotante de Edición (FAB) - Rediseño v8 -->
-    <div id="fab" class="fab" onclick="toggleEditMode()">
-        <i data-lucide="trash-2" class="w-5 h-5"></i>
-        <span id="fab-text">BORRAR</span>
-    </div>
-
-    <!-- BARRA DE NAVEGACIÓN -->
-    <!-- CORRECCIÓN V9: Se cambia z-index a z-40 para que el welcome screen (z-50) lo cubra -->
-    <nav class="nav-bar fixed bottom-0 left-0 right-0 z-40">
-        <div class="flex justify-around max-w-md mx-auto">
-            <button class="nav-btn nav-active" onclick="showSection('registros')">
-                <i data-lucide="wallet" class="w-5 h-5"></i>
-                REGISTROS
-            </button>
-            <button class="nav-btn" onclick="showSection('viajes')">
-                <i data-lucide="car" class="w-5 h-5"></i>
-                VIAJES
-            </button>
-            <button class="nav-btn" onclick="showSection('diezmos')">
-                <i data-lucide="church" class="w-5 h-5"></i>
-                DIEZMOS
-            </button>
-            <button class="nav-btn" onclick="showSection('resumen')">
-                <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
-                RESUMEN
-            </button>
-        </div>
+    <!-- BARRA DE NAVEGACIÓN MEJORADA -->
+    <nav class="fixed bottom-0 left-0 right-0 nav-bar flex p-1 z-40">
+        <button onclick="nav('registros')" id="n-registros" class="nav-btn nav-active"><i data-lucide="pen-tool"></i>Registros</button>
+        <button onclick="nav('viajes')" id="n-viajes" class="nav-btn"><i data-lucide="car"></i>Viajes</button>
+        <button onclick="nav('diezmos')" id="n-diezmos" class="nav-btn"><i data-lucide="heart"></i>Diezmos</button>
+        <button onclick="nav('resumen')" id="n-resumen" class="nav-btn"><i data-lucide="bar-chart-3"></i>Resumen</button>
     </nav>
 
+    <!-- BOTÓN FLOTANTE DE EDICIÓN/BORRADO -->
+    <div id="fab-edit" class="fab hidden" onclick="toggleEditMode()">
+        <i id="fab-icon" data-lucide="trash-2" class="w-6 h-6"></i>
+    </div>
+
     <script>
-        // Variables Globales
-        const DB_NAME = 'lara_control_db';
-        let db = {};
+        // Variable global para la base de datos.
+        let db = { registros: [], viajes: [], diezmos: [] };
         let editMode = false;
         let selectedItems = [];
         let currentSection = 'registros';
-        let modalCallback = null; // Para el nuevo modal de confirmación
+        
+        // CAMBIO DE MONEDA: Quetzales (Q)
+        const formatter = new Intl.NumberFormat('es-GT', { 
+            style: 'currency', 
+            currency: 'GTQ',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
 
-        // --- FUNCIONES DEL MODAL DE CONFIRMACIÓN (v8) ---
-        function showConfirmModal(message, callback) {
-            document.getElementById('modal-message').innerText = message;
-            document.getElementById('custom-confirm-modal').classList.add('show');
-            modalCallback = callback;
-        }
-
-        function modalCallback(result) {
-            document.getElementById('custom-confirm-modal').classList.remove('show');
-            if (modalCallback) {
-                modalCallback(result);
-                modalCallback = null;
-            }
-        }
-
-        // --- UTILIDADES ---
+        // --- FUNCIONES AUXILIARES ---
 
         function showNotification(message) {
-            const notification = document.getElementById('notification');
-            notification.innerText = message;
-            notification.classList.add('show');
+            const notif = document.getElementById('notification');
+            notif.innerText = message;
+            notif.classList.add('show');
             setTimeout(() => {
-                notification.classList.remove('show');
+                notif.classList.remove('show');
             }, 2000);
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString + 'T00:00:00'); // Añadir T00:00:00 para evitar problemas de zona horaria
-            return date.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
         }
 
         function normalizeDate(dateString) {
             const date = new Date(dateString);
-            date.setHours(0, 0, 0, 0);
-            return date;
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
         }
 
-        const formatter = new Intl.NumberFormat('es-GT', {
-            style: 'currency',
-            currency: 'GTQ',
-            minimumFractionDigits: 2,
-        });
+        function formatDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00'); // Evitar problemas de zona horaria
+            return date.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
 
-        // --- MANEJO DE BASE DE DATOS (localForage) ---
+        function getQuincenaRange(date) {
+            const day = date.getDate();
+            let start, end;
 
-        async function loadDB() {
+            if (day <= 15) {
+                start = new Date(date.getFullYear(), date.getMonth(), 1);
+                end = new Date(date.getFullYear(), date.getMonth(), 15);
+            } else {
+                start = new Date(date.getFullYear(), date.getMonth(), 16);
+                end = new Date(date.getFullYear(), date.getMonth() + 1, 0); // Último día del mes
+            }
+            
+            // Normalizar a 00:00:00 y 23:59:59.999
+            start.setHours(0, 0, 0, 0);
+            end.setHours(23, 59, 59, 999);
+
+            return { start, end };
+        }
+
+        function getNetoForRange(startDate, endDate) {
+            let ing = 0, gas = 0;
+            
+            if (db.registros) {
+                db.registros.forEach(r => {
+                    const f = normalizeDate(r.fecha); 
+                    
+                    if(f >= startDate && f <= endDate) {
+                        if(r.flujo === 'Ingreso') ing += r.monto; else gas += r.monto;
+                    }
+                });
+            }
+            return { ing, gas, neto: ing - gas };
+        }
+
+        // --- FUNCIONES DE BASE DE DATOS (localForage) ---
+
+        async function saveDB() { 
             try {
-                const data = await localforage.getItem(DB_NAME);
-                db = data || { registros: [], viajes: [], diezmos: [] };
-                renderAllLists();
-                updateResumen();
-                updateDiezmosView();
-                lucide.createIcons();
+                await localforage.setItem('lara_final_db', db);
             } catch (err) {
-                console.error("Error al cargar la base de datos:", err);
+                console.error("Error al guardar en IndexedDB:", err);
+                showNotification("❌ Error al guardar los datos.");
             }
         }
 
-        async function saveDB() {
-            try {
-                await localforage.setItem(DB_NAME, db);
-            } catch (err) {
-                console.error("Error al guardar la base de datos:", err);
-            }
-        }
+        // --- FUNCIONES DE NAVEGACIÓN Y VISTAS ---
 
-        // --- MANEJO DE SECCIONES Y NAVEGACIÓN ---
-
-        function showSection(sectionId) {
-            currentSection = sectionId;
-            const sections = ['registros', 'viajes', 'diezmos', 'resumen'];
-            sections.forEach(id => {
-                document.getElementById(`sec-${id}`).classList.add('hidden');
+        function nav(s) {
+            currentSection = s;
+            ['registros', 'viajes', 'diezmos', 'resumen'].forEach(sec => {
+                document.getElementById('sec-'+sec).classList.add('hidden');
+                document.getElementById('n-'+sec).classList.remove('nav-active');
             });
-            document.getElementById(`sec-${sectionId}`).classList.remove('hidden');
-            document.getElementById('section-title').innerText = sectionId.toUpperCase();
-
-            // Actualizar botones de navegación
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('nav-active');
-            });
-            document.querySelector(`.nav-btn[onclick="showSection('${sectionId}')"]`).classList.add('nav-active');
-
+            document.getElementById('sec-'+s).classList.remove('hidden');
+            document.getElementById('n-'+s).classList.add('nav-active');
+            document.getElementById('section-title').innerText = s.toUpperCase();
+            
             // Mostrar/Ocultar FAB
-            const fab = document.getElementById('fab');
-            if (sectionId === 'registros' || sectionId === 'viajes' || sectionId === 'diezmos') {
+            const fab = document.getElementById('fab-edit');
+            if (s === 'registros' || s === 'viajes' || s === 'diezmos') {
                 fab.classList.remove('hidden');
             } else {
                 fab.classList.add('hidden');
             }
 
-            // Si se cambia de sección, salir del modo edición
-            if (editMode) {
-                // CORRECCIÓN V9: Llamar a toggleEditMode sin argumentos para que se encargue de la lógica de salida
-                toggleEditMode();
-            }
-
-            // Renderizar la lista de la sección activa
-            renderAllLists();
-            if (sectionId === 'resumen') {
-                updateResumen();
-                renderMonthlyDetails();
-            }
-            if (sectionId === 'diezmos') {
-                updateDiezmosView();
-            }
+            // Renderizar la vista y salir del modo edición
+            editMode = false;
+            selectedItems = [];
+            fab.classList.remove('active');
+            document.getElementById('fab-icon').setAttribute('data-lucide', 'trash-2');
+            
+            if(s === 'registros') renderRegistrosList();
+            else if(s === 'viajes') renderViajesList();
+            else if(s === 'resumen') updateResumen();
+            else if(s === 'diezmos') updateDiezmosView();
             lucide.createIcons();
         }
 
-        function renderAllLists() {
-            renderRegistrosList();
-            renderViajesList();
-            renderDiezmoPagosList();
-        }
-
-        // --- MANEJO DEL MODO EDICIÓN/BORRADO (v9 - Corregido) ---
+        // --- MODO EDICIÓN/BORRADO ---
 
         function toggleEditMode() {
-            editMode = !editMode;
-            const fab = document.getElementById('fab');
-            const fabIcon = fab.querySelector('i');
-            const fabText = document.getElementById('fab-text');
-
-            fab.classList.toggle('active', editMode);
-            
-            if (editMode) {
-                // Entrando en modo edición
-                fabIcon.setAttribute('data-lucide', 'x');
-                fabText.innerText = 'SALIR';
-                fab.style.backgroundColor = '#10b981'; // Verde para salir
+            if (!editMode) {
+                // Entrar en modo edición
+                editMode = true;
                 selectedItems = [];
+                document.getElementById('fab-edit').classList.add('active');
+                document.getElementById('fab-icon').setAttribute('data-lucide', 'x');
+                showNotification("Modo Borrado Activado. Selecciona elementos.");
             } else {
-                // Saliendo de modo edición
+                // Salir o Borrar
                 if (selectedItems.length > 0) {
-                    // Si hay elementos seleccionados, preguntar si borrar
-                    // CORRECCIÓN V9: deleteSelectedItems ahora maneja el reseteo del modo edición
-                    deleteSelectedItems();
-                    return; 
-                } else {
-                    // Si no hay selección, simplemente salir del modo
-                    fabIcon.setAttribute('data-lucide', 'trash-2');
-                    fabText.innerText = 'BORRAR';
-                    fab.style.backgroundColor = '#ef4444'; // Rojo para borrar
+                    if (confirm(`¿Estás seguro de que quieres borrar ${selectedItems.length} elementos?`)) {
+                        deleteSelectedItems();
+                    }
                 }
+                
+                // Salir del modo edición
+                editMode = false;
+                selectedItems = [];
+                document.getElementById('fab-edit').classList.remove('active');
+                document.getElementById('fab-icon').setAttribute('data-lucide', 'trash-2');
+                showNotification("Modo Borrado Desactivado.");
             }
             
-            renderAllLists();
-            lucide.createIcons();
+            // Re-renderizar la lista para mostrar/ocultar checkboxes
+            if (currentSection === 'registros') renderRegistrosList();
+            else if (currentSection === 'viajes') renderViajesList();
+            else if (currentSection === 'diezmos') updateDiezmosView();
         }
 
         function selectItem(index, element) {
             const id = `${currentSection}-${index}`;
-            const checkbox = element.querySelector('input[type="checkbox"]');
+            const existingIndex = selectedItems.indexOf(id);
 
-            if (selectedItems.includes(id)) {
-                selectedItems = selectedItems.filter(item => item !== id);
-                element.classList.remove('selected');
-                if (checkbox) checkbox.checked = false;
-            } else {
+            if (existingIndex === -1) {
                 selectedItems.push(id);
                 element.classList.add('selected');
-                if (checkbox) checkbox.checked = true;
+            } else {
+                selectedItems.splice(existingIndex, 1);
+                element.classList.remove('selected');
             }
-
-            // Actualizar el FAB para reflejar la selección
-            const fab = document.getElementById('fab');
-            const fabText = document.getElementById('fab-text');
+            
+            // Actualizar el icono del FAB para reflejar si hay elementos seleccionados
+            const fab = document.getElementById('fab-edit');
             if (selectedItems.length > 0) {
                 fab.style.backgroundColor = '#ef4444'; // Rojo para borrar
-                fabText.innerText = `BORRAR (${selectedItems.length})`;
+                document.getElementById('fab-icon').setAttribute('data-lucide', 'trash-2');
             } else {
                 fab.style.backgroundColor = '#10b981'; // Verde para salir
-                fabText.innerText = 'SALIR';
+                document.getElementById('fab-icon').setAttribute('data-lucide', 'x');
             }
+            lucide.createIcons();
         }
 
         async function deleteSelectedItems() {
-            if (selectedItems.length === 0) {
-                showNotification("❌ No hay elementos seleccionados para borrar.");
-                return;
-            }
+            // Obtener los índices originales a borrar
+            const indicesToDelete = selectedItems
+                .filter(id => id.startsWith(currentSection))
+                .map(id => parseInt(id.split('-')[1]))
+                .sort((a, b) => b - a); // Ordenar descendente para borrar sin afectar índices
 
-            const message = `¿Estás seguro de que deseas borrar ${selectedItems.length} elementos seleccionados? Esta acción es irreversible.`;
+            if (indicesToDelete.length === 0) return;
 
-            showConfirmModal(message, async (confirmed) => {
-                // CORRECCIÓN V9: La lógica de reseteo del FAB y modo edición se movió aquí
-                const fab = document.getElementById('fab');
-                const fabIcon = fab.querySelector('i');
-                const fabText = document.getElementById('fab-text');
-
-                if (confirmed) {
-                    let count = 0;
-                    const itemsToDelete = [...selectedItems]; 
-
-                    // Borrar registros
-                    const regIndices = itemsToDelete
-                        .filter(id => id.startsWith('registros-'))
-                        .map(id => parseInt(id.split('-')[1]))
-                        .sort((a, b) => b - a); 
-                    
-                    regIndices.forEach(index => {
-                        db.registros.splice(index, 1);
-                        count++;
-                    });
-
-                    // Borrar viajes
-                    const viaIndices = itemsToDelete
-                        .filter(id => id.startsWith('viajes-'))
-                        .map(id => parseInt(id.split('-')[1]))
-                        .sort((a, b) => b - a);
-                    
-                    viaIndices.forEach(index => {
-                        db.viajes.splice(index, 1);
-                        count++;
-                    });
-
-                    // Borrar diezmos
-                    const diezmoIndices = itemsToDelete
-                        .filter(id => id.startsWith('diezmos-'))
-                        .map(id => parseInt(id.split('-')[1]))
-                        .sort((a, b) => b - a);
-                    
-                    diezmoIndices.forEach(index => {
-                        db.diezmos.splice(index, 1);
-                        count++;
-                    });
-
-                    await saveDB();
-                    showNotification(`🗑️ ${count} elementos borrados.`);
-                    selectedItems = []; 
-                    
-                } else {
-                    // Si el usuario cancela, simplemente limpiar selección
-                    selectedItems = [];
-                }
-
-                // Resetear el FAB y el modo edición
-                fabIcon.setAttribute('data-lucide', 'trash-2');
-                fabText.innerText = 'BORRAR';
-                fab.style.backgroundColor = '#ef4444'; // Rojo para borrar
-                fab.classList.remove('active');
-                editMode = false;
-
-                renderAllLists();
-                lucide.createIcons();
+            // Borrar de la base de datos
+            indicesToDelete.forEach(index => {
+                db[currentSection].splice(index, 1);
             });
+
+            await saveDB();
+            showNotification(`🗑️ ${indicesToDelete.length} elementos borrados.`);
+            
+            // Re-renderizar la vista
+            if (currentSection === 'registros') renderRegistrosList();
+            else if (currentSection === 'viajes') renderViajesList();
+            else if (currentSection === 'diezmos') updateDiezmosView();
+            
+            // Actualizar resumen si es necesario
+            if (document.getElementById('sec-resumen').classList.contains('hidden') === false) {
+                updateResumen();
+            }
         }
 
-        // --- FUNCIONES DE RENDERIZADO DE LISTAS (con enumeración v8) ---
+        // --- VISTAS DETALLADAS ---
 
         function renderRegistrosList() {
             const container = document.getElementById('registros-list');
             const filtroFecha = document.getElementById('reg-filtro-fecha').value;
-
+            
             if (!db.registros || db.registros.length === 0) {
                 container.innerHTML = '<div class="p-4 text-center text-slate-400">No hay registros guardados.</div>';
                 return;
             }
 
-            // 1. Mapear con índice original
-            let registrosWithIndex = db.registros.map((r, index) => ({...r, originalIndex: index}));
-
-            // 2. Filtrar por fecha si está seleccionada
+            // 1. Filtrar y mapear con índice original
+            let filteredRegistros = db.registros.map((r, index) => ({...r, originalIndex: index}));
             if (filtroFecha) {
-                registrosWithIndex = registrosWithIndex.filter(r => r.fecha === filtroFecha);
+                filteredRegistros = filteredRegistros.filter(r => r.fecha === filtroFecha);
             }
 
-            // 3. Ordenar: Más reciente primero (descendente)
-            const sortedRegistros = registrosWithIndex.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            if (filteredRegistros.length === 0) {
+                container.innerHTML = '<div class="p-4 text-center text-slate-400">No hay registros para la fecha seleccionada.</div>';
+                return;
+            }
+
+            // 2. Ordenar: Más reciente primero (descendente)
+            const sortedRegistros = filteredRegistros.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
             let html = '';
-            sortedRegistros.forEach((r, i) => {
-                const color = r.flujo === 'Ingreso' ? 'text-emerald-400' : 'text-red-400';
-                const sign = r.flujo === 'Ingreso' ? '+' : '-';
+            sortedRegistros.forEach((r) => {
+                const isIngreso = r.flujo === 'Ingreso';
+                const color = isIngreso ? 'text-emerald-400' : 'text-red-400';
+                const sign = isIngreso ? '+' : '-';
                 const isSelected = selectedItems.includes(`registros-${r.originalIndex}`) ? 'selected' : '';
-
+                
                 html += `
                     <div class="card flex items-center ${isSelected}" onclick="if(editMode) selectItem(${r.originalIndex}, this)">
                         ${editMode ? `<input type="checkbox" class="mr-3 w-5 h-5" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); selectItem(${r.originalIndex}, this.parentNode)">` : ''}
-                        <div class="text-xs font-bold text-slate-500 mr-3">${i + 1}.</div> <!-- ENUMERACIÓN V8 -->
                         <div class="flex-1">
                             <p class="text-sm font-bold ${color}">${r.cat} (${r.flujo})</p>
                             <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
@@ -673,14 +533,13 @@
             const sortedViajes = viajesWithIndex.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
             let html = '';
-            sortedViajes.forEach((v, i) => {
+            sortedViajes.forEach((v) => {
                 const color = v.tipo === 'Realizado' ? 'text-emerald-400' : 'text-blue-400';
                 const isSelected = selectedItems.includes(`viajes-${v.originalIndex}`) ? 'selected' : '';
 
                 html += `
                     <div class="card flex items-center ${isSelected}" onclick="if(editMode) selectItem(${v.originalIndex}, this)">
                         ${editMode ? `<input type="checkbox" class="mr-3 w-5 h-5" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); selectItem(${v.originalIndex}, this.parentNode)">` : ''}
-                        <div class="text-xs font-bold text-slate-500 mr-3">${i + 1}.</div> <!-- ENUMERACIÓN V8 -->
                         <div class="flex-1">
                             <p class="text-sm font-bold">${v.cliente}</p>
                             <p class="text-xs text-slate-400">${formatDate(v.fecha)} - ${v.tipo}</p>
@@ -695,43 +554,6 @@
 
             container.innerHTML = html;
             lucide.createIcons(); 
-        }
-
-        function renderDiezmoPagosList() {
-            const container = document.getElementById('diezmo-pagos-list');
-            if (!db.diezmos || db.diezmos.length === 0) {
-                container.innerHTML = '<div class="p-4 text-center text-slate-400">No hay pagos de diezmo registrados.</div>';
-                return;
-            }
-
-            // 1. Mapear con índice original
-            const diezmosWithIndex = db.diezmos.map((d, index) => ({...d, originalIndex: index}));
-
-            // 2. Ordenar: Más reciente primero (descendente)
-            const sortedDiezmos = diezmosWithIndex.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-
-            let html = '';
-            sortedDiezmos.forEach((d, i) => {
-                const isSelected = selectedItems.includes(`diezmos-${d.originalIndex}`) ? 'selected' : '';
-
-                html += `
-                    <div class="card flex items-center ${isSelected}" onclick="if(editMode) selectItem(${d.originalIndex}, this)">
-                        ${editMode ? `<input type="checkbox" class="mr-3 w-5 h-5" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); selectItem(${d.originalIndex}, this.parentNode)">` : ''}
-                        <div class="text-xs font-bold text-slate-500 mr-3">${i + 1}.</div> <!-- ENUMERACIÓN V8 -->
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-blue-400">Pago de Diezmo</p>
-                            <p class="text-xs text-slate-400">${formatDate(d.fecha)}</p>
-                            <p class="text-xs text-slate-500">${d.tipo}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-lg font-black text-blue-400">${formatter.format(d.monto).replace('GTQ', 'Q')}</p>
-                        </div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-            lucide.createIcons();
         }
 
         // --- FUNCIONES DE GUARDADO ---
@@ -817,25 +639,6 @@
         }
 
         // --- FUNCIONES DE RESUMEN Y DIEZMOS ---
-
-        function getNetoForRange(start, end) {
-            let ing = 0;
-            let gas = 0;
-
-            if (db.registros) {
-                db.registros.forEach(r => {
-                    const f = normalizeDate(r.fecha);
-                    if (f >= start && f <= end) {
-                        if (r.flujo === 'Ingreso') {
-                            ing += r.monto;
-                        } else {
-                            gas += r.monto;
-                        }
-                    }
-                });
-            }
-            return { ing, gas, neto: ing - gas };
-        }
 
         function renderMonthlyDetails() {
             const container = document.getElementById('resumen-ingresos-gastos');
@@ -931,22 +734,58 @@
                 });
             }
 
-            let catHtml = '<h3 class="text-sm font-bold text-blue-400 mb-3 uppercase mt-6">Desglose por Categoría</h3>';
-            catHtml += '<div class="space-y-3">';
-
-            const sortedCats = Object.keys(categorias).sort();
-
-            sortedCats.forEach(cat => {
+            let catHtml = '<h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Desglose por Categoría</h3>';
+            for (const cat in categorias) {
                 const ing = categorias[cat].Ingreso;
                 const gas = categorias[cat].Gasto;
                 const neto = ing - gas;
                 const color = neto >= 0 ? 'text-emerald-400' : 'text-red-400';
 
                 catHtml += `
-                    <div class="card flex justify-between items-center">
+                    <div class="flex justify-between items-center py-2 border-b border-white/10 last:border-b-0">
                         <div class="flex-1">
                             <p class="text-sm font-bold">${cat}</p>
-                            <p class="text-xs text-slate-400">Ingresos: ${formatter.format(ing).replace('GTQ', 'Q')} | Gastos: ${formatter.format(gas).replace('GTQ', 'Q')}</p>
+                            <p class="text-xs text-slate-400">Ingresos: ${formatter.format(ing).replace('GTQ', 'Q')} / Gastos: ${formatter.format(gas).replace('GTQ', 'Q')}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-black ${color}">${formatter.format(neto).replace('GTQ', 'Q')}</p>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('resumen-categorias').innerHTML = catHtml;
+
+            // 3. Historial Mensual
+            const historial = {};
+            if (db.registros) {
+                db.registros.forEach(r => {
+                    const [year, month] = r.fecha.split('-');
+                    const key = `${year}-${month}`;
+                    if (!historial[key]) {
+                        historial[key] = { Ingreso: 0, Gasto: 0 };
+                    }
+                    historial[key][r.flujo] += r.monto;
+                });
+            }
+
+            let histHtml = '<h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Historial Mensual</h3>';
+            const sortedMonths = Object.keys(historial).sort().reverse();
+            let totalNetoGlobal = 0;
+
+            sortedMonths.forEach(key => {
+                const [year, month] = key.split('-');
+                const monthName = new Date(year, month - 1).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+                const ing = historial[key].Ingreso;
+                const gas = historial[key].Gasto;
+                const neto = ing - gas;
+                totalNetoGlobal += neto;
+                const color = neto >= 0 ? 'text-emerald-400' : 'text-red-400';
+
+                histHtml += `
+                    <div class="flex justify-between items-center py-2 border-b border-white/10 last:border-b-0">
+                        <div class="flex-1">
+                            <p class="text-sm font-bold">${monthName.charAt(0).toUpperCase() + monthName.slice(1)}</p>
+                            <p class="text-xs text-slate-400">Ingresos: ${formatter.format(ing).replace('GTQ', 'Q')} / Gastos: ${formatter.format(gas).replace('GTQ', 'Q')}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-lg font-black ${color}">${formatter.format(neto).replace('GTQ', 'Q')}</p>
@@ -955,60 +794,149 @@
                 `;
             });
 
-            catHtml += '</div>';
-            document.getElementById('resumen-categorias').innerHTML = catHtml;
+            histHtml = `
+                <div class="text-center p-4">
+                    <p class="text-slate-400 text-[10px] uppercase">Ganancia Neta Total</p>
+                    <h4 class="text-3xl font-black ${totalNetoGlobal >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatter.format(totalNetoGlobal).replace('GTQ', 'Q')}</h4>
+                </div>
+                ${histHtml}
+            `;
+            document.getElementById('resumen-historial').innerHTML = histHtml;
+
+            // 4. Vistas de Ingresos y Gastos del Mes
+            renderMonthlyDetails();
         }
 
         function updateDiezmosView() {
-            let totalIngresos = 0;
-            if (db.registros) {
-                totalIngresos = db.registros
-                    .filter(r => r.flujo === 'Ingreso')
-                    .reduce((sum, r) => sum + r.monto, 0);
-            }
-
-            const diezmoEsperado = totalIngresos * 0.10;
-
-            let totalPagado = 0;
+            const hoy = new Date();
+            const { start: qStart, end: qEnd } = getQuincenaRange(hoy);
+            const { neto: netoQuincenal } = getNetoForRange(qStart, qEnd);
+            
+            const diezmoSugerido = netoQuincenal > 0 ? netoQuincenal * 0.10 : 0;
+            
+            let pagadoQuincenal = 0;
             if (db.diezmos) {
-                totalPagado = db.diezmos.reduce((sum, d) => sum + d.monto, 0);
+                db.diezmos.forEach(d => {
+                    const f = normalizeDate(d.fecha);
+                    if (f >= qStart && f <= qEnd) {
+                        pagadoQuincenal += d.monto;
+                    }
+                });
             }
 
-            const pendiente = diezmoEsperado - totalPagado;
-            const color = pendiente <= 0 ? 'text-emerald-400' : 'text-red-400';
-            const status = pendiente <= 0 ? 'AL DÍA' : 'PENDIENTE';
+            const faltante = Math.max(0, diezmoSugerido - pagadoQuincenal);
 
+            // Mostrar el resumen de la quincena actual
             document.getElementById('diezmo-info').innerHTML = `
-                <h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Resumen de Diezmos</h3>
-                <div class="flex justify-between items-center mb-2">
-                    <p class="text-sm text-slate-400">Ingreso Total:</p>
-                    <p class="text-sm font-bold text-emerald-400">${formatter.format(totalIngresos).replace('GTQ', 'Q')}</p>
-                </div>
-                <div class="flex justify-between items-center mb-2">
-                    <p class="text-sm text-slate-400">Diezmo Esperado (10%):</p>
-                    <p class="text-sm font-bold text-blue-400">${formatter.format(diezmoEsperado).replace('GTQ', 'Q')}</p>
-                </div>
-                <div class="flex justify-between items-center mb-2">
-                    <p class="text-sm text-slate-400">Total Pagado:</p>
-                    <p class="text-sm font-bold text-blue-400">${formatter.format(totalPagado).replace('GTQ', 'Q')}</p>
-                </div>
-                <div class="flex justify-between items-center pt-2 border-t border-slate-600">
-                    <p class="text-lg font-bold">Estado:</p>
-                    <p class="text-lg font-black ${color}">${status} (${formatter.format(pendiente).replace('GTQ', 'Q')})</p>
-                </div>
-            `;
-            renderDiezmoPagosList();
+                <h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Quincena Actual: ${qStart.getDate()} - ${qEnd.getDate()} de ${qStart.toLocaleDateString('es-MX', { month: 'long' })}</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between"><span>Neta Quincenal:</span><b>${formatter.format(netoQuincenal).replace('GTQ', 'Q')}</b></div>
+                    <div class="flex justify-between text-blue-400"><span>Diezmo Sugerido (10%):</span><b>${formatter.format(diezmoSugerido).replace('GTQ', 'Q')}</b></div>
+                    <div class="flex justify-between text-emerald-400 border-t border-white/10 pt-2"><span>Pagado en Quincena:</span><b>${formatter.format(pagadoQuincenal).replace('GTQ', 'Q')}</b></div>
+                    <div class="flex justify-between text-red-400 font-black text-lg"><span>FALTANTE:</span><span>${formatter.format(faltante).replace('GTQ', 'Q')}</span></div>
+                </div>`;
+
+            // Historial de Pagos de Diezmo
+            const pagosContainer = document.getElementById('diezmo-pagos-list');
+            if (!db.diezmos || db.diezmos.length === 0) {
+                pagosContainer.innerHTML = '<div class="card text-center text-slate-400">No hay pagos de diezmo registrados.</div>';
+                return;
+            }
+
+            // Agrupar pagos por quincena
+            const historialDiezmos = {};
+            db.diezmos.forEach((d, index) => {
+                const date = new Date(d.fecha);
+                const { start } = getQuincenaRange(date);
+                const key = start.toISOString().split('T')[0]; // Usar la fecha de inicio como clave
+                if (!historialDiezmos[key]) {
+                    historialDiezmos[key] = { pagos: 0, fechaInicio: start, pagosDetalle: [] };
+                }
+                historialDiezmos[key].pagos += d.monto;
+                historialDiezmos[key].pagosDetalle.push({ monto: d.monto, fecha: d.fecha, tipo: d.tipo, originalIndex: index });
+            });
+
+            let pagosHtml = '<h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Historial de Pagos</h3>';
+            // Ordenar quincenas: Más reciente primero (descendente)
+            const sortedQuincenas = Object.keys(historialDiezmos).sort().reverse();
+
+            sortedQuincenas.forEach(key => {
+                const { pagos, fechaInicio, pagosDetalle } = historialDiezmos[key];
+                const { end: fechaFin } = getQuincenaRange(fechaInicio);
+                const { neto } = getNetoForRange(fechaInicio, fechaFin);
+                const diezmoSug = neto > 0 ? neto * 0.10 : 0;
+                const balance = diezmoSug - pagos;
+                const color = balance <= 0 ? 'text-emerald-400' : 'text-red-400';
+                const status = balance <= 0 ? '✅ Pagado' : '❌ Pendiente';
+
+                pagosHtml += `
+                    <div class="card flex-col items-start">
+                        <div class="w-full flex justify-between items-center pb-2 border-b border-white/10">
+                            <div class="flex-1">
+                                <p class="text-sm font-bold">Quincena: ${fechaInicio.getDate()} - ${fechaFin.getDate()} ${fechaInicio.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}</p>
+                                <p class="text-xs text-slate-400">Neta: ${formatter.format(neto).replace('GTQ', 'Q')} | Sugerido: ${formatter.format(diezmoSug).replace('GTQ', 'Q')}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-black ${color}">${formatter.format(balance).replace('GTQ', 'Q')}</p>
+                                <p class="text-xs ${color}">${status}</p>
+                            </div>
+                        </div>
+                        <div class="w-full pt-2">
+                            <p class="text-xs font-bold text-slate-500 mb-1">Pagos Realizados (${formatter.format(pagos).replace('GTQ', 'Q')}):</p>
+                            ${pagosDetalle.map(p => {
+                                const isSelected = selectedItems.includes(`diezmos-${p.originalIndex}`) ? 'selected' : '';
+                                return `
+                                <div class="flex justify-between items-center text-xs pl-2 py-1 ${isSelected}" onclick="if(editMode) selectItem(${p.originalIndex}, this)">
+                                    ${editMode ? `<input type="checkbox" class="mr-3 w-4 h-4" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); selectItem(${p.originalIndex}, this.parentNode)">` : ''}
+                                    <span>${formatDate(p.fecha)} (${p.tipo})</span>
+                                    <span class="text-emerald-400 font-bold">${formatter.format(p.monto).replace('GTQ', 'Q')}</span>
+                                </div>
+                            `;}).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            pagosContainer.innerHTML = pagosHtml;
+            lucide.createIcons(); 
+        }
+
+        async function borrarDatos() { 
+            if(confirm("¿Seguro que quieres borrar todos los datos? Esta acción es irreversible.")) { 
+                try {
+                    await localforage.clear();
+                    location.reload(); 
+                } catch (err) {
+                    console.error("Error al borrar datos:", err);
+                    showNotification("❌ Error al borrar los datos.");
+                }
+            } 
         }
 
         // --- INICIALIZACIÓN ---
 
-        window.onload = () => {
-            loadDB();
-            // Establecer la fecha actual por defecto en los campos de fecha
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('reg-fecha').value = today;
-            document.getElementById('v-fecha').value = today;
-        };
+        async function initApp() {
+            // 1. Cargar la base de datos de IndexedDB
+            try {
+                const loadedDb = await localforage.getItem('lara_final_db');
+                if (loadedDb) {
+                    db = loadedDb;
+                }
+            } catch (err) {
+                console.error("Error al cargar la base de datos:", err);
+            }
+
+            // 2. Inicializar iconos y fechas
+            lucide.createIcons();
+            document.getElementById('reg-fecha').valueAsDate = new Date();
+            document.getElementById('v-fecha').valueAsDate = new Date();
+
+            // 3. Ejecutar la navegación inicial (que mostrará la sección de registros y su lista)
+            nav('registros');
+        }
+
+        // Iniciar la aplicación
+        initApp();
     </script>
 </body>
 </html>
