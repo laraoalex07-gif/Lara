@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Registros - Lara</title>
+  <link rel="manifest" href="/Lara/manifest.json" />
+  <style>
+    :root{--accent:#0b6efd;--muted:#666;--danger:#dc3545}
+    body{font-family:Inter, system-ui, Arial;margin:0;padding:1rem;background:#f6f9ff;color:#111}
+    .wrap{max-width:980px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+    .controls{display:flex;gap:.5rem;align-items:center}
+    .card{background:#fff;padding:1rem;border-radius:12px;box-shadow:0 8px 24px rgba(12,20,55,0.06);margin-top:1rem}
+    .row{display:flex;gap:.5rem;flex-wrap:wrap}
+    input,select,textarea{padding:.6rem;border-radius:8px;border:1px solid #e6eef7;font-size:1rem}
+    .btn{background:var(--accent);color:white;border:0;padding:.6rem .9rem;border-radius:10px;cursor:pointer;font-weight:500}
+    .btn.secondary{background:#6c757d}
+    .btn.danger{background:var(--danger)}
+    table{width:100%;border-collapse:collapse;margin-top:1rem}
+    th,td{padding:.8rem;border-bottom:1px solid #eef4ff;text-align:left}
+    th{background:#f8faff;font-weight:600;color:var(--muted)}
+    .muted{color:var(--muted)}
+    .small{font-size:.9rem}
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);z-index:100}
+    .panel{background:white;padding:1.5rem;border-radius:16px;width:95%;max-width:520px;box-shadow:0 20px 40px rgba(0,0,0,0.2)}
+    .flex-space{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+    .badge{padding:.2rem .5rem;border-radius:6px;font-size:.8rem;font-weight:bold;text-transform:uppercase}
+    .badge-ingreso{background:#e7f5ff;color:#007bff}
+    .badge-gasto{background:#fff5f5;color:#fa5252}
+    @media (max-width: 600px) {
+      .row > * { flex: 1 1 100%; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead tr { position: absolute; top: -9999px; left: -9999px; }
+      tr { border: 1px solid #eee; margin-bottom: 1rem; border-radius: 8px; padding: .5rem; }
+      td { border: none; position: relative; padding-left: 50%; }
+      td:before { position: absolute; left: 10px; width: 45%; padding-right: 10px; white-space: nowrap; content: attr(data-label); font-weight: bold; color: var(--muted); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Registros</h1>
+      <nav class="controls">
+        <a class="small" href="/Lara/index.html">Inicio</a>
+        <a class="small" href="/Lara/viajes.html">Viajes</a>
+        <a class="small" href="/Lara/diezmos.html">Diezmos</a>
+      </nav>
+    </header>
+
+    <div class="card">
+      <div class="flex-space">
+        <div class="controls">
+          <button id="openNew" class="btn">+ Nuevo</button>
+          <button id="exportJson" class="btn secondary">JSON</button>
+          <button id="importJson" class="btn secondary">Importar</button>
+          <button id="exportPdf" class="btn">PDF</button>
+          <input id="fileInput" type="file" accept="application/json" style="display:none" />
+        </div>
+        <div class="small muted">Almacenamiento local activo</div>
+      </div>
+
+      <div style="margin-top:1.5rem; background:#f8faff; padding:1rem; border-radius:10px" class="row">
+        <div style="flex:1"><label class="small muted">Desde</label><br><input id="filterFrom" type="date" style="width:100%; box-sizing:border-box" /></div>
+        <div style="flex:1"><label class="small muted">Hasta</label><br><input id="filterTo" type="date" style="width:100%; box-sizing:border-box" /></div>
+        <div style="align-self:end"><button id="applyFilter" class="btn secondary" style="width:100%">Filtrar</button></div>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table id="table">
+          <thead><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Detalle</th><th>Monto</th><th>Acciones</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal new/edit -->
+  <div class="modal" id="modal">
+    <div class="panel">
+      <h3 id="modalTitle" style="margin-top:0">Nuevo registro</h3>
+      <form id="recordForm">
+        <div class="row" style="margin-top:.5rem">
+          <div style="flex:1">
+            <label class="small muted">Tipo</label>
+            <select id="tipo" style="width:100%">
+              <option value="ingreso">Ingreso</option>
+              <option value="gasto">Gasto</option>
+            </select>
+          </div>
+          <div style="flex:1">
+            <label class="small muted">Fecha</label>
+            <input id="fecha" type="date" required style="width:100%; box-sizing:border-box" />
+          </div>
+        </div>
+        <div style="margin-top:1rem">
+          <label class="small muted">Monto</label>
+          <input id="monto" type="text" placeholder="Q.0.00" required style="width:100%; box-sizing:border-box; font-size:1.2rem; font-weight:bold" />
+        </div>
+        <div style="margin-top:1rem" class="row">
+          <div style="flex:1">
+            <label class="small muted">Categoría</label>
+            <select id="categoria" style="width:100%"></select>
+          </div>
+          <div id="newCatBox" style="flex:1; display:none">
+            <label class="small muted">Nombre categoría</label>
+            <input id="newCat" placeholder="Ej. Regalo" style="width:100%; box-sizing:border-box" />
+          </div>
+        </div>
+        <div style="margin-top:1rem">
+          <label class="small muted">Detalle / Concepto</label>
+          <input id="detalle" placeholder="Opcional" style="width:100%; box-sizing:border-box" />
+        </div>
+        <div style="text-align:right;margin-top:1.5rem; display:flex; gap:.5rem; justify-content:flex-end">
+          <button type="button" id="cancel" class="btn secondary">Cancelar</button>
+          <button type="submit" class="btn">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const KEY_REG = 'registros_v2';
+    const KEY_CAT = 'categorias_v1';
+    const DEFAULT_CATS = ['Sueldo','Ventas','Transporte','Comida','Vivienda','Salud','Otros'];
+
+    function fmtCurrency(n){
+      return 'Q.' + Number(n || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+
+    function parseCurrency(s){
+      if(typeof s === 'number') return s;
+      const cleaned = String(s || '').replace(/[Qq\. ,]/g,'');
+      return parseFloat(cleaned) || 0;
+    }
+
+    function loadCategories(){
+      let cats = JSON.parse(localStorage.getItem(KEY_CAT));
+      if(!cats){ cats = DEFAULT_CATS; localStorage.setItem(KEY_CAT, JSON.stringify(cats)); }
+      return cats;
+    }
+
+    function saveCategory(cat){
+      const cats = loadCategories();
+      if(!cats.includes(cat) && cat !== 'Otros') {
+        cats.unshift(cat);
+        localStorage.setItem(KEY_CAT, JSON.stringify(cats));
+      }
+    }
+
+    let records = JSON.parse(localStorage.getItem(KEY_REG) || '[]');
+    const tbody = document.querySelector('#table tbody');
+    const modal = document.getElementById('modal');
+    const recordForm = document.getElementById('recordForm');
+    const montoEl = document.getElementById('monto');
+    const categoriaEl = document.getElementById('categoria');
+    const newCatBox = document.getElementById('newCatBox');
+    const newCatEl = document.getElementById('newCat');
+    let editingId = null;
+
+    function refreshCategoryOptions(){
+      const cats = loadCategories();
+      categoriaEl.innerHTML = '';
+      cats.forEach(c=>{
+        const opt = document.createElement('option'); opt.value = c; opt.textContent = c; categoriaEl.appendChild(opt);
+      });
+      if(!cats.includes('Otros')){
+        const opt = document.createElement('option'); opt.value = 'Otros'; opt.textContent = 'Otros'; categoriaEl.appendChild(opt);
+      }
+    }
+
+    categoriaEl.addEventListener('change', ()=>{
+      newCatBox.style.display = (categoriaEl.value === 'Otros') ? 'block' : 'none';
+      if(categoriaEl.value === 'Otros') newCatEl.focus();
+    });
+
+    // Formato moneda en tiempo real
+    montoEl.addEventListener('blur', () => {
+      const val = parseCurrency(montoEl.value);
+      montoEl.value = fmtCurrency(val);
+    });
+    montoEl.addEventListener('focus', () => {
+      const val = parseCurrency(montoEl.value);
+      montoEl.value = val > 0 ? val : '';
+    });
+
+    document.getElementById('openNew').addEventListener('click', ()=>{
+      editingId = null;
+      document.getElementById('modalTitle').textContent = 'Nuevo registro';
+      recordForm.reset();
+      document.getElementById('fecha').value = new Date().toISOString().slice(0,10);
+      montoEl.value = '';
+      newCatBox.style.display = 'none';
+      refreshCategoryOptions();
+      modal.style.display = 'flex';
+    });
+
+    document.getElementById('cancel').addEventListener('click', ()=> modal.style.display = 'none');
+
+    function render(){
+      tbody.innerHTML = '';
+      const from = document.getElementById('filterFrom').value ? new Date(document.getElementById('filterFrom').value) : null;
+      const to = document.getElementById('filterTo').value ? new Date(document.getElementById('filterTo').value) : null;
+      
+      const filtered = records.slice().sort((a,b)=>b.created-a.created).filter(r=>{
+        const d = new Date(r.fecha);
+        if(from && d < from) return false;
+        if(to && d > to) return false;
+        return true;
+      });
+
+      filtered.forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td data-label="Fecha" class="small">${r.fecha}</td>
+          <td data-label="Tipo"><span class="badge badge-${r.tipo}">${r.tipo}</span></td>
+          <td data-label="Categoría">${r.categoria}</td>
+          <td data-label="Detalle" class="small">${r.detalle || '-'}</td>
+          <td data-label="Monto"><strong>${fmtCurrency(r.monto)}</strong></td>
+          <td data-label="Acciones">
+            <button onclick="openEdit(${r.id})" class="btn small" style="padding:.3rem .6rem">Editar</button>
+            <button onclick="deleteRecord(${r.id})" class="btn danger small" style="padding:.3rem .6rem">X</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.openEdit = (id) => {
+      const r = records.find(x=>x.id === id);
+      if(!r) return;
+      editingId = r.id;
+      document.getElementById('modalTitle').textContent = 'Editar registro';
+      document.getElementById('tipo').value = r.tipo;
+      document.getElementById('fecha').value = r.fecha;
+      montoEl.value = fmtCurrency(r.monto);
+      refreshCategoryOptions();
+      categoriaEl.value = r.categoria;
+      document.getElementById('detalle').value = r.detalle || '';
+      newCatBox.style.display = 'none';
+      modal.style.display = 'flex';
+    };
+
+    window.deleteRecord = (id) => {
+      if(confirm('¿Eliminar este registro?')){
+        records = records.filter(r=>r.id !== id);
+        localStorage.setItem(KEY_REG, JSON.stringify(records));
+        render();
+      }
+    };
+
+    recordForm.addEventListener('submit', e=>{
+      e.preventDefault();
+      const monto = parseCurrency(montoEl.value);
+      if(monto <= 0) return alert('Ingrese un monto válido');
+
+      let cat = categoriaEl.value;
+      if(cat === 'Otros'){
+        const nc = newCatEl.value.trim();
+        if(nc){ saveCategory(nc); cat = nc; }
+      }
+
+      const entry = {
+        id: editingId || Date.now(),
+        tipo: document.getElementById('tipo').value,
+        fecha: document.getElementById('fecha').value,
+        monto: monto,
+        categoria: cat,
+        detalle: document.getElementById('detalle').value.trim(),
+        created: editingId ? records.find(x=>x.id===editingId).created : Date.now()
+      };
+
+      if(editingId){
+        const idx = records.findIndex(r=>r.id === editingId);
+        records[idx] = entry;
+      } else {
+        records.unshift(entry);
+      }
+
+      localStorage.setItem(KEY_REG, JSON.stringify(records));
+      modal.style.display = 'none';
+      render();
+    });
+
+    document.getElementById('applyFilter').addEventListener('click', render);
+
+    document.getElementById('exportJson').addEventListener('click', ()=>{
+      const data = JSON.stringify({records, categories: loadCategories()}, null, 2);
+      const blob = new Blob([data], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Lara_Registros_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    });
+
+    document.getElementById('importJson').addEventListener('click', ()=> document.getElementById('fileInput').click());
+    document.getElementById('fileInput').addEventListener('change', e=>{
+      const f = e.target.files[0];
+      if(!f) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        try {
+          const obj = JSON.parse(reader.result);
+          if(obj.records){
+            records = [...obj.records, ...records].filter((v,i,a)=>a.findIndex(t=>(t.id===v.id))===i);
+            localStorage.setItem(KEY_REG, JSON.stringify(records));
+            if(obj.categories) localStorage.setItem(KEY_CAT, JSON.stringify(obj.categories));
+            render();
+            alert('Datos importados correctamente');
+          }
+        } catch(err) { alert('Error al importar: ' + err.message); }
+      };
+      reader.readAsText(f);
+    });
+
+    document.getElementById('exportPdf').addEventListener('click', ()=>{
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(18);
+      doc.text('Reporte de Registros - Lara', 14, 20);
+      doc.setFontSize(11);
+      doc.setTextColor(100);
+      doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 28);
+      
+      let y = 40;
+      doc.setFontSize(10);
+      doc.setTextColor(0);
+      doc.text('Fecha', 14, y);
+      doc.text('Tipo', 40, y);
+      doc.text('Categoría', 65, y);
+      doc.text('Monto', 160, y);
+      y += 2;
+      doc.line(14, y, 195, y);
+      y += 6;
+
+      records.slice(0, 100).forEach(r => {
+        doc.text(r.fecha, 14, y);
+        doc.text(r.tipo, 40, y);
+        doc.text(r.categoria, 65, y);
+        doc.text(fmtCurrency(r.monto), 160, y);
+        y += 6;
+        if(y > 280) { doc.addPage(); y = 20; }
+      });
+      doc.save('Lara_Registros.pdf');
+    });
+
+    refreshCategoryOptions();
+    render();
+  </script>
+</body>
+</html>

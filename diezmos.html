@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Diezmos - Lara</title>
+  <link rel="manifest" href="/Lara/manifest.json" />
+  <style>
+    :root{--accent:#00c896;--muted:#666;--danger:#dc3545}
+    body{font-family:Inter, system-ui, Arial;margin:0;padding:1rem;background:#f7fffb;color:#111}
+    .wrap{max-width:980px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+    .card{background:#fff;padding:1.5rem;border-radius:16px;box-shadow:0 8px 24px rgba(12,20,55,0.06);margin-top:1rem}
+    .row{display:flex;gap:.5rem;flex-wrap:wrap}
+    input,select{padding:.6rem;border-radius:8px;border:1px solid #e6eef7;font-size:1rem}
+    .btn{background:var(--accent);color:white;border:0;padding:.6rem .9rem;border-radius:10px;cursor:pointer;font-weight:500}
+    .btn.secondary{background:#6c757d}
+    .btn.danger{background:var(--danger)}
+    table{width:100%;border-collapse:collapse;margin-top:1rem}
+    th,td{padding:.8rem;border-bottom:1px solid #eef4ff;text-align:left}
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);z-index:100}
+    .panel{background:white;padding:1.5rem;border-radius:16px;width:95%;max-width:520px}
+    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:1rem;margin:1.5rem 0}
+    .summary-item{background:#f8faff;padding:1rem;border-radius:12px;border:1px solid #eef4ff}
+    .summary-item label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.3rem}
+    .summary-item span{font-size:1.1rem;font-weight:bold}
+    .highlight{color:var(--accent)}
+    @media (max-width: 600px) {
+      .row > * { flex: 1 1 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Diezmos</h1>
+      <nav>
+        <a class="small" href="/Lara/index.html">Inicio</a>
+        <a class="small" href="/Lara/registros.html">Registros</a>
+        <a class="small" href="/Lara/viajes.html">Viajes</a>
+      </nav>
+    </header>
+
+    <div class="card">
+      <div class="row" style="align-items:center;gap:1rem; background:#f0fff9; padding:1rem; border-radius:12px">
+        <div style="flex:1">
+          <label class="small muted">Mes</label><br>
+          <input id="month" type="month" style="width:100%; box-sizing:border-box" />
+        </div>
+        <div style="flex:1">
+          <label class="small muted">Quincena</label><br>
+          <select id="quincena" style="width:100%">
+            <option value="1">1ra (Día 1-15)</option>
+            <option value="2">2da (Día 16-Fin)</option>
+          </select>
+        </div>
+        <div style="align-self:end">
+          <button id="calcBtn" class="btn" style="width:100%">Calcular</button>
+        </div>
+      </div>
+
+      <div id="summary" class="summary-grid">
+        <div class="summary-item"><label>Ingresos</label><span id="sumIngresos">Q.0.00</span></div>
+        <div class="summary-item"><label>Gastos</label><span id="sumGastos">Q.0.00</span></div>
+        <div class="summary-item"><label>Sugerido (10%)</label><span id="sumSugerido" class="highlight">Q.0.00</span></div>
+        <div class="summary-item"><label>Pagado</label><span id="sumPagado">Q.0.00</span></div>
+        <div class="summary-item"><label>Faltante</label><span id="sumFaltante" style="color:var(--danger)">Q.0.00</span></div>
+      </div>
+
+      <div class="row" style="justify-content:flex-end; gap:.5rem">
+        <button id="openPay" class="btn">Registrar Pago</button>
+        <button id="exportJson" class="btn secondary">JSON</button>
+        <button id="exportPdf" class="btn">PDF</button>
+      </div>
+
+      <div style="margin-top:2rem">
+        <h3 style="margin-bottom:.5rem">Historial de pagos de esta quincena</h3>
+        <div style="overflow-x:auto">
+          <table id="table">
+            <thead><tr><th>Fecha</th><th>Monto</th><th>Método</th><th>Acciones</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- payment modal -->
+  <div class="modal" id="payModal">
+    <div class="panel">
+      <h3 style="margin-top:0">Registrar pago</h3>
+      <form id="payForm">
+        <div style="margin-top:1rem">
+          <label class="small muted">Fecha de pago</label>
+          <input id="payDate" type="date" required style="width:100%; box-sizing:border-box" />
+        </div>
+        <div style="margin-top:1rem">
+          <label class="small muted">Monto</label>
+          <input id="payAmount" type="number" step="0.01" required style="width:100%; box-sizing:border-box; font-size:1.2rem; font-weight:bold" />
+        </div>
+        <div style="margin-top:1rem">
+          <label class="small muted">Método</label>
+          <select id="payMethod" style="width:100%">
+            <option value="efectivo">Efectivo</option>
+            <option value="transferencia">Transferencia</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div style="text-align:right;margin-top:1.5rem; display:flex; gap:.5rem; justify-content:flex-end">
+          <button type="button" id="cancelPay" class="btn secondary">Cancelar</button>
+          <button type="submit" class="btn">Guardar Pago</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const KEY_REG = 'registros_v2';
+    const KEY_PAG = 'pagos_diezmos_v1';
+    
+    function formatQ(n){ return 'Q.' + Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+    let registros = JSON.parse(localStorage.getItem(KEY_REG) || '[]');
+    let pagos = JSON.parse(localStorage.getItem(KEY_PAG) || '[]');
+
+    const monthEl = document.getElementById('month');
+    const quincenaEl = document.getElementById('quincena');
+    const payModal = document.getElementById('payModal');
+    const payForm = document.getElementById('payForm');
+    let editingPayId = null;
+
+    function getRange(year, monthIdx, q){
+      const from = new Date(year, monthIdx, q === 1 ? 1 : 16);
+      const to = q === 1 ? new Date(year, monthIdx, 15, 23, 59, 59) : new Date(year, monthIdx + 1, 0, 23, 59, 59);
+      return { from, to };
+    }
+
+    function calc(){
+      const [y, m] = (monthEl.value || new Date().toISOString().slice(0,7)).split('-').map(Number);
+      const q = Number(quincenaEl.value);
+      const range = getRange(y, m-1, q);
+      const key = `${y}-${String(m).padStart(2,'0')}-q${q}`;
+
+      let ingresos = 0, gastos = 0;
+      registros.forEach(r => {
+        const d = new Date(r.fecha);
+        if(d >= range.from && d <= range.to){
+          if(r.tipo === 'ingreso') ingresos += Number(r.monto);
+          else gastos += Number(r.monto);
+        }
+      });
+
+      const base = Math.max(0, ingresos - gastos);
+      const sugerido = Math.round(base * 0.10 * 100) / 100;
+      const pagado = pagos.filter(p => p.quincenaKey === key).reduce((s, p) => s + Number(p.monto), 0);
+      const faltante = Math.max(0, sugerido - pagado);
+
+      document.getElementById('sumIngresos').textContent = formatQ(ingresos);
+      document.getElementById('sumGastos').textContent = formatQ(gastos);
+      document.getElementById('sumSugerido').textContent = formatQ(sugerido);
+      document.getElementById('sumPagado').textContent = formatQ(pagado);
+      document.getElementById('sumFaltante').textContent = formatQ(faltante);
+
+      renderPayments(key);
+      return { key, sugerido };
+    }
+
+    function renderPayments(key){
+      const tbody = document.querySelector('#table tbody');
+      tbody.innerHTML = '';
+      const list = pagos.filter(p => p.quincenaKey === key).sort((a,b) => b.created - a.created);
+      
+      list.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.fecha}</td>
+          <td><strong>${formatQ(p.monto)}</strong></td>
+          <td>${p.metodo}</td>
+          <td>
+            <button onclick="editPay(${p.id})" class="btn small" style="padding:.3rem .6rem">Editar</button>
+            <button onclick="deletePay(${p.id})" class="btn danger small" style="padding:.3rem .6rem">X</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.editPay = (id) => {
+      const p = pagos.find(x => x.id === id);
+      if(!p) return;
+      editingPayId = p.id;
+      document.getElementById('payDate').value = p.fecha;
+      document.getElementById('payAmount').value = p.monto;
+      document.getElementById('payMethod').value = p.metodo;
+      payModal.style.display = 'flex';
+    };
+
+    window.deletePay = (id) => {
+      if(confirm('¿Eliminar este pago?')){
+        pagos = pagos.filter(p => p.id !== id);
+        localStorage.setItem(KEY_PAG, JSON.stringify(pagos));
+        calc();
+      }
+    };
+
+    document.getElementById('calcBtn').addEventListener('click', calc);
+    document.getElementById('openPay').addEventListener('click', () => {
+      const res = calc();
+      editingPayId = null;
+      payForm.reset();
+      document.getElementById('payDate').value = new Date().toISOString().slice(0,10);
+      document.getElementById('payAmount').value = (document.getElementById('sumFaltante').textContent.replace('Q.','').replace(',','') || 0);
+      payModal.style.display = 'flex';
+    });
+
+    document.getElementById('cancelPay').addEventListener('click', () => payModal.style.display = 'none');
+
+    payForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const [y, m] = monthEl.value.split('-').map(Number);
+      const q = quincenaEl.value;
+      const key = `${y}-${String(m).padStart(2,'0')}-q${q}`;
+
+      const entry = {
+        id: editingPayId || Date.now(),
+        fecha: document.getElementById('payDate').value,
+        monto: parseFloat(document.getElementById('payAmount').value),
+        metodo: document.getElementById('payMethod').value,
+        quincenaKey: key,
+        created: editingPayId ? pagos.find(x=>x.id===editingPayId).created : Date.now()
+      };
+
+      if(editingPayId){
+        const idx = pagos.findIndex(p => p.id === editingPayId);
+        pagos[idx] = entry;
+      } else {
+        pagos.unshift(entry);
+      }
+
+      localStorage.setItem(KEY_PAG, JSON.stringify(pagos));
+      payModal.style.display = 'none';
+      calc();
+    });
+
+    document.getElementById('exportJson').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(pagos, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Lara_Pagos_Diezmos.json`;
+      a.click();
+    });
+
+    document.getElementById('exportPdf').addEventListener('click', () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text('Reporte de Pagos Diezmos - Lara', 14, 20);
+      let y = 30;
+      pagos.forEach(p => {
+        doc.text(`${p.fecha} | ${p.quincenaKey} | ${formatQ(p.monto)} | ${p.metodo}`, 14, y);
+        y += 7;
+        if(y > 280) { doc.addPage(); y = 20; }
+      });
+      doc.save('Lara_Diezmos.pdf');
+    });
+
+    // Init
+    monthEl.value = new Date().toISOString().slice(0,7);
+    calc();
+  </script>
+</body>
+</html>
