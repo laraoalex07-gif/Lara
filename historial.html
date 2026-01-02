@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Historial de pagos de diezmos guardados en la app localmente." />
+  <title>Historial — Diezmos</title>
+  <link rel="manifest" href="/Lara/manifest.json" />
+  <meta name="theme-color" content="#0b6efd" />
+  <style>
+    body{margin:0;font-family:Inter,system-ui,Arial;background:#f3f7ff;color:#111}
+    .wrap{max-width:920px;margin:0 auto;padding:1rem}
+    header{display:flex;align-items:center;gap:1rem}
+    .card{background:white;padding:1rem;border-radius:12px;box-shadow:0 8px 20px rgba(16,24,40,0.06);margin-top:1rem}
+    .item{display:flex;justify-content:space-between;align-items:center;padding:.75rem 0;border-bottom:1px dashed #eef4ff}
+    .item:last-child{border-bottom:0}
+    .meta{color:#666;font-size:.9rem}
+    .danger{background:transparent;border:0;color:#ff4d4f;cursor:pointer;font-weight:700}
+    .empty{padding:1.5rem;text-align:center;color:#666}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <button id="back" aria-label="Volver">← Volver</button>
+      <div>
+        <h1>Historial de pagos</h1>
+        <small class="meta">Registros guardados localmente en tu dispositivo</small>
+      </div>
+    </header>
+
+    <section class="card" id="list">
+      <!-- Lista de pagos -->
+    </section>
+  </div>
+
+  <script>
+    // Botón volver
+    document.getElementById('back').addEventListener('click', () => {
+      if (history.length > 1) history.back();
+      else location.href = '/Lara/';
+    });
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleString();
+    }
+
+    function render() {
+      const root = document.getElementById('list');
+      const lista = JSON.parse(localStorage.getItem('diezmos_registros') || '[]');
+      if (!lista.length) {
+        root.innerHTML = '<div class="empty">No hay pagos guardados todavía.</div>';
+        return;
+      }
+      root.innerHTML = '';
+      lista.forEach(reg => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <div>
+            <div><strong>$${reg.monto.toFixed(2)}</strong> <span class="meta"> — ${reg.nota || 'Diezmo'}</span></div>
+            <div class="meta">${formatDate(reg.fecha)}</div>
+          </div>
+          <div>
+            <button class="danger" data-id="${reg.id}">Eliminar</button>
+          </div>
+        `;
+        root.appendChild(div);
+      });
+
+      // listeners para eliminar
+      root.querySelectorAll('button.danger').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = Number(e.currentTarget.dataset.id);
+          let lista = JSON.parse(localStorage.getItem('diezmos_registros') || '[]');
+          lista = lista.filter(r => r.id !== id);
+          localStorage.setItem('diezmos_registros', JSON.stringify(lista));
+          render();
+        });
+      });
+    }
+
+    render();
+
+    // Control de popstate para regresar a home si hace falta
+    history.replaceState({page:'historial'}, 'historial', location.href);
+    window.addEventListener('popstate', (e) => {
+      if (!e.state) location.href = '/Lara/';
+    });
+  </script>
+</body>
+</html>

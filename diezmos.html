@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Calculadora de diezmos — introduce ingresos y gastos para calcular el 10% sugerido." />
+  <title>Diezmos — Lara</title>
+  <link rel="manifest" href="/Lara/manifest.json" />
+  <meta name="theme-color" content="#00c896" />
+  <style>
+    :root{--bg:#f7fffb;--card:#fff;--accent:#00c896;--muted:#666}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:#111}
+    .wrap{max-width:780px;margin:0 auto;padding:1rem}
+    header{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
+    button.back{border:0;background:transparent;font-weight:700;color:var(--muted);cursor:pointer}
+    .card{background:var(--card);padding:1rem;border-radius:12px;box-shadow:0 8px 20px rgba(16,24,40,0.06)}
+    label{display:block;margin-top:.75rem;font-weight:600}
+    input[type=number]{width:100%;padding:.7rem;border-radius:8px;border:1px solid #e6eef7;margin-top:.35rem;font-size:1rem}
+    .row{display:flex;gap:.5rem;margin-top:1rem}
+    .col{flex:1}
+    .result{margin-top:1rem;padding:.8rem;border-radius:10px;background:linear-gradient(90deg,rgba(0,200,150,0.08),rgba(0,120,100,0.03));font-weight:700}
+    .pay{margin-top:1rem;display:inline-flex;align-items:center;gap:.6rem;padding:.75rem 1rem;border-radius:12px;background:linear-gradient(90deg,var(--accent),#008a6f);color:white;border:0;font-weight:800;cursor:pointer}
+    small.muted{color:var(--muted);display:block;margin-top:.5rem}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <button class="back" id="backBtn" aria-label="Volver">← Volver</button>
+      <div>
+        <h1>Diezmos</h1>
+        <small class="muted">Calcula el 10% sugerido automáticamente</small>
+      </div>
+    </header>
+
+    <section class="card" aria-labelledby="calc-title">
+      <h2 id="calc-title">Calculadora</h2>
+
+      <label for="ingresos">Total ingresos (quincena)</label>
+      <input id="ingresos" type="number" min="0" step="0.01" placeholder="Ej: 1200.00" />
+
+      <label for="gastos">Total gastos (quincena)</label>
+      <input id="gastos" type="number" min="0" step="0.01" placeholder="Ej: 300.00" />
+
+      <div class="row">
+        <div class="col">
+          <label for="nota">Nota (opcional)</label>
+          <input id="nota" type="text" placeholder="Descripción (ej: diezmo marzo)" />
+        </div>
+      </div>
+
+      <div class="result" id="resultado" aria-live="polite">El diezmo sugerido aparecerá aquí.</div>
+
+      <button id="guardar" class="pay" title="Guardar pago sugerido">
+        <!-- Icono billete compacto -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 8h18M3 16h18" stroke="white" stroke-width="1.4" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke="white" stroke-width="1.4"/></svg>
+        Guardar pago (pagar diezmo)
+      </button>
+
+      <small class="muted">El cálculo = 10% × (ingresos − gastos). Si el resultado es negativo, el diezmo sugerido será 0.</small>
+    </section>
+  </div>
+
+  <script>
+    // Control del botón volver: retroceder en historial o ir a bienvenida
+    const backBtn = document.getElementById('backBtn');
+    backBtn.addEventListener('click', () => {
+      if (history.length > 1) history.back();
+      else location.href = '/Lara/';
+    });
+
+    // Cálculo y guardado en localStorage
+    const ingresosEl = document.getElementById('ingresos');
+    const gastosEl = document.getElementById('gastos');
+    const notaEl = document.getElementById('nota');
+    const resultadoEl = document.getElementById('resultado');
+    const guardarBtn = document.getElementById('guardar');
+
+    function calcular() {
+      const ingresos = parseFloat(ingresosEl.value) || 0;
+      const gastos = parseFloat(gastosEl.value) || 0;
+      let base = (ingresos - gastos);
+      if (base < 0) base = 0;
+      const diezmo = Math.round((base * 0.10) * 100) / 100;
+      resultadoEl.textContent = `Sugerido: $${diezmo.toFixed(2)} (10% de $${base.toFixed(2)})`;
+      return diezmo;
+    }
+
+    ingresosEl.addEventListener('input', calcular);
+    gastosEl.addEventListener('input', calcular);
+
+    guardarBtn.addEventListener('click', () => {
+      const monto = calcular();
+      const nota = (notaEl.value || '').trim();
+      const registro = {
+        id: Date.now(),
+        fecha: new Date().toISOString(),
+        monto,
+        nota,
+        ingresos: parseFloat(ingresosEl.value) || 0,
+        gastos: parseFloat(gastosEl.value) || 0
+      };
+      const lista = JSON.parse(localStorage.getItem('diezmos_registros') || '[]');
+      lista.unshift(registro);
+      localStorage.setItem('diezmos_registros', JSON.stringify(lista));
+      // Al guardar, redirigir al historial para confirmar
+      location.href = '/Lara/historial.html';
+    });
+
+    // pushState para que 'atrás' se comporte como en app
+    history.replaceState({page: 'diezmos'}, 'diezmos', location.href);
+    history.pushState({page: 'diezmos:afterpush'}, 'diezmos-after', location.href);
+    window.addEventListener('popstate', (e) => {
+      // Si el usuario pulsa atrás en esta pantalla, llevamos a la home
+      if (!e.state || e.state.page === 'home') {
+        location.href = '/Lara/';
+      }
+    });
+  </script>
+</body>
+</html>
