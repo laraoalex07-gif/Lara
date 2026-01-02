@@ -26,22 +26,24 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
         
-        /* Estilo de Inputs y Selects */
+        /* Estilo de Inputs y Selects (Mejora de Usabilidad) */
         input, select, textarea { 
             background: var(--card-bg) !important; 
             border: 1px solid #334155 !important; 
             color: var(--text-color) !important; 
-            padding: 0.8rem; 
+            padding: 1rem !important; /* Más padding */
+            height: auto !important; /* Altura automática */
             border-radius: 0.6rem; 
             width: 100%; 
             font-size: 16px; 
-            margin-bottom: 8px; 
+            margin-bottom: 12px; /* Más espacio entre campos */
             transition: border-color 0.2s;
         }
         input:focus, select:focus, textarea:focus {
             border-color: var(--primary) !important;
             outline: none;
         }
+        textarea { min-height: 100px; }
 
         /* Estilo de Botón Principal */
         .btn-blue { 
@@ -57,12 +59,15 @@
         }
         .btn-blue:active { background: #1d4ed8; transform: scale(0.98); }
 
-        /* Estilo de Navegación (Ajuste Final UI/UX) */
+        /* Estilo de Navegación */
         .nav-bar {
             background: var(--card-bg);
             border-top: 1px solid #334155;
             box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
             padding: 4px; 
+            /* Ajuste para que quepan más botones */
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
         }
         .nav-btn { 
             display: flex; 
@@ -70,13 +75,12 @@
             align-items: center; 
             font-size: 0.65rem; 
             color: #94a3b8; 
-            flex: 1; 
             padding: 8px 0; 
             border:none; 
             background:none; 
             transition: color 0.2s, transform 0.1s, background 0.2s;
             border-radius: 8px; 
-            margin: 0 4px;
+            margin: 0 2px; /* Menos margen para que quepan */
         }
         .nav-btn:hover { background: rgba(255, 255, 255, 0.05); }
         .nav-btn:active { transform: scale(0.95); }
@@ -87,7 +91,7 @@
         }
         .nav-btn i { margin-bottom: 2px; }
 
-        /* Estilos de Tarjeta (Card) - Nuevo Estilo */
+        /* Estilos de Tarjeta (Card) */
         .card {
             background: var(--card-bg);
             border-radius: 1rem;
@@ -120,14 +124,13 @@
             opacity: 1;
         }
 
-        /* Botón Flotante de Edición */
+        /* Botón Flotante de Edición/Borrado (Mejora Estética) */
         .fab {
             position: fixed;
             bottom: 80px;
             right: 20px;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
+            padding: 12px 18px;
+            border-radius: 30px;
             background-color: #ef4444; /* Rojo para Borrar */
             color: white;
             display: flex;
@@ -137,15 +140,59 @@
             z-index: 900;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.2s;
+            font-weight: bold;
         }
         .fab:active { transform: scale(0.95); }
         .fab.active { background-color: #10b981; } /* Verde para Salir del modo */
+        .fab i { margin-right: 8px; }
+
+        /* Estilos del Modal de Confirmación */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 1rem;
+            max-width: 350px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
     </style>
 </head>
 <body class="pb-24">
 
     <!-- NOTIFICACIÓN SUTIL -->
     <div id="notification"></div>
+
+    <!-- MODAL DE CONFIRMACIÓN PERSONALIZADO -->
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold text-red-400 mb-3">Confirmar Borrado</h3>
+            <p id="modal-message" class="text-slate-300 mb-6">¿Estás seguro de que quieres borrar 0 elementos? Esta acción es irreversible.</p>
+            <div class="flex justify-around">
+                <button onclick="hideConfirmModal(false)" class="btn-blue bg-slate-600 hover:bg-slate-700 w-5/12">Cancelar</button>
+                <button onclick="hideConfirmModal(true)" class="btn-blue bg-red-600 hover:bg-red-700 w-5/12">Borrar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- PANTALLA DE BIENVENIDA PERSONALIZADA -->
     <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
@@ -164,8 +211,9 @@
     </header>
 
     <main class="p-4 max-w-md mx-auto">
-        <!-- SECCIÓN REGISTROS -->
+        <!-- SECCIÓN REGISTROS (FORMULARIO) -->
         <section id="sec-registros" class="space-y-4">
+            <h2 class="text-xl font-bold text-blue-400 mb-4">Nuevo Registro</h2>
             <div class="card">
                 <label class="text-[10px] font-bold text-slate-500 uppercase">Fecha</label>
                 <input type="date" id="reg-fecha">
@@ -190,10 +238,16 @@
                 <label class="text-[10px] font-bold text-slate-500 uppercase">Monto (Q)</label>
                 <input type="number" id="reg-monto" placeholder="0.00" inputmode="decimal">
                 
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Concepto</label>
                 <textarea id="reg-concepto" placeholder="Notas adicionales..."></textarea>
                 
                 <button type="button" onclick="saveRegistro()" class="btn-blue mt-2">GUARDAR REGISTRO</button>
             </div>
+        </section>
+
+        <!-- SECCIÓN HISTORIAL DE REGISTROS -->
+        <section id="sec-historial-registros" class="hidden space-y-4">
+            <h2 class="text-xl font-bold text-blue-400 mb-4">Historial de Registros</h2>
             <!-- FILTRO DE FECHA -->
             <div class="card">
                 <label class="text-[10px] font-bold text-slate-500 uppercase">Filtrar por Fecha</label>
@@ -205,14 +259,26 @@
             </div>
         </section>
 
-        <!-- SECCIÓN VIAJES -->
+        <!-- SECCIÓN VIAJES (FORMULARIO) -->
         <section id="sec-viajes" class="hidden space-y-4">
+            <h2 class="text-xl font-bold text-blue-400 mb-4">Nuevo Viaje</h2>
             <div class="card">
-                <input type="text" id="v-cliente" placeholder="Cliente">
-                <input type="text" id="v-inicio" placeholder="Origen">
-                <input type="text" id="v-fin" placeholder="Destino">
-                <input type="number" id="v-costo" placeholder="Costo Q">
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Cliente</label>
+                <input type="text" id="v-cliente" placeholder="Nombre del Cliente">
+                
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Origen</label>
+                <input type="text" id="v-inicio" placeholder="Punto de Origen">
+                
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Destino</label>
+                <input type="text" id="v-fin" placeholder="Punto de Destino">
+                
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Costo (Q)</label>
+                <input type="number" id="v-costo" placeholder="0.00">
+                
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Fecha</label>
                 <input type="date" id="v-fecha">
+                
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo</label>
                 <select id="v-tipo">
                     <option value="Cotización">📄 Cotización</option>
                     <option value="Agendado">📅 Agendado</option>
@@ -220,27 +286,36 @@
                 </select>
                 <button type="button" onclick="saveViaje()" class="btn-blue">GUARDAR VIAJE</button>
             </div>
-            <!-- VISTA DE VIAJES -->
+        </section>
+
+        <!-- SECCIÓN HISTORIAL DE VIAJES -->
+        <section id="sec-historial-viajes" class="hidden space-y-4">
+            <h2 class="text-xl font-bold text-blue-400 mb-4">Historial de Viajes</h2>
             <div id="viajes-list" class="space-y-3">
                 <div class="p-4 text-center text-slate-400">Cargando viajes...</div>
             </div>
         </section>
 
-        <!-- SECCIÓN DIEZMOS -->
+        <!-- SECCIÓN DIEZMOS (FORMULARIO) -->
         <section id="sec-diezmos" class="hidden space-y-4">
+            <h2 class="text-xl font-bold text-blue-400 mb-4">Registro de Diezmo</h2>
             <div id="diezmo-info" class="card bg-blue-900/20 border-blue-500/30"></div>
             <div class="card">
-                <!-- CAMPO TIPO DE PAGO -->
                 <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Pago</label>
                 <select id="d-tipo-pago">
                     <option value="Efectivo">💵 Efectivo</option>
                     <option value="Transferencia">💳 Transferencia</option>
                 </select>
                 
-                <input type="number" id="d-pago" placeholder="Monto a pagar Q">
+                <label class="text-[10px] font-bold text-slate-500 uppercase">Monto a Pagar (Q)</label>
+                <input type="number" id="d-pago" placeholder="0.00">
                 <button type="button" onclick="saveDiezmo()" class="w-full bg-emerald-600 py-4 rounded-xl font-bold">REGISTRAR PAGO</button>
             </div>
-            <!-- VISTA DE PAGOS DE DIEZMO -->
+        </section>
+
+        <!-- SECCIÓN HISTORIAL DE DIEZMOS -->
+        <section id="sec-historial-diezmos" class="hidden space-y-4">
+            <h2 class="text-xl font-bold text-blue-400 mb-4">Historial de Pagos</h2>
             <div id="diezmo-pagos-list" class="space-y-3">
                 <div class="p-4 text-center text-slate-400">Cargando historial de pagos...</div>
             </div>
@@ -248,6 +323,7 @@
 
         <!-- SECCIÓN RESUMEN DETALLADO -->
         <section id="sec-resumen" class="hidden space-y-4">
+            <h2 class="text-xl font-bold text-blue-400 mb-4">Resumen y Análisis</h2>
             <div id="resumen-container"></div>
             <div id="resumen-categorias" class="card mb-4"></div>
             <div id="resumen-historial" class="card mb-4"></div>
@@ -259,15 +335,19 @@
 
     <!-- BARRA DE NAVEGACIÓN MEJORADA -->
     <nav class="fixed bottom-0 left-0 right-0 nav-bar flex p-1 z-40">
-        <button onclick="nav('registros')" id="n-registros" class="nav-btn nav-active"><i data-lucide="pen-tool"></i>Registros</button>
+        <button onclick="nav('registros')" id="n-registros" class="nav-btn nav-active"><i data-lucide="pen-tool"></i>Registro</button>
+        <button onclick="nav('historial-registros')" id="n-historial-registros" class="nav-btn"><i data-lucide="list-ordered"></i>Historial</button>
         <button onclick="nav('viajes')" id="n-viajes" class="nav-btn"><i data-lucide="car"></i>Viajes</button>
-        <button onclick="nav('diezmos')" id="n-diezmos" class="nav-btn"><i data-lucide="heart"></i>Diezmos</button>
+        <button onclick="nav('historial-viajes')" id="n-historial-viajes" class="nav-btn"><i data-lucide="route"></i>Rutas</button>
+        <button onclick="nav('diezmos')" id="n-diezmos" class="nav-btn"><i data-lucide="heart"></i>Diezmo</button>
+        <button onclick="nav('historial-diezmos')" id="n-historial-diezmos" class="nav-btn"><i data-lucide="wallet"></i>Pagos</button>
         <button onclick="nav('resumen')" id="n-resumen" class="nav-btn"><i data-lucide="bar-chart-3"></i>Resumen</button>
     </nav>
 
     <!-- BOTÓN FLOTANTE DE EDICIÓN/BORRADO -->
     <div id="fab-edit" class="fab hidden" onclick="toggleEditMode()">
-        <i id="fab-icon" data-lucide="trash-2" class="w-6 h-6"></i>
+        <i id="fab-icon" data-lucide="trash-2" class="w-5 h-5"></i>
+        <span id="fab-text">Borrar</span>
     </div>
 
     <script>
@@ -276,6 +356,7 @@
         let editMode = false;
         let selectedItems = [];
         let currentSection = 'registros';
+        let resolveConfirmModal;
         
         // CAMBIO DE MONEDA: Quetzales (Q)
         const formatter = new Intl.NumberFormat('es-GT', { 
@@ -294,6 +375,21 @@
             setTimeout(() => {
                 notif.classList.remove('show');
             }, 2000);
+        }
+
+        function showConfirmModal(message) {
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('confirm-modal').classList.add('show');
+            return new Promise(resolve => {
+                resolveConfirmModal = resolve;
+            });
+        }
+
+        function hideConfirmModal(result) {
+            document.getElementById('confirm-modal').classList.remove('show');
+            if (resolveConfirmModal) {
+                resolveConfirmModal(result);
+            }
         }
 
         function normalizeDate(dateString) {
@@ -355,17 +451,24 @@
 
         function nav(s) {
             currentSection = s;
-            ['registros', 'viajes', 'diezmos', 'resumen'].forEach(sec => {
+            const allSections = ['registros', 'historial-registros', 'viajes', 'historial-viajes', 'diezmos', 'historial-diezmos', 'resumen'];
+            const fabSections = ['historial-registros', 'historial-viajes', 'historial-diezmos'];
+
+            allSections.forEach(sec => {
                 document.getElementById('sec-'+sec).classList.add('hidden');
-                document.getElementById('n-'+sec).classList.remove('nav-active');
             });
+            
+            // Desactivar todos los botones de navegación
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('nav-active'));
+
+            // Activar la sección y el botón correspondiente
             document.getElementById('sec-'+s).classList.remove('hidden');
             document.getElementById('n-'+s).classList.add('nav-active');
-            document.getElementById('section-title').innerText = s.toUpperCase();
+            document.getElementById('section-title').innerText = s.replace('-', ' ').toUpperCase();
             
             // Mostrar/Ocultar FAB
             const fab = document.getElementById('fab-edit');
-            if (s === 'registros' || s === 'viajes' || s === 'diezmos') {
+            if (fabSections.includes(s)) {
                 fab.classList.remove('hidden');
             } else {
                 fab.classList.add('hidden');
@@ -376,44 +479,69 @@
             selectedItems = [];
             fab.classList.remove('active');
             document.getElementById('fab-icon').setAttribute('data-lucide', 'trash-2');
+            document.getElementById('fab-text').innerText = 'Borrar';
             
-            if(s === 'registros') renderRegistrosList();
-            else if(s === 'viajes') renderViajesList();
+            if(s === 'historial-registros') renderRegistrosList();
+            else if(s === 'historial-viajes') renderViajesList();
             else if(s === 'resumen') updateResumen();
-            else if(s === 'diezmos') updateDiezmosView();
+            else if(s === 'historial-diezmos') updateDiezmosView();
             lucide.createIcons();
         }
 
         // --- MODO EDICIÓN/BORRADO ---
 
         function toggleEditMode() {
+            const fab = document.getElementById('fab-edit');
+            const fabIcon = document.getElementById('fab-icon');
+            const fabText = document.getElementById('fab-text');
+
             if (!editMode) {
                 // Entrar en modo edición
                 editMode = true;
                 selectedItems = [];
-                document.getElementById('fab-edit').classList.add('active');
-                document.getElementById('fab-icon').setAttribute('data-lucide', 'x');
+                fab.classList.add('active');
+                fabIcon.setAttribute('data-lucide', 'x');
+                fabText.innerText = 'Salir';
                 showNotification("Modo Borrado Activado. Selecciona elementos.");
             } else {
                 // Salir o Borrar
                 if (selectedItems.length > 0) {
-                    if (confirm(`¿Estás seguro de que quieres borrar ${selectedItems.length} elementos?`)) {
-                        deleteSelectedItems();
-                    }
+                    // Mostrar modal de confirmación
+                    showConfirmModal(`¿Estás seguro de que quieres borrar ${selectedItems.length} elementos? Esta acción es irreversible.`)
+                        .then(confirmed => {
+                            if (confirmed) {
+                                deleteSelectedItems();
+                            }
+                            // Salir del modo edición después de borrar o cancelar
+                            editMode = false;
+                            selectedItems = [];
+                            fab.classList.remove('active');
+                            fabIcon.setAttribute('data-lucide', 'trash-2');
+                            fabText.innerText = 'Borrar';
+                            showNotification("Modo Borrado Desactivado.");
+                            
+                            // Re-renderizar la lista
+                            if (currentSection === 'historial-registros') renderRegistrosList();
+                            else if (currentSection === 'historial-viajes') renderViajesList();
+                            else if (currentSection === 'historial-diezmos') updateDiezmosView();
+                        });
+                    return; // Esperar la confirmación
                 }
                 
                 // Salir del modo edición
                 editMode = false;
                 selectedItems = [];
-                document.getElementById('fab-edit').classList.remove('active');
-                document.getElementById('fab-icon').setAttribute('data-lucide', 'trash-2');
+                fab.classList.remove('active');
+                fabIcon.setAttribute('data-lucide', 'trash-2');
+                fabText.innerText = 'Borrar';
                 showNotification("Modo Borrado Desactivado.");
             }
             
             // Re-renderizar la lista para mostrar/ocultar checkboxes
-            if (currentSection === 'registros') renderRegistrosList();
-            else if (currentSection === 'viajes') renderViajesList();
-            else if (currentSection === 'diezmos') updateDiezmosView();
+            if (currentSection === 'historial-registros') renderRegistrosList();
+            else if (currentSection === 'historial-viajes') renderViajesList();
+            else if (currentSection === 'historial-diezmos') updateDiezmosView();
+            lucide.createIcons();
         }
 
         function selectItem(index, element) {
@@ -428,16 +556,13 @@
                 element.classList.remove('selected');
             }
             
-            // Actualizar el icono del FAB para reflejar si hay elementos seleccionados
-            const fab = document.getElementById('fab-edit');
+            // Actualizar el texto del FAB
+            const fabText = document.getElementById('fab-text');
             if (selectedItems.length > 0) {
-                fab.style.backgroundColor = '#ef4444'; // Rojo para borrar
-                document.getElementById('fab-icon').setAttribute('data-lucide', 'trash-2');
+                fabText.innerText = `Borrar (${selectedItems.length})`;
             } else {
-                fab.style.backgroundColor = '#10b981'; // Verde para salir
-                document.getElementById('fab-icon').setAttribute('data-lucide', 'x');
+                fabText.innerText = 'Salir';
             }
-            lucide.createIcons();
         }
 
         async function deleteSelectedItems() {
@@ -449,18 +574,24 @@
 
             if (indicesToDelete.length === 0) return;
 
+            // Determinar el tipo de dato a borrar
+            let dataType = '';
+            if (currentSection === 'historial-registros') dataType = 'registros';
+            else if (currentSection === 'historial-viajes') dataType = 'viajes';
+            else if (currentSection === 'historial-diezmos') dataType = 'diezmos';
+
             // Borrar de la base de datos
             indicesToDelete.forEach(index => {
-                db[currentSection].splice(index, 1);
+                db[dataType].splice(index, 1);
             });
 
             await saveDB();
             showNotification(`🗑️ ${indicesToDelete.length} elementos borrados.`);
             
             // Re-renderizar la vista
-            if (currentSection === 'registros') renderRegistrosList();
-            else if (currentSection === 'viajes') renderViajesList();
-            else if (currentSection === 'diezmos') updateDiezmosView();
+            if (currentSection === 'historial-registros') renderRegistrosList();
+            else if (currentSection === 'historial-viajes') renderViajesList();
+            else if (currentSection === 'historial-diezmos') updateDiezmosView();
             
             // Actualizar resumen si es necesario
             if (document.getElementById('sec-resumen').classList.contains('hidden') === false) {
@@ -494,22 +625,23 @@
             const sortedRegistros = filteredRegistros.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
             let html = '';
-            sortedRegistros.forEach((r) => {
+            sortedRegistros.forEach((r, displayIndex) => {
                 const isIngreso = r.flujo === 'Ingreso';
                 const color = isIngreso ? 'text-emerald-400' : 'text-red-400';
                 const sign = isIngreso ? '+' : '-';
-                const isSelected = selectedItems.includes(`registros-${r.originalIndex}`) ? 'selected' : '';
+                const isSelected = selectedItems.includes(`historial-registros-${r.originalIndex}`) ? 'selected' : '';
                 
                 html += `
                     <div class="card flex items-center ${isSelected}" onclick="if(editMode) selectItem(${r.originalIndex}, this)">
                         ${editMode ? `<input type="checkbox" class="mr-3 w-5 h-5" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); selectItem(${r.originalIndex}, this.parentNode)">` : ''}
                         <div class="flex-1">
-                            <p class="text-sm font-bold ${color}">${r.cat} (${r.flujo})</p>
+                            <p class="text-xs font-bold text-slate-500 mb-1">#${displayIndex + 1} | ${r.cat}</p>
+                            <p class="text-sm font-bold ${color}">${r.flujo}</p>
                             <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
                             <p class="text-xs text-slate-500">${r.concepto || 'Sin notas'}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-lg font-black ${color}">${sign}${formatter.format(r.monto).replace('GTQ', 'Q')}</p>
+                            <p class="text-xl font-black ${color}">${sign}${formatter.format(r.monto).replace('GTQ', 'Q')}</p>
                         </div>
                     </div>
                 `;
@@ -533,20 +665,20 @@
             const sortedViajes = viajesWithIndex.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
             let html = '';
-            sortedViajes.forEach((v) => {
+            sortedViajes.forEach((v, displayIndex) => {
                 const color = v.tipo === 'Realizado' ? 'text-emerald-400' : 'text-blue-400';
-                const isSelected = selectedItems.includes(`viajes-${v.originalIndex}`) ? 'selected' : '';
+                const isSelected = selectedItems.includes(`historial-viajes-${v.originalIndex}`) ? 'selected' : '';
 
                 html += `
                     <div class="card flex items-center ${isSelected}" onclick="if(editMode) selectItem(${v.originalIndex}, this)">
                         ${editMode ? `<input type="checkbox" class="mr-3 w-5 h-5" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); selectItem(${v.originalIndex}, this.parentNode)">` : ''}
                         <div class="flex-1">
-                            <p class="text-sm font-bold">${v.cliente}</p>
-                            <p class="text-xs text-slate-400">${formatDate(v.fecha)} - ${v.tipo}</p>
-                            <p class="text-xs text-slate-500">${v.inicio} a ${v.fin}</p>
+                            <p class="text-xs font-bold text-slate-500 mb-1">#${displayIndex + 1} | ${v.cliente}</p>
+                            <p class="text-sm font-bold">${v.inicio} <i data-lucide="arrow-right" class="w-4 h-4 inline-block mx-1"></i> ${v.fin}</p>
+                            <p class="text-xs text-slate-400">${formatDate(v.fecha)} - <span class="${color}">${v.tipo}</span></p>
                         </div>
                         <div class="text-right">
-                            <p class="text-lg font-black ${color}">${formatter.format(v.costo).replace('GTQ', 'Q')}</p>
+                            <p class="text-xl font-black ${color}">${formatter.format(v.costo).replace('GTQ', 'Q')}</p>
                         </div>
                     </div>
                 `;
@@ -582,7 +714,7 @@
             showNotification("✅ Registro guardado.");
             document.getElementById('reg-monto').value = '';
             document.getElementById('reg-concepto').value = '';
-            renderRegistrosList(); 
+            // No renderiza lista, solo el formulario
         }
 
         async function saveViaje() {
@@ -611,7 +743,7 @@
             document.getElementById('v-inicio').value = '';
             document.getElementById('v-fin').value = '';
             document.getElementById('v-costo').value = '';
-            renderViajesList(); 
+            // No renderiza lista, solo el formulario
         }
 
         async function saveDiezmo() {
@@ -640,68 +772,98 @@
 
         // --- FUNCIONES DE RESUMEN Y DIEZMOS ---
 
-        function renderMonthlyDetails() {
-            const container = document.getElementById('resumen-ingresos-gastos');
+        function updateDiezmosView() {
             const hoy = new Date();
-            const startOfMonth = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-            const endOfMonth = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
-            endOfMonth.setHours(23, 59, 59, 999);
-
-            const registrosMes = db.registros.filter(r => {
-                const f = normalizeDate(r.fecha);
-                return f >= startOfMonth && f <= endOfMonth;
-            }).sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); 
-
-            const ingresos = registrosMes.filter(r => r.flujo === 'Ingreso');
-            const gastos = registrosMes.filter(r => r.flujo === 'Gasto');
-
-            let html = `
-                <h3 class="text-sm font-bold text-emerald-400 mb-3 uppercase">Ingresos del Mes (${hoy.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })})</h3>
-                <div class="space-y-3">
-            `;
-            if (ingresos.length === 0) {
-                html += '<div class="card text-center text-slate-400">No hay ingresos este mes.</div>';
-            } else {
-                ingresos.forEach(r => {
-                    html += `
-                        <div class="card flex justify-between items-center">
-                            <div class="flex-1">
-                                <p class="text-sm font-bold">${r.cat}</p>
-                                <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-lg font-black text-emerald-400">+${formatter.format(r.monto).replace('GTQ', 'Q')}</p>
-                            </div>
-                        </div>
-                    `;
+            const { start: qStart, end: qEnd } = getQuincenaRange(hoy);
+            const { neto: netoQuincenal } = getNetoForRange(qStart, qEnd);
+            
+            const diezmoSugerido = netoQuincenal > 0 ? netoQuincenal * 0.10 : 0;
+            
+            let pagadoQuincenal = 0;
+            if (db.diezmos) {
+                db.diezmos.forEach(d => {
+                    const f = normalizeDate(d.fecha);
+                    if (f >= qStart && f <= qEnd) {
+                        pagadoQuincenal += d.monto;
+                    }
                 });
             }
-            html += '</div>';
 
-            html += `
-                <h3 class="text-sm font-bold text-red-400 mb-3 uppercase mt-6">Gastos del Mes (${hoy.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })})</h3>
-                <div class="space-y-3">
-            `;
-            if (gastos.length === 0) {
-                html += '<div class="card text-center text-slate-400">No hay gastos este mes.</div>';
-            } else {
-                gastos.forEach(r => {
-                    html += `
-                        <div class="card flex justify-between items-center">
+            const faltante = Math.max(0, diezmoSugerido - pagadoQuincenal);
+
+            // Mostrar el resumen de la quincena actual
+            document.getElementById('diezmo-info').innerHTML = `
+                <h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Quincena Actual: ${qStart.getDate()} - ${qEnd.getDate()} de ${qStart.toLocaleDateString('es-MX', { month: 'long' })}</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between"><span>Neta Quincenal:</span><b>${formatter.format(netoQuincenal).replace('GTQ', 'Q')}</b></div>
+                    <div class="flex justify-between text-blue-400"><span>Diezmo Sugerido (10%):</span><b>${formatter.format(diezmoSugerido).replace('GTQ', 'Q')}</b></div>
+                    <div class="flex justify-between text-emerald-400 border-t border-white/10 pt-2"><span>Pagado en Quincena:</span><b>${formatter.format(pagadoQuincenal).replace('GTQ', 'Q')}</b></div>
+                    <div class="flex justify-between text-red-400 font-black text-lg"><span>FALTANTE:</span><span>${formatter.format(faltante).replace('GTQ', 'Q')}</span></div>
+                </div>`;
+
+            // Historial de Pagos de Diezmo
+            const pagosContainer = document.getElementById('diezmo-pagos-list');
+            if (!db.diezmos || db.diezmos.length === 0) {
+                pagosContainer.innerHTML = '<div class="card text-center text-slate-400">No hay pagos de diezmo registrados.</div>';
+                return;
+            }
+
+            // Agrupar pagos por quincena
+            const historialDiezmos = {};
+            db.diezmos.forEach((d, index) => {
+                const date = new Date(d.fecha);
+                const { start } = getQuincenaRange(date);
+                const key = start.toISOString().split('T')[0]; // Usar la fecha de inicio como clave
+                if (!historialDiezmos[key]) {
+                    historialDiezmos[key] = { pagos: 0, fechaInicio: start, pagosDetalle: [] };
+                }
+                historialDiezmos[key].pagos += d.monto;
+                historialDiezmos[key].pagosDetalle.push({ monto: d.monto, fecha: d.fecha, tipo: d.tipo, originalIndex: index });
+            });
+
+            let pagosHtml = '<h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Historial de Pagos</h3>';
+            // Ordenar quincenas: Más reciente primero (descendente)
+            const sortedQuincenas = Object.keys(historialDiezmos).sort().reverse();
+
+            sortedQuincenas.forEach(key => {
+                const { pagos, fechaInicio, pagosDetalle } = historialDiezmos[key];
+                const { end: fechaFin } = getQuincenaRange(fechaInicio);
+                const { neto } = getNetoForRange(fechaInicio, fechaFin);
+                const diezmoSug = neto > 0 ? neto * 0.10 : 0;
+                const balance = diezmoSug - pagos;
+                const color = balance <= 0 ? 'text-emerald-400' : 'text-red-400';
+                const status = balance <= 0 ? '✅ Pagado' : '❌ Pendiente';
+
+                pagosHtml += `
+                    <div class="card flex-col items-start">
+                        <div class="w-full flex justify-between items-center pb-2 border-b border-white/10">
                             <div class="flex-1">
-                                <p class="text-sm font-bold">${r.cat}</p>
-                                <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
+                                <p class="text-sm font-bold">Quincena: ${fechaInicio.getDate()} - ${fechaFin.getDate()} ${fechaInicio.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}</p>
+                                <p class="text-xs text-slate-400">Neta: ${formatter.format(neto).replace('GTQ', 'Q')} | Sugerido: ${formatter.format(diezmoSug).replace('GTQ', 'Q')}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-lg font-black text-red-400">-${formatter.format(r.monto).replace('GTQ', 'Q')}</p>
+                                <p class="text-lg font-black ${color}">${formatter.format(balance).replace('GTQ', 'Q')}</p>
+                                <p class="text-xs ${color}">${status}</p>
                             </div>
                         </div>
-                    `;
-                });
-            }
-            html += '</div>';
+                        <div class="w-full pt-2">
+                            <p class="text-xs font-bold text-slate-500 mb-1">Pagos Realizados (${formatter.format(pagos).replace('GTQ', 'Q')}):</p>
+                            ${pagosDetalle.map((p, displayIndex) => {
+                                const isSelected = selectedItems.includes(`historial-diezmos-${p.originalIndex}`) ? 'selected' : '';
+                                return `
+                                <div class="flex justify-between items-center text-xs pl-2 py-1 ${isSelected}" onclick="if(editMode) selectItem(${p.originalIndex}, this)">
+                                    ${editMode ? `<input type="checkbox" class="mr-3 w-4 h-4" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); selectItem(${p.originalIndex}, this.parentNode)">` : ''}
+                                    <span>#${displayIndex + 1} | ${formatDate(p.fecha)} (${p.tipo})</span>
+                                    <span class="text-emerald-400 font-bold">${formatter.format(p.monto).replace('GTQ', 'Q')}</span>
+                                </div>
+                            `;}).join('')}
+                        </div>
+                    </div>
+                `;
+            });
 
-            container.innerHTML = html;
+            pagosContainer.innerHTML = pagosHtml;
+            lucide.createIcons(); 
         }
 
         function updateResumen() {
@@ -807,102 +969,73 @@
             renderMonthlyDetails();
         }
 
-        function updateDiezmosView() {
+        function renderMonthlyDetails() {
+            const container = document.getElementById('resumen-ingresos-gastos');
             const hoy = new Date();
-            const { start: qStart, end: qEnd } = getQuincenaRange(hoy);
-            const { neto: netoQuincenal } = getNetoForRange(qStart, qEnd);
-            
-            const diezmoSugerido = netoQuincenal > 0 ? netoQuincenal * 0.10 : 0;
-            
-            let pagadoQuincenal = 0;
-            if (db.diezmos) {
-                db.diezmos.forEach(d => {
-                    const f = normalizeDate(d.fecha);
-                    if (f >= qStart && f <= qEnd) {
-                        pagadoQuincenal += d.monto;
-                    }
-                });
-            }
+            const startOfMonth = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            const endOfMonth = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+            endOfMonth.setHours(23, 59, 59, 999);
 
-            const faltante = Math.max(0, diezmoSugerido - pagadoQuincenal);
+            const registrosMes = db.registros.filter(r => {
+                const f = normalizeDate(r.fecha);
+                return f >= startOfMonth && f <= endOfMonth;
+            }).sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Orden descendente
 
-            // Mostrar el resumen de la quincena actual
-            document.getElementById('diezmo-info').innerHTML = `
-                <h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Quincena Actual: ${qStart.getDate()} - ${qEnd.getDate()} de ${qStart.toLocaleDateString('es-MX', { month: 'long' })}</h3>
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between"><span>Neta Quincenal:</span><b>${formatter.format(netoQuincenal).replace('GTQ', 'Q')}</b></div>
-                    <div class="flex justify-between text-blue-400"><span>Diezmo Sugerido (10%):</span><b>${formatter.format(diezmoSugerido).replace('GTQ', 'Q')}</b></div>
-                    <div class="flex justify-between text-emerald-400 border-t border-white/10 pt-2"><span>Pagado en Quincena:</span><b>${formatter.format(pagadoQuincenal).replace('GTQ', 'Q')}</b></div>
-                    <div class="flex justify-between text-red-400 font-black text-lg"><span>FALTANTE:</span><span>${formatter.format(faltante).replace('GTQ', 'Q')}</span></div>
-                </div>`;
+            const ingresos = registrosMes.filter(r => r.flujo === 'Ingreso');
+            const gastos = registrosMes.filter(r => r.flujo === 'Gasto');
 
-            // Historial de Pagos de Diezmo
-            const pagosContainer = document.getElementById('diezmo-pagos-list');
-            if (!db.diezmos || db.diezmos.length === 0) {
-                pagosContainer.innerHTML = '<div class="card text-center text-slate-400">No hay pagos de diezmo registrados.</div>';
-                return;
-            }
-
-            // Agrupar pagos por quincena
-            const historialDiezmos = {};
-            db.diezmos.forEach((d, index) => {
-                const date = new Date(d.fecha);
-                const { start } = getQuincenaRange(date);
-                const key = start.toISOString().split('T')[0]; // Usar la fecha de inicio como clave
-                if (!historialDiezmos[key]) {
-                    historialDiezmos[key] = { pagos: 0, fechaInicio: start, pagosDetalle: [] };
-                }
-                historialDiezmos[key].pagos += d.monto;
-                historialDiezmos[key].pagosDetalle.push({ monto: d.monto, fecha: d.fecha, tipo: d.tipo, originalIndex: index });
-            });
-
-            let pagosHtml = '<h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">Historial de Pagos</h3>';
-            // Ordenar quincenas: Más reciente primero (descendente)
-            const sortedQuincenas = Object.keys(historialDiezmos).sort().reverse();
-
-            sortedQuincenas.forEach(key => {
-                const { pagos, fechaInicio, pagosDetalle } = historialDiezmos[key];
-                const { end: fechaFin } = getQuincenaRange(fechaInicio);
-                const { neto } = getNetoForRange(fechaInicio, fechaFin);
-                const diezmoSug = neto > 0 ? neto * 0.10 : 0;
-                const balance = diezmoSug - pagos;
-                const color = balance <= 0 ? 'text-emerald-400' : 'text-red-400';
-                const status = balance <= 0 ? '✅ Pagado' : '❌ Pendiente';
-
-                pagosHtml += `
-                    <div class="card flex-col items-start">
-                        <div class="w-full flex justify-between items-center pb-2 border-b border-white/10">
+            let html = `
+                <h3 class="text-sm font-bold text-emerald-400 mb-3 uppercase">Ingresos del Mes (${hoy.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })})</h3>
+                <div class="space-y-3">
+            `;
+            if (ingresos.length === 0) {
+                html += '<div class="card text-center text-slate-400">No hay ingresos este mes.</div>';
+            } else {
+                ingresos.forEach(r => {
+                    html += `
+                        <div class="card flex justify-between items-center">
                             <div class="flex-1">
-                                <p class="text-sm font-bold">Quincena: ${fechaInicio.getDate()} - ${fechaFin.getDate()} ${fechaInicio.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })}</p>
-                                <p class="text-xs text-slate-400">Neta: ${formatter.format(neto).replace('GTQ', 'Q')} | Sugerido: ${formatter.format(diezmoSug).replace('GTQ', 'Q')}</p>
+                                <p class="text-sm font-bold">${r.cat}</p>
+                                <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-lg font-black ${color}">${formatter.format(balance).replace('GTQ', 'Q')}</p>
-                                <p class="text-xs ${color}">${status}</p>
+                                <p class="text-lg font-black text-emerald-400">+${formatter.format(r.monto).replace('GTQ', 'Q')}</p>
                             </div>
                         </div>
-                        <div class="w-full pt-2">
-                            <p class="text-xs font-bold text-slate-500 mb-1">Pagos Realizados (${formatter.format(pagos).replace('GTQ', 'Q')}):</p>
-                            ${pagosDetalle.map(p => {
-                                const isSelected = selectedItems.includes(`diezmos-${p.originalIndex}`) ? 'selected' : '';
-                                return `
-                                <div class="flex justify-between items-center text-xs pl-2 py-1 ${isSelected}" onclick="if(editMode) selectItem(${p.originalIndex}, this)">
-                                    ${editMode ? `<input type="checkbox" class="mr-3 w-4 h-4" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); selectItem(${p.originalIndex}, this.parentNode)">` : ''}
-                                    <span>${formatDate(p.fecha)} (${p.tipo})</span>
-                                    <span class="text-emerald-400 font-bold">${formatter.format(p.monto).replace('GTQ', 'Q')}</span>
-                                </div>
-                            `;}).join('')}
-                        </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            }
+            html += '</div>';
 
-            pagosContainer.innerHTML = pagosHtml;
-            lucide.createIcons(); 
+            html += `
+                <h3 class="text-sm font-bold text-red-400 mb-3 uppercase mt-6">Gastos del Mes (${hoy.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })})</h3>
+                <div class="space-y-3">
+            `;
+            if (gastos.length === 0) {
+                html += '<div class="card text-center text-slate-400">No hay gastos este mes.</div>';
+            } else {
+                gastos.forEach(r => {
+                    html += `
+                        <div class="card flex justify-between items-center">
+                            <div class="flex-1">
+                                <p class="text-sm font-bold">${r.cat}</p>
+                                <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-black text-red-400">-${formatter.format(r.monto).replace('GTQ', 'Q')}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            html += '</div>';
+
+            container.innerHTML = html;
         }
 
         async function borrarDatos() { 
-            if(confirm("¿Seguro que quieres borrar todos los datos? Esta acción es irreversible.")) { 
+            const confirmed = await showConfirmModal("¿Seguro que quieres borrar TODOS los datos de la aplicación? Esta acción es irreversible.");
+            if(confirmed) { 
                 try {
                     await localforage.clear();
                     location.reload(); 
