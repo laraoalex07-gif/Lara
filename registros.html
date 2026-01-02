@@ -1,172 +1,242 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Registros</title>
-  <link rel="manifest" href="/manifest.json" />
+  <title>Registros - Lara</title>
+  <link rel="manifest" href="/Lara/manifest.json" />
   <style>
-    body{font-family: Arial, Helvetica, sans-serif;padding:20px;max-width:900px;margin:auto}
-    header{display:flex;justify-content:space-between;align-items:center}
-    .list{margin-top:20px}
-    .item{padding:8px;border:1px solid #ddd;border-radius:4px;margin-bottom:8px;display:flex;justify-content:space-between}
-    .controls{display:flex;gap:8px}
-    .modal{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center}
-    .modal .panel{background:#fff;padding:16px;border-radius:6px;max-width:400px;width:90%}
-    .hidden{display:none}
-    .btn{padding:6px 10px;border:none;background:#1976d2;color:#fff;border-radius:4px;cursor:pointer}
+    :root{--accent:#0b6efd;--muted:#666}
+    body{font-family:Inter, system-ui, Arial;margin:0;padding:1rem;background:#f6f9ff;color:#111}
+    .wrap{max-width:980px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between}
+    .controls{display:flex;gap:.5rem;align-items:center}
+    .card{background:#fff;padding:1rem;border-radius:12px;box-shadow:0 8px 24px rgba(12,20,55,0.06);margin-top:1rem}
+    .row{display:flex;gap:.5rem}
+    input,select,textarea{padding:.6rem;border-radius:8px;border:1px solid #e6eef7}
+    .btn{background:var(--accent);color:white;border:0;padding:.6rem .9rem;border-radius:10px;cursor:pointer}
     .btn.secondary{background:#666}
-    .row{display:flex;gap:8px}
-    textarea{width:100%;height:80px}
+    table{width:100%;border-collapse:collapse;margin-top:1rem}
+    th,td{padding:.6rem;border-bottom:1px solid #eef4ff;text-align:left}
+    .muted{color:var(--muted)}
+    .small{font-size:.9rem}
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4)}
+    .panel{background:white;padding:1rem;border-radius:10px;width:95%;max-width:520px}
+    .flex-space{display:flex;justify-content:space-between}
   </style>
 </head>
 <body>
-  <header>
-    <h1>Registros</h1>
-    <nav>
-      <a href="viajes.html">Viajes</a> | <a href="diezmos.html">Diezmos</a>
-    </nav>
-  </header>
+  <div class="wrap">
+    <header>
+      <h1>Registros</h1>
+      <nav class="controls">
+        <a class="small" href="/Lara/index.html">Inicio</a>
+        <a class="small" href="/Lara/viajes.html">Viajes</a>
+        <a class="small" href="/Lara/diezmos.html">Diezmos</a>
+      </nav>
+    </header>
 
-  <section>
-    <form id="form">
-      <div class="row">
-        <input id="title" placeholder="Título" required />
-        <input id="date" type="date" />
+    <div class="card">
+      <div class="flex-space">
+        <div>
+          <button id="openNew" class="btn">+ Nuevo registro</button>
+          <button id="exportJson" class="btn secondary">Exportar JSON</button>
+          <button id="importJson" class="btn secondary">Importar JSON</button>
+          <button id="exportPdf" class="btn">Exportar PDF</button>
+          <input id="fileInput" type="file" accept="application/json" style="display:none" />
+        </div>
+        <div class="small muted">Datos guardados localmente</div>
       </div>
-      <div style="margin-top:8px">
-        <textarea id="notes" placeholder="Notas..."></textarea>
-      </div>
-      <div style="margin-top:8px">
-        <button class="btn" type="submit">Agregar</button>
-        <button class="btn secondary" type="button" id="exportBtn">Exportar JSON</button>
-        <button class="btn secondary" type="button" id="importBtn">Importar JSON</button>
-        <button class="btn" type="button" id="pdfBtn">Exportar PDF</button>
-        <input id="fileInput" type="file" accept="application/json" class="hidden" />
-      </div>
-    </form>
 
-    <div class="list" id="list"></div>
-  </section>
+      <div style="margin-top:1rem" class="row">
+        <div><label class="small">Desde</label><input id="filterFrom" type="date" /></div>
+        <div><label class="small">Hasta</label><input id="filterTo" type="date" /></div>
+        <div style="align-self:end"><button id="applyFilter" class="btn secondary">Aplicar</button></div>
+      </div>
 
-  <div class="modal" id="confirmModal">
+      <table id="table">
+        <thead><tr><th>Fecha</th><th>Tipo</th><th>Categoria</th><th>Detalle</th><th>Monto</th><th>Acciones</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal new/edit -->
+  <div class="modal" id="modal">
     <div class="panel">
-      <p id="confirmText">¿Eliminar?</p>
-      <div style="text-align:right;margin-top:10px">
-        <button class="btn secondary" id="cancelBtn">Cancelar</button>
-        <button class="btn" id="confirmBtn">Eliminar</button>
-      </div>
+      <h3 id="modalTitle">Nuevo registro</h3>
+      <form id="recordForm">
+        <div class="row" style="margin-top:.5rem">
+          <select id="tipo">
+            <option value="ingreso">Ingreso</option>
+            <option value="gasto">Gasto</option>
+          </select>
+          <input id="fecha" type="date" required />
+          <input id="monto" type="text" placeholder="Q.1,200.50" required />
+        </div>
+        <div style="margin-top:.5rem" class="row">
+          <select id="categoria"></select>
+          <input id="newCat" placeholder="Nueva categoría (si eliges Otros)" style="display:none" />
+        </div>
+        <div style="margin-top:.5rem">
+          <input id="detalle" placeholder="Detalle / concepto" />
+        </div>
+        <div style="text-align:right;margin-top:.6rem">
+          <button type="button" id="cancel" class="btn secondary">Cancelar</button>
+          <button type="submit" class="btn">Guardar</button>
+        </div>
+      </form>
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    const STORAGE_KEY = 'registros:v1';
-    let registros = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    const listEl = document.getElementById('list');
-    const form = document.getElementById('form');
+    // Keys
+    const KEY_REG = 'registros_v2';
+    const KEY_CAT = 'categorias_v1';
+
+    // Defaults
+    const DEFAULT_CATS = ['Sueldo','Ventas','Transporte','Comida','Vivienda','Salud','Otros'];
+
+    // Utils
+    function fmtCurrency(n){
+      n = Number(n) || 0;
+      return 'Q.' + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+
+    function parseCurrency(s){
+      if(typeof s === 'number') return s;
+      if(!s) return 0;
+      const cleaned = String(s).replace(/[Qq\. ,]/g,'').replace(/,/g,''); // remove Q. and commas
+      return parseFloat(cleaned) || 0;
+    }
+
+    // Load categories
+    function loadCategories(){
+      let cats = JSON.parse(localStorage.getItem(KEY_CAT) || 'null');
+      if(!cats){ cats = DEFAULT_CATS; localStorage.setItem(KEY_CAT, JSON.stringify(cats)); }
+      return cats;
+    }
+
+    function saveCategory(cat){
+      const cats = loadCategories();
+      if(!cats.includes(cat)) cats.unshift(cat);
+      localStorage.setItem(KEY_CAT, JSON.stringify(cats));
+    }
+
+    // Data
+    let records = JSON.parse(localStorage.getItem(KEY_REG) || '[]');
+
+    // Elements
+    const tbody = document.querySelector('#table tbody');
+    const modal = document.getElementById('modal');
+    const openNew = document.getElementById('openNew');
+    const recordForm = document.getElementById('recordForm');
+    const tipoEl = document.getElementById('tipo');
+    const fechaEl = document.getElementById('fecha');
+    const montoEl = document.getElementById('monto');
+    const categoriaEl = document.getElementById('categoria');
+    const newCatEl = document.getElementById('newCat');
+    const detalleEl = document.getElementById('detalle');
+    const cancelBtn = document.getElementById('cancel');
+    const filterFrom = document.getElementById('filterFrom');
+    const filterTo = document.getElementById('filterTo');
+    const applyFilter = document.getElementById('applyFilter');
+    const exportJson = document.getElementById('exportJson');
+    const importJson = document.getElementById('importJson');
+    const exportPdf = document.getElementById('exportPdf');
     const fileInput = document.getElementById('fileInput');
 
-    function render(){
-      listEl.innerHTML = '';
-      registros.forEach((r, idx) =>{
-        const div = document.createElement('div');
-        div.className = 'item';
-        div.innerHTML = `<div><strong>${escapeHtml(r.title)}</strong> <small>${r.date||''}</small><div>${escapeHtml(r.notes||'')}</div></div>`;
-        const controls = document.createElement('div');
-        controls.className = 'controls';
-        const del = document.createElement('button'); del.className='btn secondary'; del.textContent='Eliminar';
-        del.onclick = ()=>confirmDelete(idx);
-        controls.appendChild(del);
-        div.appendChild(controls);
-        listEl.appendChild(div);
+    let editingId = null;
+
+    function refreshCategoryOptions(){
+      const cats = loadCategories();
+      categoriaEl.innerHTML = '';
+      cats.forEach(c=>{
+        const opt = document.createElement('option'); opt.value = c; opt.textContent = c; categoriaEl.appendChild(opt);
       });
+      const others = document.createElement('option'); others.value='Otros'; others.textContent='Otros'; categoriaEl.appendChild(others);
     }
 
-    function escapeHtml(s){return String(s||'').replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\"':'&#39;'}[c]})}
-
-    form.addEventListener('submit', e=>{
-      e.preventDefault();
-      const t = document.getElementById('title').value.trim();
-      const d = document.getElementById('date').value;
-      const n = document.getElementById('notes').value.trim();
-      if(!t) return alert('Título requerido');
-      registros.unshift({title:t,date:d,notes:n,created:Date.now()});
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(registros));
-      form.reset(); render();
+    categoriaEl.addEventListener('change', ()=>{
+      if(categoriaEl.value === 'Otros'){ newCatEl.style.display='block'; newCatEl.focus(); } else { newCatEl.style.display='none'; }
     });
 
-    // Confirm modal
-    let pendingDelete = null;
-    const modal = document.getElementById('confirmModal');
-    const confirmText = document.getElementById('confirmText');
-    document.getElementById('cancelBtn').onclick = ()=>{modal.style.display='none'; pendingDelete=null};
-    document.getElementById('confirmBtn').onclick = ()=>{
-      if(pendingDelete!=null){
-        registros.splice(pendingDelete,1);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(registros));
-        render();
-      }
-      modal.style.display='none'; pendingDelete=null;
-    };
+    openNew.addEventListener('click', ()=>{ editingId=null; document.getElementById('modalTitle').textContent='Nuevo registro'; recordForm.reset(); montoEl.value=''; refreshCategoryOptions(); modal.style.display='flex'; });
+    cancelBtn.addEventListener('click', ()=>{ modal.style.display='none'; });
 
-    function confirmDelete(i){ pendingDelete=i; confirmText.textContent='¿Eliminar este registro?'; modal.style.display='flex'; }
+    function saveRecords(){ localStorage.setItem(KEY_REG, JSON.stringify(records)); }
 
-    // Export JSON
-    document.getElementById('exportBtn').onclick = ()=>{
-      const data = JSON.stringify(registros, null, 2);
-      const blob = new Blob([data], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'registros.json'; a.click();
-      URL.revokeObjectURL(url);
-    };
-
-    // Import JSON
-    document.getElementById('importBtn').onclick = ()=> fileInput.click();
-    fileInput.onchange = (e)=>{
-      const f = e.target.files[0]; if(!f) return;
-      const reader = new FileReader();
-      reader.onload = ()=>{
-        try{
-          const imported = JSON.parse(reader.result);
-          if(!Array.isArray(imported)) throw new Error('Formato inválido');
-          // Merge, preserving newest first
-          registros = [...imported, ...registros];
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(registros));
-          render();
-          alert('Importación completada');
-        }catch(err){alert('Error al importar: '+err.message)}
-      };
-      reader.readAsText(f);
-      fileInput.value='';
-    };
-
-    // PDF export using jsPDF
-    document.getElementById('pdfBtn').onclick = ()=>{
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.setFontSize(12);
-      let y=10;
-      doc.text('Registros', 10, y); y+=8;
-      registros.slice(0,200).forEach((r, i)=>{
-        const line = `${r.title} ${r.date?'- '+r.date:''}`;
-        doc.text(line, 10, y); y+=6;
-        if(r.notes){
-          const split = doc.splitTextToSize(r.notes, 180);
-          doc.text(split, 10, y); y += split.length*6;
-        }
-        if(y>280){doc.addPage(); y=10}
+    function render(){
+      tbody.innerHTML = '';
+      const from = filterFrom.value ? new Date(filterFrom.value) : null;
+      const to = filterTo.value ? new Date(filterTo.value) : null;
+      const rows = records.slice().sort((a,b)=>b.created-a.created).filter(r=>{
+        if(from && new Date(r.fecha) < from) return false;
+        if(to && new Date(r.fecha) > to) return false;
+        return true;
       });
-      doc.save('registros.pdf');
-    };
-
-    // Register service worker if available
-    if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('/sw.js').catch(()=>{});
+      rows.forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="small">${r.fecha || ''}</td><td>${r.tipo}</td><td>${r.categoria||''}</td><td class="small">${(r.detalle||'')}</td><td><strong>${fmtCurrency(r.monto)}</strong></td><td><button data-id="${r.id}" class="btn">Editar</button> <button data-iddel="${r.id}" class="btn secondary">Eliminar</button></td>`;
+        tbody.appendChild(tr);
+      });
+      // attach events
+      tbody.querySelectorAll('button[data-id]').forEach(b=>b.addEventListener('click', e=>{ openEdit(e.currentTarget.dataset.id); }));
+      tbody.querySelectorAll('button[data-iddel]').forEach(b=>b.addEventListener('click', e=>{ deleteRecord(e.currentTarget.dataset.id); }));
     }
 
-    render();
+    function openEdit(id){
+      const r = records.find(x=>String(x.id)===String(id)); if(!r) return;
+      editingId = r.id; document.getElementById('modalTitle').textContent='Editar registro'; tipoEl.value=r.tipo; fechaEl.value = r.fecha || '';
+      montoEl.value = fmtCurrency(r.monto).replace('Q.',''); // show number portion
+      refreshCategoryOptions();
+      // ensure category present
+      if(!loadCategories().includes(r.categoria)) saveCategory(r.categoria);
+      categoriaEl.value = r.categoria || '';
+      detalleEl.value = r.detalle || '';
+      modal.style.display='flex';
+    }
+
+    function deleteRecord(id){ if(!confirm('¿Eliminar registro?')) return; records = records.filter(r=>String(r.id)!==String(id)); saveRecords(); render(); }
+
+    recordForm.addEventListener('submit', e=>{
+      e.preventDefault();
+      const tipo = tipoEl.value; const fecha = fechaEl.value || new Date().toISOString().slice(0,10);
+      let montoRaw = montoEl.value.replace(/[^0-9\.,-]/g,''); montoRaw = montoRaw.replace(/,/g,''); const monto = parseFloat(montoRaw) || 0;
+      let categoria = categoriaEl.value; if(categoria==='Otros'){ const nc = newCatEl.value.trim(); if(nc){ saveCategory(nc); categoria = nc; } else { categoria='Otros' } }
+      const detalle = detalleEl.value.trim();
+      if(editingId){
+        const idx = records.findIndex(r=>r.id===editingId);
+        if(idx>-1){ records[idx] = {...records[idx], tipo, fecha, monto, categoria, detalle}; }
+      } else {
+        records.unshift({id:Date.now(), tipo, fecha, monto, categoria, detalle, created:Date.now()});
+      }
+      saveRecords(); modal.style.display='none'; render();
+    });
+
+    applyFilter.addEventListener('click', ()=>render());
+
+    // Export/import
+    exportJson.addEventListener('click', ()=>{
+      const data = JSON.stringify({records, categories: loadCategories()}, null, 2);
+      const blob = new Blob([data], {type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='lAra_registros_backup.json'; a.click(); URL.revokeObjectURL(url);
+    });
+    importJson.addEventListener('click', ()=>fileInput.click());
+    fileInput.addEventListener('change', e=>{
+      const f = e.target.files[0]; if(!f) return; const reader = new FileReader(); reader.onload = ()=>{
+        try{ const obj = JSON.parse(reader.result); if(obj.records && Array.isArray(obj.records)){ records = [...obj.records, ...records]; saveRecords(); if(obj.categories) localStorage.setItem(KEY_CAT, JSON.stringify(obj.categories)); render(); alert('Importado'); } else { alert('Formato inválido'); } }catch(err){alert('Error: '+err.message)}
+      }; reader.readAsText(f); fileInput.value='';
+    });
+
+    // PDF export
+    exportPdf.addEventListener('click', ()=>{
+      const { jsPDF } = window.jspdf; const doc = new jsPDF(); let y=10; doc.setFontSize(12); doc.text('Registros',10,y); y+=8; records.slice(0,200).forEach(r=>{ doc.text(`${r.fecha||''} ${r.tipo} ${r.categoria||''} ${fmtCurrency(r.monto)}`,10,y); y+=6; if(r.detalle){ const lines = doc.splitTextToSize(r.detalle,180); doc.text(lines,10,y); y+=lines.length*6; } if(y>280){doc.addPage(); y=10;} }); doc.save('registros.pdf');
+    });
+
+    // Init
+    refreshCategoryOptions(); render();
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('/Lara/sw.js').catch(()=>{});
   </script>
 </body>
 </html>

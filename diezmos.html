@@ -1,196 +1,162 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Diezmos</title>
-  <link rel="manifest" href="/manifest.json" />
+  <title>Diezmos - Lara</title>
+  <link rel="manifest" href="/Lara/manifest.json" />
   <style>
-    body{font-family: Arial, Helvetica, sans-serif;padding:20px;max-width:900px;margin:auto}
-    header{display:flex;justify-content:space-between;align-items:center}
-    .list{margin-top:20px}
-    .item{padding:8px;border:1px solid #ddd;border-radius:4px;margin-bottom:8px;display:flex;justify-content:space-between}
-    .controls{display:flex;gap:8px}
-    .modal{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center}
-    .modal .panel{background:#fff;padding:16px;border-radius:6px;max-width:500px;width:95%}
-    .hidden{display:none}
-    .btn{padding:6px 10px;border:none;background:#1976d2;color:#fff;border-radius:4px;cursor:pointer}
+    :root{--accent:#00c896;--muted:#666}
+    body{font-family:Inter, system-ui, Arial;margin:0;padding:1rem;background:#f7fffb;color:#111}
+    .wrap{max-width:980px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between}
+    .card{background:#fff;padding:1rem;border-radius:12px;box-shadow:0 8px 24px rgba(12,20,55,0.06);margin-top:1rem}
+    .row{display:flex;gap:.5rem}
+    input,select{padding:.6rem;border-radius:8px;border:1px solid #e6eef7}
+    .btn{background:var(--accent);color:white;border:0;padding:.6rem .9rem;border-radius:10px;cursor:pointer}
     .btn.secondary{background:#666}
-    .row{display:flex;gap:8px}
+    table{width:100%;border-collapse:collapse;margin-top:1rem}
+    th,td{padding:.6rem;border-bottom:1px solid #eef4ff;text-align:left}
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4)}
+    .panel{background:white;padding:1rem;border-radius:10px;width:95%;max-width:520px}
   </style>
 </head>
 <body>
-  <header>
-    <h1>Diezmos</h1>
-    <nav>
-      <a href="registros.html">Registros</a> | <a href="viajes.html">Viajes</a>
-    </nav>
-  </header>
+  <div class="wrap">
+    <header>
+      <h1>Diezmos</h1>
+      <nav>
+        <a class="small" href="/Lara/index.html">Inicio</a>
+        <a class="small" href="/Lara/registros.html">Registros</a>
+        <a class="small" href="/Lara/viajes.html">Viajes</a>
+      </nav>
+    </header>
 
-  <section>
-    <form id="form">
-      <div class="row">
-        <input id="name" placeholder="Nombre" required />
-        <input id="amount" type="number" step="0.01" placeholder="Monto" required />
-        <input id="date" type="date" />
+    <div class="card">
+      <div class="row" style="align-items:center;gap:1rem">
+        <div>
+          <label class="small">Mes</label>
+          <input id="month" type="month" />
+        </div>
+        <div>
+          <label class="small">Quincena</label>
+          <select id="quincena"><option value="1">1 (día 1-15)</option><option value="2">2 (día 16-fin)</option></select>
+        </div>
+        <div style="align-self:end">
+          <button id="calcBtn" class="btn">Calcular</button>
+        </div>
       </div>
-      <div style="margin-top:8px">
-        <input id="notes" placeholder="Notas" />
-      </div>
-      <div style="margin-top:8px">
-        <button class="btn" type="submit">Agregar</button>
-        <button class="btn secondary" type="button" id="exportBtn">Exportar JSON</button>
-        <button class="btn secondary" type="button" id="importBtn">Importar JSON</button>
-        <button class="btn" type="button" id="pdfBtn">Exportar PDF</button>
-        <input id="fileInput" type="file" accept="application/json" class="hidden" />
-      </div>
-    </form>
 
-    <div class="list" id="list"></div>
-  </section>
+      <div style="margin-top:1rem">
+        <div id="resultBox" class="small"></div>
+        <div style="margin-top:.6rem">
+          <button id="openPay" class="btn">Registrar pago</button>
+          <button id="exportJson" class="btn secondary">Exportar pagos JSON</button>
+          <button id="exportPdf" class="btn">Exportar PDF pagos</button>
+        </div>
+      </div>
 
-  <!-- Edit modal -->
-  <div class="modal" id="editModal">
-    <div class="panel">
-      <h3>Editar Diezmo</h3>
-      <form id="editForm">
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <input id="editName" required />
-          <input id="editAmount" type="number" step="0.01" required />
-          <input id="editDate" type="date" />
-        </div>
-        <div style="margin-top:8px">
-          <input id="editNotes" />
-        </div>
-        <div style="text-align:right;margin-top:10px">
-          <button class="btn secondary" type="button" id="cancelEdit">Cancelar</button>
-          <button class="btn" type="submit">Guardar</button>
-        </div>
-      </form>
+      <div style="margin-top:1rem">
+        <h3>Historial de pagos</h3>
+        <table id="table"><thead><tr><th>Fecha</th><th>Monto</th><th>Método</th><th>Quincena</th><th>Acciones</th></tr></thead><tbody></tbody></table>
+      </div>
     </div>
   </div>
 
+  <!-- payment modal -->
+  <div class="modal" id="payModal"><div class="panel"><h3>Registrar pago</h3><form id="payForm"><div class="row" style="margin-top:.5rem"><input id="payDate" type="date" required /><input id="payAmount" type="number" step="0.01" required /><select id="payMethod"><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option></select></div><div style="text-align:right;margin-top:.6rem"><button type="button" id="cancelPay" class="btn secondary">Cancelar</button><button type="submit" class="btn">Guardar pago</button></div></form></div></div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    const STORAGE_KEY = 'diezmos:v2';
-    let diezmos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    const listEl = document.getElementById('list');
-    const form = document.getElementById('form');
-    const fileInput = document.getElementById('fileInput');
+    const KEY_REG = 'registros_v2';
+    const KEY_PAG = 'pagos_diezmos_v1';
+    let registros = JSON.parse(localStorage.getItem(KEY_REG) || '[]');
+    let pagos = JSON.parse(localStorage.getItem(KEY_PAG) || '[]');
 
-    function render(){
-      listEl.innerHTML = '';
-      let total = 0;
-      diezmos.forEach((d, idx) =>{
-        total += parseFloat(d.amount||0);
-        const div = document.createElement('div');
-        div.className = 'item';
-        div.innerHTML = `<div><strong>${escapeHtml(d.name)}</strong> <small>${d.date||''}</small><div>${escapeHtml(d.notes||'')}</div></div>`;
-        const controls = document.createElement('div');
-        controls.className = 'controls';
-        const edit = document.createElement('button'); edit.className='btn secondary'; edit.textContent='Editar';
-        edit.onclick = ()=>openEdit(idx);
-        const del = document.createElement('button'); del.className='btn secondary'; del.textContent='Eliminar';
-        del.onclick = ()=>confirmDelete(idx);
-        controls.appendChild(edit); controls.appendChild(del);
-        div.appendChild(controls);
-        listEl.appendChild(div);
-      });
-      const summary = document.createElement('div'); summary.style.marginTop='12px'; summary.innerHTML = `<strong>Total: ${total.toFixed(2)}</strong>`;
-      listEl.appendChild(summary);
+    const monthEl = document.getElementById('month');
+    const quincenaEl = document.getElementById('quincena');
+    const resultBox = document.getElementById('resultBox');
+    const calcBtn = document.getElementById('calcBtn');
+    const openPay = document.getElementById('openPay');
+    const payModal = document.getElementById('payModal');
+    const payForm = document.getElementById('payForm');
+    const payDate = document.getElementById('payDate');
+    const payAmount = document.getElementById('payAmount');
+    const payMethod = document.getElementById('payMethod');
+    const tableBody = document.querySelector('#table tbody');
+
+    function formatQ(n){ return 'Q.' + Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+    function firstDayOfMonth(y,m){ return new Date(y,m,1); }
+    function lastDayOfMonth(y,m){ return new Date(y,m+1,0); }
+
+    function quincenaRange(year, monthIndex, q){
+      if(q===1) return {from: new Date(year,monthIndex,1), to: new Date(year,monthIndex,15,23,59,59,999)};
+      return {from: new Date(year,monthIndex,16), to: lastDayOfMonth(year,monthIndex)};
     }
 
-    function escapeHtml(s){return String(s||'').replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\"':'&#39;'}[c]})}
-
-    form.addEventListener('submit', e=>{
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const amount = parseFloat(document.getElementById('amount').value || 0);
-      const date = document.getElementById('date').value;
-      const notes = document.getElementById('notes').value.trim();
-      if(!name || isNaN(amount)) return alert('Nombre y monto son requeridos');
-      diezmos.unshift({name,amount,date,notes,created:Date.now()});
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(diezmos));
-      form.reset(); render();
-    });
-
-    // Edit modal
-    const editModal = document.getElementById('editModal');
-    const editForm = document.getElementById('editForm');
-    let editingIndex = null;
-    function openEdit(i){
-      editingIndex = i;
-      const d = diezmos[i];
-      document.getElementById('editName').value = d.name;
-      document.getElementById('editAmount').value = d.amount;
-      document.getElementById('editDate').value = d.date||'';
-      document.getElementById('editNotes').value = d.notes||'';
-      editModal.style.display='flex';
-    }
-    document.getElementById('cancelEdit').onclick = ()=>{editModal.style.display='none'; editingIndex=null};
-    editForm.addEventListener('submit', e=>{
-      e.preventDefault();
-      if(editingIndex==null) return;
-      const name = document.getElementById('editName').value.trim();
-      const amount = parseFloat(document.getElementById('editAmount').value || 0);
-      const date = document.getElementById('editDate').value;
-      const notes = document.getElementById('editNotes').value.trim();
-      if(!name || isNaN(amount)) return alert('Nombre y monto son requeridos');
-      diezmos[editingIndex] = {...diezmos[editingIndex], name, amount, date, notes};
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(diezmos));
-      editModal.style.display='none'; editingIndex=null; render();
-    });
-
-    // Confirm delete simple
-    function confirmDelete(i){ if(confirm('¿Eliminar este diezmo?')){ diezmos.splice(i,1); localStorage.setItem(STORAGE_KEY, JSON.stringify(diezmos)); render(); } }
-
-    // Export/Import
-    document.getElementById('exportBtn').onclick = ()=>{
-      const data = JSON.stringify(diezmos, null, 2);
-      const blob = new Blob([data], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'diezmos.json'; a.click(); URL.revokeObjectURL(url);
-    };
-    document.getElementById('importBtn').onclick = ()=> document.getElementById('fileInput').click();
-    fileInput.onchange = (e)=>{
-      const f = e.target.files[0]; if(!f) return;
-      const reader = new FileReader();
-      reader.onload = ()=>{
-        try{
-          const imported = JSON.parse(reader.result);
-          if(!Array.isArray(imported)) throw new Error('Formato inválido');
-          diezmos = [...imported, ...diezmos];
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(diezmos));
-          render();
-          alert('Importado');
-        }catch(err){alert('Error: '+err.message)}
-      };
-      reader.readAsText(f);
-      fileInput.value='';
-    };
-
-    // PDF export using jsPDF
-    document.getElementById('pdfBtn').onclick = ()=>{
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.setFontSize(12);
-      let y=10;
-      doc.text('Diezmos', 10, y); y+=8;
-      let total = 0;
-      diezmos.forEach((d, i)=>{
-        const line = `${d.name} - ${Number(d.amount).toFixed(2)} ${d.date?'- '+d.date:''}`;
-        doc.text(line, 10, y); y+=6;
-        total += parseFloat(d.amount||0);
-        if(d.notes){ const split = doc.splitTextToSize(d.notes, 180); doc.text(split, 10, y); y += split.length*6; }
-        if(y>280){doc.addPage(); y=10}
+    function calcForSelected(){
+      const val = monthEl.value || new Date().toISOString().slice(0,7);
+      const [y, m] = val.split('-').map(Number);
+      const q = Number(quincenaEl.value);
+      const range = quincenaRange(y, m-1, q);
+      // sum ingresos & gastos from registros
+      let ingresos=0, gastos=0;
+      registros.forEach(r=>{
+        const d = new Date(r.fecha);
+        if(d>=range.from && d<=range.to){ if(r.tipo==='ingreso') ingresos += Number(r.monto||0); else if(r.tipo==='gasto') gastos += Number(r.monto||0); }
       });
-      doc.text('Total: ' + total.toFixed(2), 10, y+6);
-      doc.save('diezmos.pdf');
-    };
+      let base = ingresos - gastos; if(base < 0) base = 0; const diezmo = Math.round(base * 0.10 *100)/100;
+      const key = `${y}-${String(m).padStart(2,'0')}-${q}`;
+      // payments for this quincena
+      const pagosThis = pagos.filter(p=>p.quincenaKey===key);
+      const pagado = pagosThis.reduce((s,p)=>s+Number(p.monto||0),0);
+      const faltante = Math.max(0, diezmo - pagado);
+      resultBox.innerHTML = `<div>Quincena: <strong>${y}-${String(m).padStart(2,'0')} q${q}</strong></div><div>Ingresos: <strong>${formatQ(ingresos)}</strong> Gastos: <strong>${formatQ(gastos)}</strong></div><div>Sugerido (10%): <strong>${formatQ(diezmo)}</strong></div><div>Pagado: <strong>${formatQ(pagado)}</strong> Faltante: <strong>${formatQ(faltante)}</strong></div>`;
+      renderPayments();
+      return {key,diezmo,pagado,faltante,range};
+    }
 
-    if('serviceWorker' in navigator){ navigator.serviceWorker.register('/sw.js').catch(()=>{}); }
+    function renderPayments(){
+      const val = monthEl.value || new Date().toISOString().slice(0,7); const [y,m] = val.split('-').map(Number); const q = Number(quincenaEl.value); const key = `${y}-${String(m).padStart(2,'0')}-${q}`;
+      const list = pagos.filter(p=>p.quincenaKey===key).slice().sort((a,b)=>b.created-a.created);
+      tableBody.innerHTML='';
+      list.forEach(p=>{
+        const tr=document.createElement('tr'); tr.innerHTML = `<td>${p.fecha}</td><td>${formatQ(p.monto)}</td><td>${p.metodo}</td><td>${p.quincenaKey}</td><td><button data-id="${p.id}" class="btn">Editar</button> <button data-iddel="${p.id}" class="btn secondary">Eliminar</button></td>`; tableBody.appendChild(tr);
+      });
+      tableBody.querySelectorAll('button[data-iddel]').forEach(b=>b.addEventListener('click', e=>{ deletePay(e.currentTarget.dataset.id); }));
+      tableBody.querySelectorAll('button[data-id]').forEach(b=>b.addEventListener('click', e=>{ editPay(e.currentTarget.dataset.id); }));
+    }
 
-    render();
+    function deletePay(id){ if(!confirm('Eliminar pago?')) return; pagos = pagos.filter(p=>String(p.id)!==String(id)); localStorage.setItem(KEY_PAG, JSON.stringify(pagos)); calcForSelected(); }
+
+    function editPay(id){ const p = pagos.find(x=>String(x.id)===String(id)); if(!p) return; payDate.value = p.fecha; payAmount.value = p.monto; payMethod.value = p.metodo; payModal.style.display='flex'; editingPayId = p.id; }
+
+    let editingPayId = null;
+    calcBtn.addEventListener('click', (e)=>{ e.preventDefault(); calcForSelected(); });
+    openPay.addEventListener('click', ()=>{ const res = calcForSelected(); payModal.style.display='flex'; // default values
+      const today = new Date().toISOString().slice(0,10); payDate.value = today; payAmount.value = res.diezmo; payMethod.value='efectivo'; editingPayId = null; });
+    document.getElementById('cancelPay').addEventListener('click', ()=>{ payModal.style.display='none'; editingPayId=null; });
+
+    payForm.addEventListener('submit', e=>{
+      e.preventDefault();
+      const fecha = payDate.value || new Date().toISOString().slice(0,10);
+      const monto = parseFloat(payAmount.value) || 0;
+      const metodo = payMethod.value;
+      const val = monthEl.value || new Date().toISOString().slice(0,7); const [y,m] = val.split('-').map(Number); const q = Number(quincenaEl.value); const key = `${y}-${String(m).padStart(2,'0')}-${q}`;
+      if(editingPayId){ const idx = pagos.findIndex(p=>p.id===editingPayId); if(idx>-1){ pagos[idx] = {...pagos[idx], fecha, monto, metodo}; } }
+      else { pagos.unshift({id:Date.now(), fecha, monto, metodo, quincenaKey:key, created:Date.now()}); }
+      localStorage.setItem(KEY_PAG, JSON.stringify(pagos)); payModal.style.display='none'; editingPayId=null; calcForSelected();
+    });
+
+    function deleteAllForDemo(){ }
+
+    // Export payments JSON
+    document.getElementById('exportJson').addEventListener('click', ()=>{ const b = new Blob([JSON.stringify(pagos,null,2)],{type:'application/json'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='pagos_diezmos.json'; a.click(); URL.revokeObjectURL(u); });
+    document.getElementById('exportPdf').addEventListener('click', ()=>{ const { jsPDF } = window.jspdf; const doc = new jsPDF(); let y=10; doc.text('Pagos diezmos',10,y); y+=8; pagos.slice(0,200).forEach(p=>{ doc.text(`${p.fecha} ${p.quincenaKey} ${formatQ(p.monto)} ${p.metodo}`,10,y); y+=6; if(y>280){doc.addPage(); y=10;} }); doc.save('pagos_diezmos.pdf'); });
+
+    // Init defaults
+    (function init(){ const now = new Date(); monthEl.value = now.toISOString().slice(0,7); calcForSelected(); if('serviceWorker' in navigator) navigator.serviceWorker.register('/Lara/sw.js').catch(()=>{}); })();
   </script>
 </body>
 </html>

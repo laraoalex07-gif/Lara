@@ -1,15 +1,13 @@
 {
-  "name": "Lara App",
+  "name": "Lara - App",
   "short_name": "Lara",
-  "start_url": "/registros.html",
+  "start_url": "/Lara/index.html",
+  "scope": "/Lara/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#1976d2",
+  "theme_color": "#0b6efd",
   "icons": [
-    {
-      "src": "/Lara/aa.jpg",
-      "sizes": "512x512",
-      "type": "image/jpeg"
-    }
+    { "src": "/Lara/aa.jpg", "sizes": "192x192", "type": "image/jpeg" },
+    { "src": "/Lara/aa.jpg", "sizes": "512x512", "type": "image/jpeg" }
   ]
 }
