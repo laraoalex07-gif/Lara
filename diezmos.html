@@ -1,122 +1,196 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="Calculadora de diezmos — introduce ingresos y gastos para calcular el 10% sugerido." />
-  <title>Diezmos — Lara</title>
-  <link rel="manifest" href="/Lara/manifest.json" />
-  <meta name="theme-color" content="#00c896" />
+  <title>Diezmos</title>
+  <link rel="manifest" href="/manifest.json" />
   <style>
-    :root{--bg:#f7fffb;--card:#fff;--accent:#00c896;--muted:#666}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:#111}
-    .wrap{max-width:780px;margin:0 auto;padding:1rem}
-    header{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
-    button.back{border:0;background:transparent;font-weight:700;color:var(--muted);cursor:pointer}
-    .card{background:var(--card);padding:1rem;border-radius:12px;box-shadow:0 8px 20px rgba(16,24,40,0.06)}
-    label{display:block;margin-top:.75rem;font-weight:600}
-    input[type=number]{width:100%;padding:.7rem;border-radius:8px;border:1px solid #e6eef7;margin-top:.35rem;font-size:1rem}
-    .row{display:flex;gap:.5rem;margin-top:1rem}
-    .col{flex:1}
-    .result{margin-top:1rem;padding:.8rem;border-radius:10px;background:linear-gradient(90deg,rgba(0,200,150,0.08),rgba(0,120,100,0.03));font-weight:700}
-    .pay{margin-top:1rem;display:inline-flex;align-items:center;gap:.6rem;padding:.75rem 1rem;border-radius:12px;background:linear-gradient(90deg,var(--accent),#008a6f);color:white;border:0;font-weight:800;cursor:pointer}
-    small.muted{color:var(--muted);display:block;margin-top:.5rem}
+    body{font-family: Arial, Helvetica, sans-serif;padding:20px;max-width:900px;margin:auto}
+    header{display:flex;justify-content:space-between;align-items:center}
+    .list{margin-top:20px}
+    .item{padding:8px;border:1px solid #ddd;border-radius:4px;margin-bottom:8px;display:flex;justify-content:space-between}
+    .controls{display:flex;gap:8px}
+    .modal{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center}
+    .modal .panel{background:#fff;padding:16px;border-radius:6px;max-width:500px;width:95%}
+    .hidden{display:none}
+    .btn{padding:6px 10px;border:none;background:#1976d2;color:#fff;border-radius:4px;cursor:pointer}
+    .btn.secondary{background:#666}
+    .row{display:flex;gap:8px}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <button class="back" id="backBtn" aria-label="Volver">← Volver</button>
-      <div>
-        <h1>Diezmos</h1>
-        <small class="muted">Calcula el 10% sugerido automáticamente</small>
-      </div>
-    </header>
+  <header>
+    <h1>Diezmos</h1>
+    <nav>
+      <a href="registros.html">Registros</a> | <a href="viajes.html">Viajes</a>
+    </nav>
+  </header>
 
-    <section class="card" aria-labelledby="calc-title">
-      <h2 id="calc-title">Calculadora</h2>
-
-      <label for="ingresos">Total ingresos (quincena)</label>
-      <input id="ingresos" type="number" min="0" step="0.01" placeholder="Ej: 1200.00" />
-
-      <label for="gastos">Total gastos (quincena)</label>
-      <input id="gastos" type="number" min="0" step="0.01" placeholder="Ej: 300.00" />
-
+  <section>
+    <form id="form">
       <div class="row">
-        <div class="col">
-          <label for="nota">Nota (opcional)</label>
-          <input id="nota" type="text" placeholder="Descripción (ej: diezmo marzo)" />
-        </div>
+        <input id="name" placeholder="Nombre" required />
+        <input id="amount" type="number" step="0.01" placeholder="Monto" required />
+        <input id="date" type="date" />
       </div>
+      <div style="margin-top:8px">
+        <input id="notes" placeholder="Notas" />
+      </div>
+      <div style="margin-top:8px">
+        <button class="btn" type="submit">Agregar</button>
+        <button class="btn secondary" type="button" id="exportBtn">Exportar JSON</button>
+        <button class="btn secondary" type="button" id="importBtn">Importar JSON</button>
+        <button class="btn" type="button" id="pdfBtn">Exportar PDF</button>
+        <input id="fileInput" type="file" accept="application/json" class="hidden" />
+      </div>
+    </form>
 
-      <div class="result" id="resultado" aria-live="polite">El diezmo sugerido aparecerá aquí.</div>
+    <div class="list" id="list"></div>
+  </section>
 
-      <button id="guardar" class="pay" title="Guardar pago sugerido">
-        <!-- Icono billete compacto -->
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 8h18M3 16h18" stroke="white" stroke-width="1.4" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke="white" stroke-width="1.4"/></svg>
-        Guardar pago (pagar diezmo)
-      </button>
-
-      <small class="muted">El cálculo = 10% × (ingresos − gastos). Si el resultado es negativo, el diezmo sugerido será 0.</small>
-    </section>
+  <!-- Edit modal -->
+  <div class="modal" id="editModal">
+    <div class="panel">
+      <h3>Editar Diezmo</h3>
+      <form id="editForm">
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input id="editName" required />
+          <input id="editAmount" type="number" step="0.01" required />
+          <input id="editDate" type="date" />
+        </div>
+        <div style="margin-top:8px">
+          <input id="editNotes" />
+        </div>
+        <div style="text-align:right;margin-top:10px">
+          <button class="btn secondary" type="button" id="cancelEdit">Cancelar</button>
+          <button class="btn" type="submit">Guardar</button>
+        </div>
+      </form>
+    </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    // Control del botón volver: retroceder en historial o ir a bienvenida
-    const backBtn = document.getElementById('backBtn');
-    backBtn.addEventListener('click', () => {
-      if (history.length > 1) history.back();
-      else location.href = '/Lara/';
-    });
+    const STORAGE_KEY = 'diezmos:v2';
+    let diezmos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const listEl = document.getElementById('list');
+    const form = document.getElementById('form');
+    const fileInput = document.getElementById('fileInput');
 
-    // Cálculo y guardado en localStorage
-    const ingresosEl = document.getElementById('ingresos');
-    const gastosEl = document.getElementById('gastos');
-    const notaEl = document.getElementById('nota');
-    const resultadoEl = document.getElementById('resultado');
-    const guardarBtn = document.getElementById('guardar');
-
-    function calcular() {
-      const ingresos = parseFloat(ingresosEl.value) || 0;
-      const gastos = parseFloat(gastosEl.value) || 0;
-      let base = (ingresos - gastos);
-      if (base < 0) base = 0;
-      const diezmo = Math.round((base * 0.10) * 100) / 100;
-      resultadoEl.textContent = `Sugerido: $${diezmo.toFixed(2)} (10% de $${base.toFixed(2)})`;
-      return diezmo;
+    function render(){
+      listEl.innerHTML = '';
+      let total = 0;
+      diezmos.forEach((d, idx) =>{
+        total += parseFloat(d.amount||0);
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `<div><strong>${escapeHtml(d.name)}</strong> <small>${d.date||''}</small><div>${escapeHtml(d.notes||'')}</div></div>`;
+        const controls = document.createElement('div');
+        controls.className = 'controls';
+        const edit = document.createElement('button'); edit.className='btn secondary'; edit.textContent='Editar';
+        edit.onclick = ()=>openEdit(idx);
+        const del = document.createElement('button'); del.className='btn secondary'; del.textContent='Eliminar';
+        del.onclick = ()=>confirmDelete(idx);
+        controls.appendChild(edit); controls.appendChild(del);
+        div.appendChild(controls);
+        listEl.appendChild(div);
+      });
+      const summary = document.createElement('div'); summary.style.marginTop='12px'; summary.innerHTML = `<strong>Total: ${total.toFixed(2)}</strong>`;
+      listEl.appendChild(summary);
     }
 
-    ingresosEl.addEventListener('input', calcular);
-    gastosEl.addEventListener('input', calcular);
+    function escapeHtml(s){return String(s||'').replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\"':'&#39;'}[c]})}
 
-    guardarBtn.addEventListener('click', () => {
-      const monto = calcular();
-      const nota = (notaEl.value || '').trim();
-      const registro = {
-        id: Date.now(),
-        fecha: new Date().toISOString(),
-        monto,
-        nota,
-        ingresos: parseFloat(ingresosEl.value) || 0,
-        gastos: parseFloat(gastosEl.value) || 0
+    form.addEventListener('submit', e=>{
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const amount = parseFloat(document.getElementById('amount').value || 0);
+      const date = document.getElementById('date').value;
+      const notes = document.getElementById('notes').value.trim();
+      if(!name || isNaN(amount)) return alert('Nombre y monto son requeridos');
+      diezmos.unshift({name,amount,date,notes,created:Date.now()});
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(diezmos));
+      form.reset(); render();
+    });
+
+    // Edit modal
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('editForm');
+    let editingIndex = null;
+    function openEdit(i){
+      editingIndex = i;
+      const d = diezmos[i];
+      document.getElementById('editName').value = d.name;
+      document.getElementById('editAmount').value = d.amount;
+      document.getElementById('editDate').value = d.date||'';
+      document.getElementById('editNotes').value = d.notes||'';
+      editModal.style.display='flex';
+    }
+    document.getElementById('cancelEdit').onclick = ()=>{editModal.style.display='none'; editingIndex=null};
+    editForm.addEventListener('submit', e=>{
+      e.preventDefault();
+      if(editingIndex==null) return;
+      const name = document.getElementById('editName').value.trim();
+      const amount = parseFloat(document.getElementById('editAmount').value || 0);
+      const date = document.getElementById('editDate').value;
+      const notes = document.getElementById('editNotes').value.trim();
+      if(!name || isNaN(amount)) return alert('Nombre y monto son requeridos');
+      diezmos[editingIndex] = {...diezmos[editingIndex], name, amount, date, notes};
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(diezmos));
+      editModal.style.display='none'; editingIndex=null; render();
+    });
+
+    // Confirm delete simple
+    function confirmDelete(i){ if(confirm('¿Eliminar este diezmo?')){ diezmos.splice(i,1); localStorage.setItem(STORAGE_KEY, JSON.stringify(diezmos)); render(); } }
+
+    // Export/Import
+    document.getElementById('exportBtn').onclick = ()=>{
+      const data = JSON.stringify(diezmos, null, 2);
+      const blob = new Blob([data], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'diezmos.json'; a.click(); URL.revokeObjectURL(url);
+    };
+    document.getElementById('importBtn').onclick = ()=> document.getElementById('fileInput').click();
+    fileInput.onchange = (e)=>{
+      const f = e.target.files[0]; if(!f) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        try{
+          const imported = JSON.parse(reader.result);
+          if(!Array.isArray(imported)) throw new Error('Formato inválido');
+          diezmos = [...imported, ...diezmos];
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(diezmos));
+          render();
+          alert('Importado');
+        }catch(err){alert('Error: '+err.message)}
       };
-      const lista = JSON.parse(localStorage.getItem('diezmos_registros') || '[]');
-      lista.unshift(registro);
-      localStorage.setItem('diezmos_registros', JSON.stringify(lista));
-      // Al guardar, redirigir al historial para confirmar
-      location.href = '/Lara/historial.html';
-    });
+      reader.readAsText(f);
+      fileInput.value='';
+    };
 
-    // pushState para que 'atrás' se comporte como en app
-    history.replaceState({page: 'diezmos'}, 'diezmos', location.href);
-    history.pushState({page: 'diezmos:afterpush'}, 'diezmos-after', location.href);
-    window.addEventListener('popstate', (e) => {
-      // Si el usuario pulsa atrás en esta pantalla, llevamos a la home
-      if (!e.state || e.state.page === 'home') {
-        location.href = '/Lara/';
-      }
-    });
+    // PDF export using jsPDF
+    document.getElementById('pdfBtn').onclick = ()=>{
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(12);
+      let y=10;
+      doc.text('Diezmos', 10, y); y+=8;
+      let total = 0;
+      diezmos.forEach((d, i)=>{
+        const line = `${d.name} - ${Number(d.amount).toFixed(2)} ${d.date?'- '+d.date:''}`;
+        doc.text(line, 10, y); y+=6;
+        total += parseFloat(d.amount||0);
+        if(d.notes){ const split = doc.splitTextToSize(d.notes, 180); doc.text(split, 10, y); y += split.length*6; }
+        if(y>280){doc.addPage(); y=10}
+      });
+      doc.text('Total: ' + total.toFixed(2), 10, y+6);
+      doc.save('diezmos.pdf');
+    };
+
+    if('serviceWorker' in navigator){ navigator.serviceWorker.register('/sw.js').catch(()=>{}); }
+
+    render();
   </script>
 </body>
 </html>

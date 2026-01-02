@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Registros</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    body{font-family: Arial, Helvetica, sans-serif;padding:20px;max-width:900px;margin:auto}
+    header{display:flex;justify-content:space-between;align-items:center}
+    .list{margin-top:20px}
+    .item{padding:8px;border:1px solid #ddd;border-radius:4px;margin-bottom:8px;display:flex;justify-content:space-between}
+    .controls{display:flex;gap:8px}
+    .modal{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center}
+    .modal .panel{background:#fff;padding:16px;border-radius:6px;max-width:400px;width:90%}
+    .hidden{display:none}
+    .btn{padding:6px 10px;border:none;background:#1976d2;color:#fff;border-radius:4px;cursor:pointer}
+    .btn.secondary{background:#666}
+    .row{display:flex;gap:8px}
+    textarea{width:100%;height:80px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Registros</h1>
+    <nav>
+      <a href="viajes.html">Viajes</a> | <a href="diezmos.html">Diezmos</a>
+    </nav>
+  </header>
+
+  <section>
+    <form id="form">
+      <div class="row">
+        <input id="title" placeholder="Título" required />
+        <input id="date" type="date" />
+      </div>
+      <div style="margin-top:8px">
+        <textarea id="notes" placeholder="Notas..."></textarea>
+      </div>
+      <div style="margin-top:8px">
+        <button class="btn" type="submit">Agregar</button>
+        <button class="btn secondary" type="button" id="exportBtn">Exportar JSON</button>
+        <button class="btn secondary" type="button" id="importBtn">Importar JSON</button>
+        <button class="btn" type="button" id="pdfBtn">Exportar PDF</button>
+        <input id="fileInput" type="file" accept="application/json" class="hidden" />
+      </div>
+    </form>
+
+    <div class="list" id="list"></div>
+  </section>
+
+  <div class="modal" id="confirmModal">
+    <div class="panel">
+      <p id="confirmText">¿Eliminar?</p>
+      <div style="text-align:right;margin-top:10px">
+        <button class="btn secondary" id="cancelBtn">Cancelar</button>
+        <button class="btn" id="confirmBtn">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const STORAGE_KEY = 'registros:v1';
+    let registros = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const listEl = document.getElementById('list');
+    const form = document.getElementById('form');
+    const fileInput = document.getElementById('fileInput');
+
+    function render(){
+      listEl.innerHTML = '';
+      registros.forEach((r, idx) =>{
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `<div><strong>${escapeHtml(r.title)}</strong> <small>${r.date||''}</small><div>${escapeHtml(r.notes||'')}</div></div>`;
+        const controls = document.createElement('div');
+        controls.className = 'controls';
+        const del = document.createElement('button'); del.className='btn secondary'; del.textContent='Eliminar';
+        del.onclick = ()=>confirmDelete(idx);
+        controls.appendChild(del);
+        div.appendChild(controls);
+        listEl.appendChild(div);
+      });
+    }
+
+    function escapeHtml(s){return String(s||'').replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\"':'&#39;'}[c]})}
+
+    form.addEventListener('submit', e=>{
+      e.preventDefault();
+      const t = document.getElementById('title').value.trim();
+      const d = document.getElementById('date').value;
+      const n = document.getElementById('notes').value.trim();
+      if(!t) return alert('Título requerido');
+      registros.unshift({title:t,date:d,notes:n,created:Date.now()});
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(registros));
+      form.reset(); render();
+    });
+
+    // Confirm modal
+    let pendingDelete = null;
+    const modal = document.getElementById('confirmModal');
+    const confirmText = document.getElementById('confirmText');
+    document.getElementById('cancelBtn').onclick = ()=>{modal.style.display='none'; pendingDelete=null};
+    document.getElementById('confirmBtn').onclick = ()=>{
+      if(pendingDelete!=null){
+        registros.splice(pendingDelete,1);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(registros));
+        render();
+      }
+      modal.style.display='none'; pendingDelete=null;
+    };
+
+    function confirmDelete(i){ pendingDelete=i; confirmText.textContent='¿Eliminar este registro?'; modal.style.display='flex'; }
+
+    // Export JSON
+    document.getElementById('exportBtn').onclick = ()=>{
+      const data = JSON.stringify(registros, null, 2);
+      const blob = new Blob([data], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'registros.json'; a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    // Import JSON
+    document.getElementById('importBtn').onclick = ()=> fileInput.click();
+    fileInput.onchange = (e)=>{
+      const f = e.target.files[0]; if(!f) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        try{
+          const imported = JSON.parse(reader.result);
+          if(!Array.isArray(imported)) throw new Error('Formato inválido');
+          // Merge, preserving newest first
+          registros = [...imported, ...registros];
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(registros));
+          render();
+          alert('Importación completada');
+        }catch(err){alert('Error al importar: '+err.message)}
+      };
+      reader.readAsText(f);
+      fileInput.value='';
+    };
+
+    // PDF export using jsPDF
+    document.getElementById('pdfBtn').onclick = ()=>{
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(12);
+      let y=10;
+      doc.text('Registros', 10, y); y+=8;
+      registros.slice(0,200).forEach((r, i)=>{
+        const line = `${r.title} ${r.date?'- '+r.date:''}`;
+        doc.text(line, 10, y); y+=6;
+        if(r.notes){
+          const split = doc.splitTextToSize(r.notes, 180);
+          doc.text(split, 10, y); y += split.length*6;
+        }
+        if(y>280){doc.addPage(); y=10}
+      });
+      doc.save('registros.pdf');
+    };
+
+    // Register service worker if available
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.register('/sw.js').catch(()=>{});
+    }
+
+    render();
+  </script>
+</body>
+</html>
