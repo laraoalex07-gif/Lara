@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lara - Viajes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
+    <style>
+        :root { --primary: #3b82f6; --bg: #f8fafc; }
+        body { background-color: var(--bg); font-family: 'Inter', sans-serif; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
+        .modal.active { display: flex; }
+        input, select, textarea { border: 1px solid #e2e8f0; padding: 0.75rem; border-radius: 0.75rem; width: 100%; font-size: 16px; }
+        .btn-primary { background: #2563eb; color: white; font-weight: bold; padding: 0.75rem; border-radius: 0.75rem; width: 100%; }
+    </style>
+</head>
+<body class="pb-24">
+    <nav class="nav-bar fixed bottom-0 left-0 right-0 flex justify-around items-center z-40 bg-white border-t border-slate-200">
+        <a href="/Lara/registros.html" class="flex flex-col items-center py-2 text-slate-400 text-[10px] flex-1"><i data-lucide="list"></i>REGISTROS</a>
+        <a href="/Lara/viajes.html" class="flex flex-col items-center py-2 text-blue-600 font-bold text-[10px] flex-1"><i data-lucide="truck"></i>VIAJES</a>
+        <a href="/Lara/diezmos.html" class="flex flex-col items-center py-2 text-slate-400 text-[10px] flex-1"><i data-lucide="heart"></i>DIEZMOS</a>
+        <a href="/Lara/resumen.html" class="flex flex-col items-center py-2 text-slate-400 text-[10px] flex-1"><i data-lucide="pie-chart"></i>RESUMEN</a>
+    </nav>
+
+    <header class="p-4 bg-white border-b border-slate-200 sticky top-0 z-30 flex items-center gap-4">
+        <a href="/Lara/index.html" class="p-2 text-slate-400"><i data-lucide="arrow-left"></i></a>
+        <h1 class="text-xl font-black text-slate-800 uppercase">Viajes</h1>
+    </header>
+
+    <main class="p-4 max-w-md mx-auto space-y-4">
+        <div id="list" class="space-y-3"></div>
+    </main>
+
+    <button onclick="openModal()" class="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-xl flex items-center justify-center z-40 active:scale-90 transition-transform">
+        <i data-lucide="plus"></i>
+    </button>
+
+    <div id="modal" class="modal">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <h2 id="modal-title" class="text-xl font-black text-slate-800">Nuevo Viaje</h2>
+            <form id="form" onsubmit="save(event)">
+                <div class="space-y-3">
+                    <input type="date" id="fecha" required>
+                    <input type="text" id="cliente" placeholder="Cliente" required>
+                    <div class="flex gap-2">
+                        <input type="text" id="inicio" placeholder="Origen" required>
+                        <input type="text" id="fin" placeholder="Destino" required>
+                    </div>
+                    <input type="number" id="monto" placeholder="Monto Q (Opcional)" onblur="formatInput(this)" onfocus="unformatInput(this)">
+                    <select id="estado">
+                        <option value="Cotización">📄 Cotización</option>
+                        <option value="Programado">📅 Programado</option>
+                        <option value="Realizado">✅ Realizado</option>
+                    </select>
+                    <input type="text" id="condicion" placeholder="Condición (Ej. Pago contra entrega)">
+                    <textarea id="detalle" placeholder="Detalles adicionales..."></textarea>
+                </div>
+                <div class="flex gap-2 mt-6">
+                    <button type="button" onclick="closeModal()" class="flex-1 py-3 font-bold text-slate-400">Cancelar</button>
+                    <button type="submit" class="flex-1 btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let data = JSON.parse(localStorage.getItem('viajes') || '[]');
+        let editingId = null;
+
+        const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'GTQ', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        function formatQ(n) { return formatter.format(n).replace('GTQ', 'Q'); }
+        function parseQ(s) { return Math.round(parseFloat(String(s).replace(/[Qq\. ,]/g, ''))) || 0; }
+
+        function formatInput(el) {
+            const val = parseQ(el.value);
+            el.type = 'text';
+            el.value = val > 0 ? formatQ(val) : '';
+        }
+
+        function unformatInput(el) {
+            const val = parseQ(el.value);
+            el.type = 'number';
+            el.value = val > 0 ? val : '';
+        }
+
+        function openModal(id = null) {
+            editingId = id;
+            document.getElementById('modal-title').textContent = id ? 'Editar Viaje' : 'Nuevo Viaje';
+            document.getElementById('form').reset();
+            document.getElementById('fecha').value = new Date().toISOString().slice(0,10);
+            if(id) {
+                const v = data.find(x => x.id === id);
+                document.getElementById('fecha').value = v.fecha;
+                document.getElementById('cliente').value = v.cliente;
+                document.getElementById('inicio').value = v.inicio;
+                document.getElementById('fin').value = v.fin;
+                const montoEl = document.getElementById('monto');
+                montoEl.type = 'text';
+                montoEl.value = v.monto ? formatQ(v.monto) : '';
+                document.getElementById('estado').value = v.estado;
+                document.getElementById('condicion').value = v.condicion;
+                document.getElementById('detalle').value = v.detalle;
+            }
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+        function save(e) {
+            e.preventDefault();
+            const entry = {
+                id: editingId || Date.now(),
+                fecha: document.getElementById('fecha').value,
+                cliente: document.getElementById('cliente').value,
+                inicio: document.getElementById('inicio').value,
+                fin: document.getElementById('fin').value,
+                monto: parseQ(document.getElementById('monto').value),
+                estado: document.getElementById('estado').value,
+                condicion: document.getElementById('condicion').value,
+                detalle: document.getElementById('detalle').value,
+                created: editingId ? data.find(x => x.id === editingId).created : Date.now()
+            };
+            if(editingId) {
+                const idx = data.findIndex(x => x.id === editingId);
+                data[idx] = entry;
+            } else {
+                data.unshift(entry);
+            }
+            localStorage.setItem('viajes', JSON.stringify(data));
+            closeModal();
+            renderList();
+        }
+
+        function deleteItem(id) {
+            if(confirm('¿Eliminar viaje?')) {
+                data = data.filter(x => x.id !== id);
+                localStorage.setItem('viajes', JSON.stringify(data));
+                renderList();
+            }
+        }
+
+        function renderList() {
+            const container = document.getElementById('list');
+            let sorted = data.slice().sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+            container.innerHTML = sorted.map(v => `
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 space-y-2">
+                    <div onclick="openModal(${v.id})" class="flex justify-between items-start">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">${v.fecha} • ${v.estado}</p>
+                            <h3 class="font-bold text-slate-800">${v.cliente}</h3>
+                            <p class="text-xs text-slate-500">${v.inicio} → ${v.fin}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-black text-blue-600">${v.monto > 0 ? formatQ(v.monto) : '---'}</p>
+                            <button onclick="deleteItem(${v.id})" class="text-slate-300 mt-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                    ${v.condicion ? `<p class="text-[10px] bg-blue-50 text-blue-600 p-1 px-2 rounded-lg inline-block font-bold">${v.condicion}</p>` : ''}
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        window.onload = () => { lucide.createIcons(); renderList(); };
+    </script>
+</body>
+</html>

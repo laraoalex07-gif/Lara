@@ -3,574 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Multi Servicios LARA</title>
+    <title>Lara - Inicio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="manifest" href="/Lara/manifest.json">
     <style>
-        :root { 
-            --primary: #3b82f6;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f1f5f9;
-        }
-        body { background-color: var(--bg); color: var(--text-color); font-family: 'Segoe UI', sans-serif; margin:0; }
-        .glass { 
-            background: rgba(30, 41, 59, 0.8); 
-            backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-        }
-        input, select, textarea { 
-            background: var(--card-bg) !important; 
-            border: 1px solid #334155 !important; 
-            color: var(--text-color) !important; 
-            padding: 0.8rem; 
-            border-radius: 0.6rem; 
-            width: 100%; 
-            font-size: 16px; 
-            margin-bottom: 8px; 
-            transition: border-color 0.2s;
-        }
-        input:focus, select:focus, textarea:focus { border-color: var(--primary) !important; outline: none; }
-        .btn-blue { 
-            background: #2563eb; 
-            color: white; 
-            font-weight: bold; 
-            padding: 1rem; 
-            border-radius: 0.6rem; 
-            width: 100%; 
-            transition: 0.2s; 
-            border: none; 
-            cursor: pointer; 
-        }
-        .btn-blue:active { background: #1d4ed8; transform: scale(0.98); }
-        .nav-bar {
-            background: var(--card-bg);
-            border-top: 1px solid #334155;
-            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
-            padding: 4px; 
-        }
-        .nav-btn { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            font-size: 0.65rem; 
-            color: #94a3b8; 
-            flex: 1; 
-            padding: 8px 0; 
-            border:none; 
-            background:none; 
-            transition: color 0.2s, transform 0.1s, background 0.2s;
-            border-radius: 8px; 
-            margin: 0 4px;
-        }
-        .nav-active { 
-            color: var(--primary); 
-            font-weight: bold;
-            background: rgba(59, 130, 246, 0.15); 
-        }
-        .card {
-            background: var(--card-bg);
-            border-radius: 1rem;
-            padding: 1rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1rem;
-        }
-        .card.selected { background: rgba(59, 130, 246, 0.3); }
-        #notification {
-            position: fixed;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #10b981;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 0 0 8px 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-            font-weight: bold;
-            pointer-events: none;
-        }
-        #notification.show { opacity: 1; }
-        .fab {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background-color: #ef4444;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-            z-index: 900;
-            cursor: pointer;
-        }
+        :root { --primary: #3b82f6; --bg: #f8fafc; --card: #ffffff; }
+        body { background-color: var(--bg); font-family: 'Inter', sans-serif; }
+        .menu-card { transition: transform 0.2s; }
+        .menu-card:active { transform: scale(0.95); }
+        .welcome-screen { background: #0f172a; color: white; }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-20">
 
-    <div id="notification"></div>
-
-    <!-- PANTALLA DE BIENVENIDA -->
-    <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
+    <!-- Pantalla de Bienvenida -->
+    <div id="welcome" class="fixed inset-0 z-50 welcome-screen flex flex-col items-center justify-center p-6 text-center">
         <div class="w-32 h-32 bg-white p-4 rounded-3xl mb-6 shadow-2xl">
             <img src="aa.jpg" alt="Logo" class="w-full h-full object-contain">
         </div>
         <h1 class="text-3xl font-black mb-1 uppercase text-blue-400">MULTI SERVICIOS LARA</h1>
         <p class="text-slate-400 text-lg mb-1">Servicio de Transporte Privado</p>
         <p class="text-blue-300 font-semibold mb-10 italic">"Moviendo Vidas"</p>
-        <button onclick="document.getElementById('welcome').style.display='none'" class="btn-blue w-full max-w-xs">ENTRAR</button>
+        <button onclick="document.getElementById('welcome').style.display='none'" class="bg-blue-600 text-white font-bold py-4 px-12 rounded-2xl w-full max-w-xs shadow-lg active:scale-95 transition-transform">ENTRAR</button>
     </div>
 
-    <header class="p-4 flex justify-between items-center glass sticky top-0 z-30">
-        <span id="section-title" class="font-bold text-blue-400 uppercase tracking-tighter text-sm">REGISTROS</span>
-        <img src="aa.jpg" class="h-8 w-8 rounded-lg object-cover bg-white">
+    <header class="p-6 bg-white border-b border-slate-200 sticky top-0 z-30 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-black text-slate-800">LARA</h1>
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Panel de Control</p>
+        </div>
+        <img src="aa.jpg" class="h-10 w-10 rounded-xl object-cover border-2 border-blue-100">
     </header>
 
-    <main class="p-4 max-w-md mx-auto">
-        <!-- SECCIÓN REGISTROS -->
-        <section id="sec-registros" class="space-y-4">
-            <div class="card">
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Fecha</label>
-                <input type="date" id="reg-fecha">
-                
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Flujo</label>
-                <select id="reg-tipo-flujo">
-                    <option value="Ingreso">🟢 Ingreso</option>
-                    <option value="Gasto">🔴 Gasto</option>
-                </select>
-                
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Categoría</label>
-                <select id="reg-categoria" onchange="checkNewCat(this)">
-                    <option value="Uber Diario">🚕 Uber Diario</option>
-                    <option value="Renta Carro">🔑 Renta Carro</option>
-                    <option value="Mantenimiento">🛠️ Mantenimiento</option>
-                    <option value="Internet">🌐 Internet</option>
-                    <option value="Gasolina">⛽ Gasolina</option>
-                    <option value="Privado">👤 Privado</option>
-                    <option value="Otros">📦 Otros (Agregar nueva)</option>
-                </select>
-                <input type="text" id="reg-nueva-cat" placeholder="Nombre de nueva categoría" class="hidden mt-2">
-                
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Monto (Q)</label>
-                <input type="text" id="reg-monto" placeholder="Q.0.00" onblur="formatInputCurrency(this)" onfocus="unformatInputCurrency(this)">
-                
-                <textarea id="reg-concepto" placeholder="Notas adicionales..."></textarea>
-                
-                <button type="button" onclick="saveRegistro()" class="btn-blue mt-2">GUARDAR REGISTRO</button>
-            </div>
-            <div class="card">
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Filtrar por Fecha</label>
-                <input type="date" id="reg-filtro-fecha" onchange="renderRegistrosList()">
-            </div>
-            <div id="registros-list" class="space-y-3"></div>
-        </section>
-
-        <!-- SECCIÓN VIAJES -->
-        <section id="sec-viajes" class="hidden space-y-4">
-            <div class="card">
-                <input type="text" id="v-cliente" placeholder="Cliente">
-                <input type="text" id="v-inicio" placeholder="Origen">
-                <input type="text" id="v-fin" placeholder="Destino">
-                <input type="text" id="v-costo" placeholder="Costo Q.0.00" onblur="formatInputCurrency(this)" onfocus="unformatInputCurrency(this)">
-                <input type="date" id="v-fecha">
-                <select id="v-tipo">
-                    <option value="Cotización">📄 Cotización</option>
-                    <option value="Agendado">📅 Agendado</option>
-                    <option value="Realizado">✅ Realizado</option>
-                </select>
-                <button type="button" onclick="saveViaje()" class="btn-blue">GUARDAR VIAJE</button>
-            </div>
-            <div id="viajes-list" class="space-y-3"></div>
-        </section>
-
-        <!-- SECCIÓN DIEZMOS -->
-        <section id="sec-diezmos" class="hidden space-y-4">
-            <div class="card bg-blue-900/20 border-blue-500/30">
-                <div class="flex gap-2 mb-4">
-                    <div class="flex-1">
-                        <label class="text-[10px] uppercase text-slate-500">Mes</label>
-                        <input type="month" id="d-mes-filtro" onchange="updateDiezmosView()">
-                    </div>
-                    <div class="flex-1">
-                        <label class="text-[10px] uppercase text-slate-500">Quincena</label>
-                        <select id="d-quincena-filtro" onchange="updateDiezmosView()">
-                            <option value="1">1ra (1-15)</option>
-                            <option value="2">2da (16-Fin)</option>
-                        </select>
-                    </div>
+    <main class="p-6 space-y-6 max-w-md mx-auto">
+        <!-- Resumen Rápido -->
+        <div class="bg-blue-600 rounded-3xl p-6 text-white shadow-xl shadow-blue-200">
+            <p class="text-blue-100 text-xs font-bold uppercase mb-1">Ganancia Neta (Mes)</p>
+            <h2 id="resumen-neto" class="text-4xl font-black">Q.0</h2>
+            <div class="grid grid-cols-2 gap-4 mt-6">
+                <div class="bg-blue-500/30 p-3 rounded-2xl">
+                    <p class="text-[10px] text-blue-100 uppercase font-bold">Ingresos</p>
+                    <p id="resumen-ingresos" class="text-lg font-bold">Q.0</p>
                 </div>
-                <div id="diezmo-info"></div>
+                <div class="bg-blue-500/30 p-3 rounded-2xl">
+                    <p class="text-[10px] text-blue-100 uppercase font-bold">Gastos</p>
+                    <p id="resumen-gastos" class="text-lg font-bold">Q.0</p>
+                </div>
             </div>
-            <div class="card">
-                <label class="text-[10px] font-bold text-slate-500 uppercase">Tipo de Pago</label>
-                <select id="d-tipo-pago">
-                    <option value="Efectivo">💵 Efectivo</option>
-                    <option value="Transferencia">💳 Transferencia</option>
-                </select>
-                <input type="text" id="d-pago" placeholder="Monto Q.0.00" onblur="formatInputCurrency(this)" onfocus="unformatInputCurrency(this)">
-                <button type="button" onclick="saveDiezmo()" class="w-full bg-emerald-600 py-4 rounded-xl font-bold">REGISTRAR PAGO</button>
-            </div>
-            <div id="diezmo-pagos-list" class="space-y-3"></div>
-        </section>
+        </div>
 
-        <!-- SECCIÓN RESUMEN -->
-        <section id="sec-resumen" class="hidden space-y-6">
-            <div id="resumen-container"></div>
-            <div id="resumen-categorias" class="card"></div>
-            <div id="resumen-historial" class="card"></div>
-            <div id="resumen-ingresos-gastos" class="space-y-6"></div>
-            <div class="card p-4 space-y-3">
-                <button onclick="exportData()" class="w-full bg-slate-700 py-3 rounded-xl text-xs font-bold">EXPORTAR RESPALDO (JSON)</button>
-                <input type="file" id="import-file" class="hidden" onchange="importData(event)">
-                <button onclick="document.getElementById('import-file').click()" class="w-full bg-slate-700 py-3 rounded-xl text-xs font-bold">IMPORTAR RESPALDO</button>
-                <button onclick="borrarDatos()" class="w-full bg-red-900/40 text-red-400 py-3 rounded-xl text-xs font-bold">BORRAR TODO</button>
-            </div>
-        </section>
+        <!-- Menú Principal -->
+        <div class="grid grid-cols-1 gap-4">
+            <a href="/Lara/registros.html" class="menu-card bg-white p-5 rounded-3xl flex items-center gap-4 shadow-sm border border-slate-100">
+                <div class="bg-emerald-100 p-3 rounded-2xl text-emerald-600"><i data-lucide="bar-chart-3"></i></div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-slate-800">Registros</h3>
+                    <p class="text-xs text-slate-500">Finanzas y categorías</p>
+                </div>
+                <i data-lucide="chevron-right" class="text-slate-300"></i>
+            </a>
+
+            <a href="/Lara/viajes.html" class="menu-card bg-white p-5 rounded-3xl flex items-center gap-4 shadow-sm border border-slate-100">
+                <div class="bg-blue-100 p-3 rounded-2xl text-blue-600"><i data-lucide="truck"></i></div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-slate-800">Viajes</h3>
+                    <p class="text-xs text-slate-500">Rutas y clientes</p>
+                </div>
+                <i data-lucide="chevron-right" class="text-slate-300"></i>
+            </a>
+
+            <a href="/Lara/diezmos.html" class="menu-card bg-white p-5 rounded-3xl flex items-center gap-4 shadow-sm border border-slate-100">
+                <div class="bg-purple-100 p-3 rounded-2xl text-purple-600"><i data-lucide="heart"></i></div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-slate-800">Diezmos</h3>
+                    <p class="text-xs text-slate-500">Cálculo quincenal</p>
+                </div>
+                <i data-lucide="chevron-right" class="text-slate-300"></i>
+            </a>
+
+            <a href="/Lara/resumen.html" class="menu-card bg-white p-5 rounded-3xl flex items-center gap-4 shadow-sm border border-slate-100">
+                <div class="bg-slate-100 p-3 rounded-2xl text-slate-600"><i data-lucide="pie-chart"></i></div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-slate-800">Resumen</h3>
+                    <p class="text-xs text-slate-500">Historial y reportes</p>
+                </div>
+                <i data-lucide="chevron-right" class="text-slate-300"></i>
+            </a>
+        </div>
     </main>
 
-    <!-- NAVEGACIÓN -->
-    <nav class="nav-bar fixed bottom-0 left-0 right-0 flex justify-around items-center z-40">
-        <button onclick="nav('registros')" id="nav-registros" class="nav-btn nav-active"><i data-lucide="list"></i>REGISTROS</button>
-        <button onclick="nav('viajes')" id="nav-viajes" class="nav-btn"><i data-lucide="truck"></i>VIAJES</button>
-        <button onclick="nav('diezmos')" id="nav-diezmos" class="nav-btn"><i data-lucide="heart"></i>DIEZMOS</button>
-        <button onclick="nav('resumen')" id="nav-resumen" class="nav-btn"><i data-lucide="pie-chart"></i>RESUMEN</button>
-    </nav>
-
-    <!-- BOTÓN BORRAR SELECCIÓN -->
-    <div id="fab-delete" class="fab hidden" onclick="deleteSelected()">
-        <i data-lucide="trash-2"></i>
-    </div>
-
     <script>
-        let db = { registros: [], viajes: [], diezmos: [], categorias: [] };
-        let editMode = false;
-        let selectedItems = [];
+        const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'GTQ', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        function formatQ(n) { return formatter.format(n).replace('GTQ', 'Q'); }
 
-        const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'GTQ', minimumFractionDigits: 2 });
-
-        function formatCurrency(n) { return formatter.format(n).replace('GTQ', 'Q'); }
-        
-        function parseCurrency(s) {
-            if (typeof s === 'number') return s;
-            const cleaned = String(s || '').replace(/[Qq\. ,]/g, '');
-            return parseFloat(cleaned) || 0;
-        }
-
-        function formatInputCurrency(el) {
-            const val = parseCurrency(el.value);
-            el.value = val > 0 ? formatCurrency(val) : '';
-        }
-
-        function unformatInputCurrency(el) {
-            const val = parseCurrency(el.value);
-            el.value = val > 0 ? val.toFixed(2) : '';
-        }
-
-        function checkNewCat(el) {
-            document.getElementById('reg-nueva-cat').classList.toggle('hidden', el.value !== 'Otros');
-        }
-
-        function showNotification(msg) {
-            const n = document.getElementById('notification');
-            n.textContent = msg;
-            n.classList.add('show');
-            setTimeout(() => n.classList.remove('show'), 3000);
-        }
-
-        async function saveDB() { await localforage.setItem('lara_final_db', db); }
-
-        function nav(section) {
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById(`sec-${section}`).classList.remove('hidden');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-            document.getElementById(`nav-${section}`).classList.add('nav-active');
-            document.getElementById('section-title').textContent = section.toUpperCase();
-            
-            if(section === 'registros') renderRegistrosList();
-            if(section === 'viajes') renderViajesList();
-            if(section === 'diezmos') updateDiezmosView();
-            if(section === 'resumen') updateResumen();
-            
-            editMode = false;
-            selectedItems = [];
-            updateFab();
-        }
-
-        function toggleEditMode() {
-            editMode = !editMode;
-            selectedItems = [];
-            nav(document.getElementById('section-title').textContent.toLowerCase());
-        }
-
-        function selectItem(index, el, type) {
-            const id = `${type}-${index}`;
-            if (selectedItems.includes(id)) {
-                selectedItems = selectedItems.filter(i => i !== id);
-                el.classList.remove('selected');
-            } else {
-                selectedItems.push(id);
-                el.classList.add('selected');
-            }
-            updateFab();
-        }
-
-        function updateFab() {
-            const fab = document.getElementById('fab-delete');
-            fab.classList.toggle('hidden', selectedItems.length === 0);
-        }
-
-        async function deleteSelected() {
-            if(!confirm(`¿Borrar ${selectedItems.length} elementos?`)) return;
-            
-            selectedItems.sort().reverse().forEach(item => {
-                const [type, idx] = item.split('-');
-                db[type].splice(parseInt(idx), 1);
-            });
-            
-            await saveDB();
-            selectedItems = [];
-            updateFab();
-            nav(document.getElementById('section-title').textContent.toLowerCase());
-            showNotification("🗑️ Elementos eliminados.");
-        }
-
-        async function saveRegistro() {
-            const monto = parseCurrency(document.getElementById('reg-monto').value);
-            if(monto <= 0) return showNotification("❌ Monto inválido");
-            
-            let cat = document.getElementById('reg-categoria').value;
-            if(cat === 'Otros') {
-                cat = document.getElementById('reg-nueva-cat').value.trim() || 'Otros';
-                if(!db.categorias.includes(cat)) db.categorias.push(cat);
-            }
-
-            db.registros.push({
-                fecha: document.getElementById('reg-fecha').value,
-                flujo: document.getElementById('reg-tipo-flujo').value,
-                cat: cat,
-                monto: monto,
-                concepto: document.getElementById('reg-concepto').value
-            });
-            
-            await saveDB();
-            showNotification("✅ Guardado");
-            document.getElementById('reg-monto').value = '';
-            document.getElementById('reg-concepto').value = '';
-            renderRegistrosList();
-        }
-
-        function renderRegistrosList() {
-            const container = document.getElementById('registros-list');
-            const filtro = document.getElementById('reg-filtro-fecha').value;
-            let list = db.registros.map((r, i) => ({...r, i})).sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-            
-            if(filtro) list = list.filter(r => r.fecha === filtro);
-            
-            container.innerHTML = list.length ? '' : '<p class="text-center text-slate-500">No hay registros</p>';
-            list.forEach(r => {
-                const color = r.flujo === 'Ingreso' ? 'text-emerald-400' : 'text-red-400';
-                const card = document.createElement('div');
-                card.className = `card flex justify-between items-center ${selectedItems.includes('registros-'+r.i) ? 'selected' : ''}`;
-                card.onclick = () => selectItem(r.i, card, 'registros');
-                card.innerHTML = `
-                    <div>
-                        <p class="text-sm font-bold">${r.cat}</p>
-                        <p class="text-[10px] text-slate-500">${r.fecha} • ${r.flujo}</p>
-                    </div>
-                    <p class="text-lg font-black ${color}">${r.flujo === 'Ingreso' ? '+' : '-'}${formatCurrency(r.monto)}</p>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        async function saveViaje() {
-            const costo = parseCurrency(document.getElementById('v-costo').value);
-            db.viajes.push({
-                cliente: document.getElementById('v-cliente').value,
-                inicio: document.getElementById('v-inicio').value,
-                fin: document.getElementById('v-fin').value,
-                costo: costo,
-                fecha: document.getElementById('v-fecha').value,
-                tipo: document.getElementById('v-tipo').value
-            });
-            await saveDB();
-            showNotification("✅ Viaje guardado");
-            nav('viajes');
-        }
-
-        function renderViajesList() {
-            const container = document.getElementById('viajes-list');
-            let list = db.viajes.map((v, i) => ({...v, i})).sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-            container.innerHTML = list.length ? '' : '<p class="text-center text-slate-500">No hay viajes</p>';
-            list.forEach(v => {
-                const card = document.createElement('div');
-                card.className = `card flex justify-between items-center ${selectedItems.includes('viajes-'+v.i) ? 'selected' : ''}`;
-                card.onclick = () => selectItem(v.i, card, 'viajes');
-                card.innerHTML = `
-                    <div>
-                        <p class="text-sm font-bold">${v.cliente}</p>
-                        <p class="text-[10px] text-slate-500">${v.inicio} → ${v.fin}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-lg font-black text-blue-400">${formatCurrency(v.costo)}</p>
-                        <p class="text-[10px] text-slate-500">${v.tipo}</p>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function getQuincenaRange(dateStr, q) {
-            const [y, m] = dateStr.split('-').map(Number);
-            const start = new Date(y, m-1, q == 1 ? 1 : 16);
-            const end = q == 1 ? new Date(y, m-1, 15, 23, 59, 59) : new Date(y, m, 0, 23, 59, 59);
-            return { start, end };
-        }
-
-        function updateDiezmosView() {
-            const mes = document.getElementById('d-mes-filtro').value;
-            const q = document.getElementById('d-quincena-filtro').value;
-            const range = getQuincenaRange(mes, q);
-            const key = `${mes}-q${q}`;
-
-            let ing = 0, gas = 0;
-            db.registros.forEach(r => {
-                const d = new Date(r.fecha + 'T00:00:00');
-                if(d >= range.start && d <= range.end) {
-                    if(r.flujo === 'Ingreso') ing += r.monto; else gas += r.monto;
-                }
-            });
-
-            const neto = Math.max(0, ing - gas);
-            const sugerido = neto * 0.10;
-            const pagado = db.diezmos.filter(d => d.quincenaKey === key).reduce((s, d) => s + d.monto, 0);
-            const faltante = Math.max(0, sugerido - pagado);
-
-            document.getElementById('diezmo-info').innerHTML = `
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                    <div class="bg-slate-800/50 p-2 rounded">Ingresos: <b class="block text-emerald-400">${formatCurrency(ing)}</b></div>
-                    <div class="bg-slate-800/50 p-2 rounded">Gastos: <b class="block text-red-400">${formatCurrency(gas)}</b></div>
-                    <div class="bg-slate-800/50 p-2 rounded">Sugerido (10%): <b class="block text-blue-400">${formatCurrency(sugerido)}</b></div>
-                    <div class="bg-slate-800/50 p-2 rounded">Pagado: <b class="block text-emerald-400">${formatCurrency(pagado)}</b></div>
-                </div>
-                <div class="mt-3 p-3 bg-red-900/20 rounded-xl text-center">
-                    <p class="text-[10px] uppercase text-slate-400">Faltante por pagar</p>
-                    <p class="text-2xl font-black text-red-400">${formatCurrency(faltante)}</p>
-                </div>
-            `;
-
-            const list = db.diezmos.filter(d => d.quincenaKey === key).sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-            const container = document.getElementById('diezmo-pagos-list');
-            container.innerHTML = '<h3 class="text-xs font-bold text-slate-500 uppercase">Pagos de esta quincena</h3>';
-            list.forEach((p, i) => {
-                const card = document.createElement('div');
-                card.className = "card flex justify-between items-center";
-                card.innerHTML = `<div><p class="text-sm font-bold">${p.tipo}</p><p class="text-[10px] text-slate-500">${p.fecha}</p></div><p class="text-lg font-black text-emerald-400">${formatCurrency(p.monto)}</p>`;
-                container.appendChild(card);
-            });
-        }
-
-        async function saveDiezmo() {
-            const monto = parseCurrency(document.getElementById('d-pago').value);
-            const mes = document.getElementById('d-mes-filtro').value;
-            const q = document.getElementById('d-quincena-filtro').value;
-            if(monto <= 0) return showNotification("❌ Monto inválido");
-
-            db.diezmos.push({
-                monto: monto,
-                fecha: new Date().toISOString().split('T')[0],
-                tipo: document.getElementById('d-tipo-pago').value,
-                quincenaKey: `${mes}-q${q}`
-            });
-            await saveDB();
-            document.getElementById('d-pago').value = '';
-            updateDiezmosView();
-            showNotification("🙏 Pago registrado");
-        }
-
-        function updateResumen() {
+        function updateSummary() {
+            const registros = JSON.parse(localStorage.getItem('registros') || '[]');
             const hoy = new Date();
             const start = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-            const end = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
-            
+            const end = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0, 23, 59, 59);
+
             let ing = 0, gas = 0;
-            db.registros.forEach(r => {
+            registros.forEach(r => {
                 const d = new Date(r.fecha + 'T00:00:00');
                 if(d >= start && d <= end) {
-                    if(r.flujo === 'Ingreso') ing += r.monto; else gas += r.monto;
+                    if(r.tipo === 'Ingreso') ing += Math.round(Number(r.monto));
+                    else gas += Math.round(Number(r.monto));
                 }
             });
 
-            document.getElementById('resumen-container').innerHTML = `
-                <div class="card p-6 text-center border-b-4 border-blue-500">
-                    <p class="text-slate-400 text-[10px] uppercase">Ganancia Neta del Mes</p>
-                    <h4 class="text-4xl font-black text-blue-400 my-2">${formatCurrency(ing - gas)}</h4>
-                </div>
-                <div class="grid grid-cols-2 gap-3 mt-3">
-                    <div class="card p-4 text-center"><p class="text-[10px] text-slate-400">INGRESOS</p><p class="text-lg font-bold text-emerald-400">${formatCurrency(ing)}</p></div>
-                    <div class="card p-4 text-center"><p class="text-[10px] text-slate-400">GASTOS</p><p class="text-lg font-bold text-red-400">${formatCurrency(gas)}</p></div>
-                </div>
-            `;
+            document.getElementById('resumen-neto').textContent = formatQ(ing - gas);
+            document.getElementById('resumen-ingresos').textContent = formatQ(ing);
+            document.getElementById('resumen-gastos').textContent = formatQ(gas);
         }
 
-        function exportData() {
-            const blob = new Blob([JSON.stringify(db, null, 2)], {type: 'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `Lara_Backup_${new Date().toISOString().slice(0,10)}.json`;
-            a.click();
-        }
-
-        function importData(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = async (ev) => {
-                try {
-                    const data = JSON.parse(ev.target.result);
-                    if(data.registros) {
-                        db = data;
-                        await saveDB();
-                        location.reload();
-                    }
-                } catch(err) { alert("Error al importar"); }
-            };
-            reader.readAsText(file);
-        }
-
-        async function borrarDatos() {
-            if(confirm("¿Borrar todo?")) { await localforage.clear(); location.reload(); }
-        }
-
-        async function initApp() {
-            const saved = await localforage.getItem('lara_final_db');
-            if(saved) db = saved;
-            
-            // Cargar categorías personalizadas
-            if(db.categorias) {
-                const sel = document.getElementById('reg-categoria');
-                db.categorias.forEach(c => {
-                    const opt = document.createElement('option');
-                    opt.value = c; opt.textContent = c;
-                    sel.insertBefore(opt, sel.lastElementChild);
-                });
-            }
-
+        window.onload = () => {
             lucide.createIcons();
-            document.getElementById('reg-fecha').valueAsDate = new Date();
-            document.getElementById('v-fecha').valueAsDate = new Date();
-            document.getElementById('d-mes-filtro').value = new Date().toISOString().slice(0,7);
-            nav('registros');
-        }
-
-        initApp();
+            updateSummary();
+            if('serviceWorker' in navigator) navigator.serviceWorker.register('/Lara/sw.js');
+        };
     </script>
 </body>
 </html>

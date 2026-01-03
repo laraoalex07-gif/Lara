@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lara - Registros</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
+    <style>
+        :root { --primary: #3b82f6; --bg: #f8fafc; }
+        body { background-color: var(--bg); font-family: 'Inter', sans-serif; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
+        .modal.active { display: flex; }
+        input, select { border: 1px solid #e2e8f0; padding: 0.75rem; border-radius: 0.75rem; width: 100%; font-size: 16px; }
+        .btn-primary { background: #2563eb; color: white; font-weight: bold; padding: 0.75rem; border-radius: 0.75rem; width: 100%; }
+    </style>
+</head>
+<body class="pb-24">
+    <nav class="nav-bar fixed bottom-0 left-0 right-0 flex justify-around items-center z-40 bg-white border-t border-slate-200">
+        <a href="/Lara/registros.html" class="flex flex-col items-center py-2 text-blue-600 font-bold text-[10px] flex-1"><i data-lucide="list"></i>REGISTROS</a>
+        <a href="/Lara/viajes.html" class="flex flex-col items-center py-2 text-slate-400 text-[10px] flex-1"><i data-lucide="truck"></i>VIAJES</a>
+        <a href="/Lara/diezmos.html" class="flex flex-col items-center py-2 text-slate-400 text-[10px] flex-1"><i data-lucide="heart"></i>DIEZMOS</a>
+        <a href="/Lara/resumen.html" class="flex flex-col items-center py-2 text-slate-400 text-[10px] flex-1"><i data-lucide="pie-chart"></i>RESUMEN</a>
+    </nav>
+
+    <header class="p-4 bg-white border-b border-slate-200 sticky top-0 z-30 flex items-center gap-4">
+        <a href="/Lara/index.html" class="p-2 text-slate-400"><i data-lucide="arrow-left"></i></a>
+        <h1 class="text-xl font-black text-slate-800 uppercase">Registros</h1>
+    </header>
+
+    <main class="p-4 max-w-md mx-auto space-y-4">
+        <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 space-y-3">
+            <div class="flex gap-2">
+                <div class="flex-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Desde</label>
+                    <input type="date" id="filter-from" onchange="renderList()">
+                </div>
+                <div class="flex-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Hasta</label>
+                    <input type="date" id="filter-to" onchange="renderList()">
+                </div>
+            </div>
+        </div>
+        <div id="list" class="space-y-3"></div>
+    </main>
+
+    <button onclick="openModal()" class="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-xl flex items-center justify-center z-40 active:scale-90 transition-transform">
+        <i data-lucide="plus"></i>
+    </button>
+
+    <div id="modal" class="modal">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl">
+            <h2 id="modal-title" class="text-xl font-black text-slate-800">Nuevo Registro</h2>
+            <form id="form" onsubmit="save(event)">
+                <div class="space-y-3">
+                    <select id="tipo">
+                        <option value="Ingreso">🟢 Ingreso</option>
+                        <option value="Gasto">🔴 Gasto</option>
+                    </select>
+                    <input type="date" id="fecha" required>
+                    <input type="number" id="monto" placeholder="Monto Q" required onblur="formatInput(this)" onfocus="unformatInput(this)">
+                    <select id="categoria" onchange="handleCatChange(this)"></select>
+                    <input type="text" id="detalle" placeholder="Detalle / Concepto">
+                </div>
+                <div class="flex gap-2 mt-6">
+                    <button type="button" onclick="closeModal()" class="flex-1 py-3 font-bold text-slate-400">Cancelar</button>
+                    <button type="submit" class="flex-1 btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-cat" class="modal">
+        <div class="bg-white w-full max-w-xs rounded-3xl p-6 space-y-4 shadow-2xl">
+            <h2 class="text-lg font-black text-slate-800">Nueva Categoría</h2>
+            <input type="text" id="new-cat-name" placeholder="Nombre de categoría">
+            <div class="flex gap-2">
+                <button onclick="closeCatModal()" class="flex-1 py-2 text-slate-400 font-bold">Cancelar</button>
+                <button onclick="saveNewCat()" class="flex-1 bg-blue-600 text-white py-2 rounded-xl font-bold">Añadir</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let records = JSON.parse(localStorage.getItem('registros') || '[]');
+        let cats = JSON.parse(localStorage.getItem('categorias') || '["Sueldo","Ventas","Transporte","Comida","Vivienda","Salud"]');
+        let editingId = null;
+
+        const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'GTQ', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        function formatQ(n) { return formatter.format(n).replace('GTQ', 'Q'); }
+        function parseQ(s) { return Math.round(parseFloat(String(s).replace(/[Qq\. ,]/g, ''))) || 0; }
+
+        function formatInput(el) {
+            const val = parseQ(el.value);
+            el.type = 'text';
+            el.value = val > 0 ? formatQ(val) : '';
+        }
+
+        function unformatInput(el) {
+            const val = parseQ(el.value);
+            el.type = 'number';
+            el.value = val > 0 ? val : '';
+        }
+
+        function openModal(id = null) {
+            editingId = id;
+            document.getElementById('modal-title').textContent = id ? 'Editar Registro' : 'Nuevo Registro';
+            document.getElementById('form').reset();
+            document.getElementById('fecha').value = new Date().toISOString().slice(0,10);
+            renderCats();
+            if(id) {
+                const r = records.find(x => x.id === id);
+                document.getElementById('tipo').value = r.tipo;
+                document.getElementById('fecha').value = r.fecha;
+                const montoEl = document.getElementById('monto');
+                montoEl.type = 'text';
+                montoEl.value = formatQ(r.monto);
+                document.getElementById('categoria').value = r.categoria;
+                document.getElementById('detalle').value = r.detalle;
+            }
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+        function renderCats() {
+            const sel = document.getElementById('categoria');
+            sel.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('') + '<option value="Otros">➕ Otros (Agregar)</option>';
+        }
+
+        function handleCatChange(el) {
+            if(el.value === 'Otros') {
+                document.getElementById('modal-cat').classList.add('active');
+                document.getElementById('new-cat-name').focus();
+            }
+        }
+
+        function closeCatModal() {
+            document.getElementById('modal-cat').classList.remove('active');
+            document.getElementById('categoria').value = cats[0];
+        }
+
+        function saveNewCat() {
+            const name = document.getElementById('new-cat-name').value.trim();
+            if(name && !cats.includes(name)) {
+                cats.push(name);
+                localStorage.setItem('categorias', JSON.stringify(cats));
+                renderCats();
+                document.getElementById('categoria').value = name;
+            }
+            document.getElementById('modal-cat').classList.remove('active');
+        }
+
+        function save(e) {
+            e.preventDefault();
+            const monto = parseQ(document.getElementById('monto').value);
+            if(monto <= 0) return alert('Monto inválido');
+            const data = {
+                id: editingId || Date.now(),
+                tipo: document.getElementById('tipo').value,
+                fecha: document.getElementById('fecha').value,
+                monto: monto,
+                categoria: document.getElementById('categoria').value,
+                detalle: document.getElementById('detalle').value,
+                created: editingId ? records.find(x => x.id === editingId).created : Date.now()
+            };
+            if(editingId) {
+                const idx = records.findIndex(x => x.id === editingId);
+                records[idx] = data;
+            } else {
+                records.unshift(data);
+            }
+            localStorage.setItem('registros', JSON.stringify(records));
+            closeModal();
+            renderList();
+        }
+
+        function deleteRecord(id) {
+            if(confirm('¿Eliminar registro?')) {
+                records = records.filter(x => x.id !== id);
+                localStorage.setItem('registros', JSON.stringify(records));
+                renderList();
+            }
+        }
+
+        function renderList() {
+            const container = document.getElementById('list');
+            const from = document.getElementById('filter-from').value;
+            const to = document.getElementById('filter-to').value;
+            let filtered = records.slice().sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+            if(from) filtered = filtered.filter(r => r.fecha >= from);
+            if(to) filtered = filtered.filter(r => r.fecha <= to);
+            container.innerHTML = filtered.map(r => `
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex justify-between items-center">
+                    <div onclick="openModal(${r.id})" class="flex-1">
+                        <p class="text-xs font-bold text-slate-400 uppercase">${r.fecha} • ${r.categoria}</p>
+                        <h3 class="font-bold text-slate-800">${r.detalle || 'Sin detalle'}</h3>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-2">
+                        <p class="font-black ${r.tipo === 'Ingreso' ? 'text-emerald-500' : 'text-red-500'}">${r.tipo === 'Ingreso' ? '+' : '-'}${formatQ(r.monto)}</p>
+                        <button onclick="deleteRecord(${r.id})" class="text-slate-300"><i data-lucide="x-circle" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        window.onload = () => { lucide.createIcons(); renderList(); };
+    </script>
+</body>
+</html>

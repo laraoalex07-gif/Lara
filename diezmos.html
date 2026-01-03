@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lara - Diezmos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
+    <style>
+        :root { --primary: #8b5cf6; --bg: #f8fafc; }
+        body { background-color: var(--bg); font-family: 'Inter', sans-serif; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
+        .modal.active { display: flex; }
+        input, select { border: 1px solid #e2e8f0; padding: 0.75rem; border-radius: 0.75rem; width: 100%; font-size: 16px; }
+        .btn-primary { background: #8b5cf6; color: white; font-weight: bold; padding: 0.75rem; border-radius: 0.75rem; width: 100%; }
+    </style>
+</head>
+<body class="pb-24">
+    <nav class="nav-bar fixed bottom-0 left-0 right-0 flex justify-around items-center z-40 bg-white border-t border-slate-200">
+        <a href="/Lara/registros.html" class="flex flex-col items-center py-2 text-slate-400 text-[10px] flex-1"><i data-lucide="list"></i>REGISTROS</a>
+        <a href="/Lara/viajes.html" class="flex flex-col items-center py-2 text-slate-400 text-[10px] flex-1"><i data-lucide="truck"></i>VIAJES</a>
+        <a href="/Lara/diezmos.html" class="flex flex-col items-center py-2 text-purple-600 font-bold text-[10px] flex-1"><i data-lucide="heart"></i>DIEZMOS</a>
+        <a href="/Lara/resumen.html" class="flex flex-col items-center py-2 text-slate-400 text-[10px] flex-1"><i data-lucide="pie-chart"></i>RESUMEN</a>
+    </nav>
+
+    <header class="p-4 bg-white border-b border-slate-200 sticky top-0 z-30 flex items-center gap-4">
+        <a href="/Lara/index.html" class="p-2 text-slate-400"><i data-lucide="arrow-left"></i></a>
+        <h1 class="text-xl font-black text-slate-800 uppercase">Diezmos</h1>
+    </header>
+
+    <main class="p-4 max-w-md mx-auto space-y-4">
+        <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-4">
+            <div class="flex gap-2">
+                <div class="flex-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Mes</label>
+                    <input type="month" id="q-month" onchange="calc()">
+                </div>
+                <div class="flex-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Quincena</label>
+                    <select id="q-num" onchange="calc()">
+                        <option value="1">1ra (1-15)</option>
+                        <option value="2">2da (16-Fin)</option>
+                    </select>
+                </div>
+            </div>
+            <div id="summary" class="grid grid-cols-2 gap-3 pt-2">
+                <div class="bg-slate-50 p-3 rounded-2xl">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold">Base (Neta)</p>
+                    <p id="sum-base" class="text-lg font-bold text-slate-700">Q.0</p>
+                </div>
+                <div class="bg-purple-50 p-3 rounded-2xl">
+                    <p class="text-[10px] text-purple-400 uppercase font-bold">Sugerido (10%)</p>
+                    <p id="sum-sugerido" class="text-lg font-bold text-purple-600">Q.0</p>
+                </div>
+                <div class="bg-emerald-50 p-3 rounded-2xl">
+                    <p class="text-[10px] text-emerald-400 uppercase font-bold">Pagado</p>
+                    <p id="sum-pagado" class="text-lg font-bold text-emerald-600">Q.0</p>
+                </div>
+                <div class="bg-red-50 p-3 rounded-2xl">
+                    <p class="text-[10px] text-red-400 uppercase font-bold">Faltante</p>
+                    <p id="sum-faltante" class="text-lg font-bold text-red-600">Q.0</p>
+                </div>
+            </div>
+            <button onclick="openPayModal()" class="btn-primary mt-2">REGISTRAR PAGO</button>
+        </div>
+        <div id="pay-list" class="space-y-3"></div>
+    </main>
+
+    <div id="modal-pay" class="modal">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl">
+            <h2 id="pay-modal-title" class="text-xl font-black text-slate-800">Registrar Pago</h2>
+            <form id="pay-form" onsubmit="savePay(event)">
+                <div class="space-y-3">
+                    <input type="date" id="pay-fecha" required>
+                    <input type="number" id="pay-monto" placeholder="Monto Q" required onblur="formatInput(this)" onfocus="unformatInput(this)">
+                    <select id="pay-metodo">
+                        <option value="Efectivo">💵 Efectivo</option>
+                        <option value="Transferencia">💳 Transferencia</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 mt-6">
+                    <button type="button" onclick="closePayModal()" class="flex-1 py-3 font-bold text-slate-400">Cancelar</button>
+                    <button type="submit" class="flex-1 btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let records = JSON.parse(localStorage.getItem('registros') || '[]');
+        let payments = JSON.parse(localStorage.getItem('pagos_diezmos') || '[]');
+        let editingPayId = null;
+
+        const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'GTQ', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        function formatQ(n) { return formatter.format(n).replace('GTQ', 'Q'); }
+        function parseQ(s) { return Math.round(parseFloat(String(s).replace(/[Qq\. ,]/g, ''))) || 0; }
+
+        function formatInput(el) {
+            const val = parseQ(el.value);
+            el.type = 'text';
+            el.value = val > 0 ? formatQ(val) : '';
+        }
+
+        function unformatInput(el) {
+            const val = parseQ(el.value);
+            el.type = 'number';
+            el.value = val > 0 ? val : '';
+        }
+
+        function getRange(monthStr, q) {
+            const [y, m] = monthStr.split('-').map(Number);
+            const start = new Date(y, m-1, q == 1 ? 1 : 16);
+            const end = q == 1 ? new Date(y, m-1, 15, 23, 59, 59) : new Date(y, m, 0, 23, 59, 59);
+            return { start, end };
+        }
+
+        function calc() {
+            const month = document.getElementById('q-month').value;
+            const q = document.getElementById('q-num').value;
+            const range = getRange(month, q);
+            const key = `${month}-q${q}`;
+            let ing = 0, gas = 0;
+            records.forEach(r => {
+                const d = new Date(r.fecha + 'T00:00:00');
+                if(d >= range.start && d <= range.end) {
+                    if(r.tipo === 'Ingreso') ing += Math.round(Number(r.monto));
+                    else gas += Math.round(Number(r.monto));
+                }
+            });
+            const base = Math.max(0, ing - gas);
+            const sugerido = Math.round(base * 0.10);
+            const pagado = payments.filter(p => p.quincenaKey === key).reduce((s, p) => s + Math.round(p.monto), 0);
+            const faltante = Math.max(0, sugerido - pagado);
+            document.getElementById('sum-base').textContent = formatQ(base);
+            document.getElementById('sum-sugerido').textContent = formatQ(sugerido);
+            document.getElementById('sum-pagado').textContent = formatQ(pagado);
+            document.getElementById('sum-faltante').textContent = formatQ(faltante);
+            renderPayments(key);
+            return { sugerido, faltante };
+        }
+
+        function openPayModal(id = null) {
+            editingPayId = id;
+            document.getElementById('pay-form').reset();
+            document.getElementById('pay-fecha').value = new Date().toISOString().slice(0,10);
+            if(id) {
+                const p = payments.find(x => x.id === id);
+                document.getElementById('pay-fecha').value = p.fecha;
+                const montoEl = document.getElementById('pay-monto');
+                montoEl.type = 'text';
+                montoEl.value = formatQ(p.monto);
+                document.getElementById('pay-metodo').value = p.metodo;
+            } else {
+                const res = calc();
+                const montoEl = document.getElementById('pay-monto');
+                montoEl.type = 'text';
+                montoEl.value = formatQ(res.faltante);
+            }
+            document.getElementById('modal-pay').classList.add('active');
+        }
+
+        function closePayModal() { document.getElementById('modal-pay').classList.remove('active'); }
+
+        function savePay(e) {
+            e.preventDefault();
+            const month = document.getElementById('q-month').value;
+            const q = document.getElementById('q-num').value;
+            const monto = parseQ(document.getElementById('pay-monto').value);
+            const data = {
+                id: editingPayId || Date.now(),
+                fecha: document.getElementById('pay-fecha').value,
+                monto: monto,
+                metodo: document.getElementById('pay-metodo').value,
+                quincenaKey: `${month}-q${q}`,
+                created: editingPayId ? payments.find(x => x.id === editingPayId).created : Date.now()
+            };
+            if(editingPayId) {
+                const idx = payments.findIndex(x => x.id === editingPayId);
+                payments[idx] = data;
+            } else {
+                payments.unshift(data);
+            }
+            localStorage.setItem('pagos_diezmos', JSON.stringify(payments));
+            closePayModal();
+            calc();
+        }
+
+        function deletePay(id) {
+            if(confirm('¿Eliminar pago?')) {
+                payments = payments.filter(x => x.id !== id);
+                localStorage.setItem('pagos_diezmos', JSON.stringify(payments));
+                calc();
+            }
+        }
+
+        function renderPayments(key) {
+            const container = document.getElementById('pay-list');
+            const list = payments.filter(p => p.quincenaKey === key).sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+            container.innerHTML = '<h3 class="text-xs font-bold text-slate-400 uppercase mb-2">Pagos de esta quincena</h3>';
+            if(!list.length) container.innerHTML += '<p class="text-center text-slate-300 py-4">No hay pagos registrados</p>';
+            list.forEach(p => {
+                container.innerHTML += `
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex justify-between items-center">
+                        <div onclick="openPayModal(${p.id})">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">${p.fecha} • ${p.metodo}</p>
+                            <h3 class="font-bold text-slate-800">${formatQ(p.monto)}</h3>
+                        </div>
+                        <button onclick="deletePay(${p.id})" class="text-slate-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        window.onload = () => {
+            document.getElementById('q-month').value = new Date().toISOString().slice(0,7);
+            document.getElementById('q-num').value = new Date().getDate() <= 15 ? "1" : "2";
+            lucide.createIcons();
+            calc();
+        };
+    </script>
+</body>
+</html>
