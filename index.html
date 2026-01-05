@@ -31,7 +31,7 @@
             margin: 0;
             padding: 0;
             padding-bottom: 85px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, color 0.3s;
         }
         
         .glass { 
@@ -158,10 +158,9 @@
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
         
-        .nav-btn i { 
+        .nav-btn .nav-icon {
+            font-size: 20px;
             margin-bottom: 3px;
-            width: 22px;
-            height: 22px;
         }
 
         .card {
@@ -287,25 +286,56 @@
             flex-shrink: 0;
         }
 
-        .theme-toggle {
-            position: fixed;
-            top: 75px;
-            right: 20px;
+        /* TOGGLE DE TEMA */
+        .theme-switch {
+            position: relative;
+            display: inline-block;
             width: 48px;
-            height: 48px;
-            border-radius: 50%;
+            height: 26px;
+        }
+        
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .theme-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transition: .3s;
+            border-radius: 34px;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        
+        .theme-slider:before {
+            position: absolute;
+            content: "🌙";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-            z-index: 100;
-            transition: transform 0.2s;
+            font-size: 12px;
         }
         
-        .theme-toggle:active {
-            transform: scale(0.95);
+        input:checked + .theme-slider {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+        
+        input:checked + .theme-slider:before {
+            transform: translateX(22px);
+            content: "☀️";
         }
 
         .hidden {
@@ -326,6 +356,69 @@
             color: #64748b;
         }
 
+        /* CALCULADORA */
+        .calculator {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1rem;
+            border: 2px solid #3b82f6;
+        }
+        
+        .calc-display {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3b82f6;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            min-height: 50px;
+        }
+        
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .calc-btn {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s;
+            background: rgba(100, 116, 139, 0.2);
+            color: var(--text-color);
+        }
+        
+        [data-theme="light"] .calc-btn {
+            background: #e2e8f0;
+        }
+        
+        .calc-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .calc-btn.operator {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+        
+        .calc-btn.equals {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            grid-column: span 2;
+        }
+        
+        .calc-btn.clear {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -338,12 +431,55 @@
             background: rgba(148, 163, 184, 0.3);
             border-radius: 4px;
         }
+
+        /* INDICADOR DE SINCRONIZACIÓN */
+        .sync-indicator {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .sync-indicator.syncing {
+            display: flex;
+            background: rgba(59, 130, 246, 0.9);
+        }
+        
+        .sync-indicator.error {
+            display: flex;
+            background: rgba(239, 68, 68, 0.9);
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .spinning {
+            animation: spin 1s linear infinite;
+        }
     </style>
 </head>
 <body>
 
     <!-- NOTIFICACIÓN -->
     <div id="notification"></div>
+
+    <!-- INDICADOR DE SINCRONIZACIÓN -->
+    <div id="sync-indicator" class="sync-indicator">
+        <i data-lucide="cloud" class="w-4 h-4"></i>
+        <span id="sync-text">Sincronizado</span>
+    </div>
 
     <!-- PANTALLA DE BIENVENIDA -->
     <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
@@ -359,15 +495,16 @@
         </button>
     </div>
 
-    <!-- TOGGLE DE TEMA -->
-    <div class="theme-toggle" onclick="toggleTheme()">
-        <i id="theme-icon" data-lucide="sun" class="w-6 h-6 text-white"></i>
-    </div>
-
     <!-- HEADER -->
     <header class="p-4 flex justify-between items-center glass sticky top-0 z-30">
         <span id="section-title" class="font-bold text-blue-400 uppercase tracking-tight text-sm">INICIO</span>
-        <div class="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center text-white font-bold text-sm">L</div>
+        <div class="flex items-center gap-3">
+            <label class="theme-switch">
+                <input type="checkbox" id="theme-toggle" onchange="toggleTheme()">
+                <span class="theme-slider"></span>
+            </label>
+            <div class="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center text-white font-bold text-sm">L</div>
+        </div>
     </header>
 
     <!-- MAIN -->
@@ -448,7 +585,12 @@
                 <input type="date" id="reg-fecha">
                 
                 <label>💵 Monto (Q)</label>
-                <input type="number" id="reg-monto" placeholder="0.00" step="0.01">
+                <div class="flex gap-2">
+                    <input type="number" id="reg-monto" placeholder="0.00" step="0.01" class="flex-1">
+                    <button onclick="openCalculator('reg-monto')" class="bg-blue-500 text-white px-4 rounded-lg">
+                        <i data-lucide="calculator" class="w-5 h-5"></i>
+                    </button>
+                </div>
                 
                 <label>🏷️ Categoría</label>
                 <select id="reg-categoria"></select>
@@ -514,7 +656,12 @@
                 <input type="text" id="viaje-fin" placeholder="Punto de destino">
                 
                 <label>💵 Monto (Q) - Opcional</label>
-                <input type="number" id="viaje-monto" placeholder="0.00" step="0.01">
+                <div class="flex gap-2">
+                    <input type="number" id="viaje-monto" placeholder="0.00" step="0.01" class="flex-1">
+                    <button onclick="openCalculator('viaje-monto')" class="bg-blue-500 text-white px-4 rounded-lg">
+                        <i data-lucide="calculator" class="w-5 h-5"></i>
+                    </button>
+                </div>
                 
                 <label>📋 Estado</label>
                 <select id="viaje-estado">
@@ -578,7 +725,12 @@
                 </select>
                 
                 <label>💰 Monto a Pagar (Q)</label>
-                <input type="number" id="diezmo-monto" placeholder="0.00" step="0.01">
+                <div class="flex gap-2">
+                    <input type="number" id="diezmo-monto" placeholder="0.00" step="0.01" class="flex-1">
+                    <button onclick="openCalculator('diezmo-monto')" class="bg-blue-500 text-white px-4 rounded-lg">
+                        <i data-lucide="calculator" class="w-5 h-5"></i>
+                    </button>
+                </div>
                 
                 <button onclick="saveDiezmo()" class="btn-success mt-2">
                     <i data-lucide="check-circle" class="w-5 h-5"></i>
@@ -638,36 +790,70 @@
     <!-- NAVEGACIÓN -->
     <nav class="nav-bar">
         <button onclick="nav('inicio')" id="n-inicio" class="nav-btn nav-active">
-            <i data-lucide="home"></i>
+            <span class="nav-icon">🏠</span>
             <span>Inicio</span>
         </button>
         <button onclick="nav('registros')" id="n-registros" class="nav-btn">
-            <i data-lucide="pen-tool"></i>
+            <span class="nav-icon">📝</span>
             <span>Registro</span>
         </button>
         <button onclick="nav('historial-registros')" id="n-historial-registros" class="nav-btn">
-            <i data-lucide="list"></i>
+            <span class="nav-icon">📊</span>
             <span>Historial</span>
         </button>
         <button onclick="nav('viajes')" id="n-viajes" class="nav-btn">
-            <i data-lucide="car"></i>
+            <span class="nav-icon">🚗</span>
             <span>Viajes</span>
         </button>
         <button onclick="nav('historial-viajes')" id="n-historial-viajes" class="nav-btn">
-            <i data-lucide="route"></i>
+            <span class="nav-icon">🗺️</span>
             <span>Rutas</span>
         </button>
         <button onclick="nav('diezmos')" id="n-diezmos" class="nav-btn">
-            <i data-lucide="heart"></i>
+            <span class="nav-icon">💚</span>
             <span>Diezmo</span>
         </button>
         <button onclick="nav('resumen')" id="n-resumen" class="nav-btn">
-            <i data-lucide="bar-chart-3"></i>
+            <span class="nav-icon">📈</span>
             <span>Resumen</span>
         </button>
     </nav>
 
     <!-- MODALES -->
+    
+    <!-- Modal Calculadora -->
+    <div id="modal-calculator" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold text-blue-400 mb-4">🧮 Calculadora</h3>
+            <div class="calculator">
+                <div class="calc-display" id="calc-display">0</div>
+                <div class="calc-buttons">
+                    <button class="calc-btn clear" onclick="calcClear()">C</button>
+                    <button class="calc-btn" onclick="calcBackspace()">⌫</button>
+                    <button class="calc-btn operator" onclick="calcAppend('/')">÷</button>
+                    <button class="calc-btn operator" onclick="calcAppend('*')">×</button>
+                    
+                    <button class="calc-btn" onclick="calcAppend('7')">7</button>
+                    <button class="calc-btn" onclick="calcAppend('8')">8</button>
+                    <button class="calc-btn" onclick="calcAppend('9')">9</button>
+                    <button class="calc-btn operator" onclick="calcAppend('-')">-</button>
+                    
+                    <button class="calc-btn" onclick="calcAppend('4')">4</button>
+                    <button class="calc-btn" onclick="calcAppend('5')">5</button>
+                    <button class="calc-btn" onclick="calcAppend('6')">6</button>
+                    <button class="calc-btn operator" onclick="calcAppend('+')">+</button>
+                    
+                    <button class="calc-btn" onclick="calcAppend('1')">1</button>
+                    <button class="calc-btn" onclick="calcAppend('2')">2</button>
+                    <button class="calc-btn" onclick="calcAppend('3')">3</button>
+                    <button class="calc-btn" onclick="calcAppend('.')">.</button>
+                    
+                    <button class="calc-btn" onclick="calcAppend('0')">0</button>
+                    <button class="calc-btn equals" onclick="calcEquals()">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <!-- Modal Editar Registro -->
     <div id="modal-edit-registro" class="modal-overlay">
@@ -675,13 +861,21 @@
             <h3 class="text-xl font-bold text-blue-400 mb-4">✏️ Editar Registro</h3>
             <form onsubmit="updateRegistro(event)">
                 <label>💰 Tipo</label>
-                <select id="edit-reg-tipo"></select>
+                <select id="edit-reg-tipo">
+                    <option value="Ingreso">🟢 Ingreso</option>
+                    <option value="Gasto">🔴 Gasto</option>
+                </select>
                 
                 <label>📅 Fecha</label>
                 <input type="date" id="edit-reg-fecha">
                 
                 <label>💵 Monto</label>
-                <input type="number" id="edit-reg-monto" step="0.01">
+                <div class="flex gap-2">
+                    <input type="number" id="edit-reg-monto" step="0.01" class="flex-1">
+                    <button type="button" onclick="openCalculator('edit-reg-monto')" class="bg-blue-500 text-white px-4 rounded-lg">
+                        <i data-lucide="calculator" class="w-5 h-5"></i>
+                    </button>
+                </div>
                 
                 <label>🏷️ Categoría</label>
                 <select id="edit-reg-categoria"></select>
@@ -720,7 +914,12 @@
                 <input type="text" id="edit-viaje-fin">
                 
                 <label>💵 Monto</label>
-                <input type="number" id="edit-viaje-monto" step="0.01">
+                <div class="flex gap-2">
+                    <input type="number" id="edit-viaje-monto" step="0.01" class="flex-1">
+                    <button type="button" onclick="openCalculator('edit-viaje-monto')" class="bg-blue-500 text-white px-4 rounded-lg">
+                        <i data-lucide="calculator" class="w-5 h-5"></i>
+                    </button>
+                </div>
                 
                 <label>📋 Estado</label>
                 <select id="edit-viaje-estado">
@@ -804,6 +1003,8 @@
         let editingId = null;
         let currentFilters = {};
         let navigationHistory = ['welcome'];
+        let calcTargetInput = null;
+        let calcExpression = '';
 
         const formatter = new Intl.NumberFormat('es-GT', { 
             style: 'currency', 
@@ -811,7 +1012,7 @@
             minimumFractionDigits: 2
         });
 
-        // FUNCIONES DE NAVEGACIÓN
+        // NAVEGACIÓN DEL NAVEGADOR
         window.addEventListener('popstate', function(event) {
             if (navigationHistory.length > 1) {
                 navigationHistory.pop();
@@ -835,13 +1036,9 @@
         function nav(section, addToHistory = true) {
             currentSection = section;
             
-            // Ocultar todas las secciones
             document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
-            
-            // Mostrar sección actual
             document.getElementById('sec-' + section).classList.remove('hidden');
             
-            // Actualizar título
             const titles = {
                 'inicio': 'INICIO',
                 'registros': 'NUEVO REGISTRO',
@@ -854,12 +1051,10 @@
             };
             document.getElementById('section-title').textContent = titles[section] || 'LARA';
             
-            // Actualizar navegación activa
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('nav-active'));
             const navBtn = document.getElementById('n-' + section);
             if (navBtn) navBtn.classList.add('nav-active');
             
-            // Mostrar/ocultar FAB
             const fabSections = ['historial-registros', 'historial-viajes'];
             const fab = document.getElementById('fab');
             if (fabSections.includes(section)) {
@@ -868,7 +1063,6 @@
                 fab.classList.add('hidden');
             }
             
-            // Renderizar según sección
             if (section === 'inicio') updateHomeResumen();
             if (section === 'registros') {
                 renderCategoriasSelect();
@@ -892,16 +1086,13 @@
         // TEMA
         function toggleTheme() {
             const body = document.body;
-            const icon = document.getElementById('theme-icon');
-            const currentTheme = body.getAttribute('data-theme');
+            const isLight = body.getAttribute('data-theme') === 'light';
             
-            if (currentTheme === 'light') {
+            if (isLight) {
                 body.removeAttribute('data-theme');
-                icon.setAttribute('data-lucide', 'sun');
                 localStorage.setItem('theme', 'dark');
             } else {
                 body.setAttribute('data-theme', 'light');
-                icon.setAttribute('data-lucide', 'moon');
                 localStorage.setItem('theme', 'light');
             }
             lucide.createIcons();
@@ -918,6 +1109,41 @@
             }, 2500);
         }
 
+        // INDICADOR DE SINCRONIZACIÓN
+        function showSyncIndicator(status = 'syncing') {
+            const indicator = document.getElementById('sync-indicator');
+            const text = document.getElementById('sync-text');
+            const icon = indicator.querySelector('i');
+            
+            indicator.className = 'sync-indicator';
+            
+            if (status === 'syncing') {
+                indicator.classList.add('syncing');
+                text.textContent = 'Sincronizando...';
+                icon.setAttribute('data-lucide', 'cloud');
+                icon.classList.add('spinning');
+            } else if (status === 'success') {
+                indicator.style.display = 'flex';
+                indicator.style.background = 'rgba(16, 185, 129, 0.9)';
+                text.textContent = 'Sincronizado';
+                icon.setAttribute('data-lucide', 'cloud-check');
+                icon.classList.remove('spinning');
+                setTimeout(() => {
+                    indicator.style.display = 'none';
+                }, 2000);
+            } else if (status === 'error') {
+                indicator.classList.add('error');
+                text.textContent = 'Error al sincronizar';
+                icon.setAttribute('data-lucide', 'cloud-off');
+                icon.classList.remove('spinning');
+                setTimeout(() => {
+                    indicator.style.display = 'none';
+                }, 3000);
+            }
+            
+            lucide.createIcons();
+        }
+
         // MODALES
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('show');
@@ -932,12 +1158,57 @@
             }
         }
 
+        // CALCULADORA
+        function openCalculator(targetInputId) {
+            calcTargetInput = targetInputId;
+            calcExpression = document.getElementById(targetInputId).value || '0';
+            document.getElementById('calc-display').textContent = calcExpression;
+            document.getElementById('modal-calculator').classList.add('show');
+        }
+
+        function calcAppend(value) {
+            if (calcExpression === '0' && value !== '.') {
+                calcExpression = value;
+            } else {
+                calcExpression += value;
+            }
+            document.getElementById('calc-display').textContent = calcExpression;
+        }
+
+        function calcClear() {
+            calcExpression = '0';
+            document.getElementById('calc-display').textContent = calcExpression;
+        }
+
+        function calcBackspace() {
+            calcExpression = calcExpression.slice(0, -1) || '0';
+            document.getElementById('calc-display').textContent = calcExpression;
+        }
+
+        function calcEquals() {
+            try {
+                const result = eval(calcExpression);
+                document.getElementById(calcTargetInput).value = result.toFixed(2);
+                closeModal('modal-calculator');
+                calcExpression = '0';
+            } catch (error) {
+                showNotification('❌ Expresión inválida', 'error');
+            }
+        }
+
         // ALMACENAMIENTO
         function saveData() {
-            localStorage.setItem('lara_registros', JSON.stringify(registros));
-            localStorage.setItem('lara_viajes', JSON.stringify(viajes));
-            localStorage.setItem('lara_diezmos', JSON.stringify(diezmos));
-            localStorage.setItem('lara_categorias', JSON.stringify(categorias));
+            try {
+                localStorage.setItem('lara_registros', JSON.stringify(registros));
+                localStorage.setItem('lara_viajes', JSON.stringify(viajes));
+                localStorage.setItem('lara_diezmos', JSON.stringify(diezmos));
+                localStorage.setItem('lara_categorias', JSON.stringify(categorias));
+                
+                showSyncIndicator('success');
+            } catch (error) {
+                console.error('Error al guardar:', error);
+                showSyncIndicator('error');
+            }
         }
 
         function loadData() {
@@ -998,6 +1269,8 @@
                 return;
             }
             
+            showSyncIndicator('syncing');
+            
             registros.push({
                 id: Date.now(),
                 tipo,
@@ -1020,7 +1293,6 @@
             
             let filtered = registros.slice();
             
-            // Aplicar filtros
             const desde = document.getElementById('filter-fecha-desde').value;
             const hasta = document.getElementById('filter-fecha-hasta').value;
             if (desde) filtered = filtered.filter(r => r.fecha >= desde);
@@ -1033,7 +1305,6 @@
                 filtered = filtered.filter(r => (r.detalle || '').toLowerCase().includes(texto));
             }
             
-            // Ordenar por fecha descendente
             filtered.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
             
             if (filtered.length === 0) {
@@ -1074,10 +1345,7 @@
             editingId = id;
             
             const modal = document.getElementById('modal-edit-registro');
-            document.getElementById('edit-reg-tipo').innerHTML = `
-                <option value="Ingreso" ${reg.tipo === 'Ingreso' ? 'selected' : ''}>🟢 Ingreso</option>
-                <option value="Gasto" ${reg.tipo === 'Gasto' ? 'selected' : ''}>🔴 Gasto</option>
-            `;
+            document.getElementById('edit-reg-tipo').value = reg.tipo;
             document.getElementById('edit-reg-fecha').value = reg.fecha;
             document.getElementById('edit-reg-monto').value = reg.monto;
             
@@ -1089,6 +1357,7 @@
             document.getElementById('edit-reg-detalle').value = reg.detalle || '';
             
             modal.classList.add('show');
+            lucide.createIcons();
         }
 
         function updateRegistro(event) {
@@ -1096,6 +1365,8 @@
             
             const idx = registros.findIndex(r => r.id === editingId);
             if (idx === -1) return;
+            
+            showSyncIndicator('syncing');
             
             registros[idx] = {
                 ...registros[idx],
@@ -1115,6 +1386,7 @@
         function deleteRegistro(id, event) {
             event.stopPropagation();
             if (confirm('¿Eliminar este registro?')) {
+                showSyncIndicator('syncing');
                 registros = registros.filter(r => r.id !== id);
                 saveData();
                 renderRegistrosList();
@@ -1137,6 +1409,8 @@
                 showNotification('❌ Completa los campos obligatorios', 'error');
                 return;
             }
+            
+            showSyncIndicator('syncing');
             
             viajes.push({
                 id: Date.now(),
@@ -1213,6 +1487,7 @@
             document.getElementById('edit-viaje-detalle').value = viaje.detalle || '';
             
             document.getElementById('modal-edit-viaje').classList.add('show');
+            lucide.createIcons();
         }
 
         function updateViaje(event) {
@@ -1220,6 +1495,8 @@
             
             const idx = viajes.findIndex(v => v.id === editingId);
             if (idx === -1) return;
+            
+            showSyncIndicator('syncing');
             
             viajes[idx] = {
                 ...viajes[idx],
@@ -1242,6 +1519,7 @@
         function deleteViaje(id, event) {
             event.stopPropagation();
             if (confirm('¿Eliminar este viaje?')) {
+                showSyncIndicator('syncing');
                 viajes = viajes.filter(v => v.id !== id);
                 saveData();
                 renderViajesList();
@@ -1339,6 +1617,8 @@
                 return;
             }
             
+            showSyncIndicator('syncing');
+            
             diezmos.push({
                 id: Date.now(),
                 quincenaKey: `${month}-q${q}`,
@@ -1362,14 +1642,12 @@
                 return;
             }
             
-            // Agrupar por quincena
             const grouped = {};
             diezmos.forEach(d => {
                 if (!grouped[d.quincenaKey]) grouped[d.quincenaKey] = [];
                 grouped[d.quincenaKey].push(d);
             });
             
-            // Ordenar quincenas descendente
             const keys = Object.keys(grouped).sort().reverse();
             
             container.innerHTML = keys.map(key => {
@@ -1413,6 +1691,7 @@
 
         function deleteDiezmo(id) {
             if (confirm('¿Eliminar este pago?')) {
+                showSyncIndicator('syncing');
                 diezmos = diezmos.filter(d => d.id !== id);
                 saveData();
                 renderDiezmosList();
@@ -1480,9 +1759,7 @@
         function renderResumen() {
             const container = document.getElementById('resumen-container');
             
-            // Resumen Mensual
             const hoy = new Date();
-            const mesActual = hoy.toISOString().slice(0, 7);
             const start = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
             const end = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0, 23, 59, 59);
             
@@ -1497,7 +1774,6 @@
             
             const netoMes = ingMes - gasMes;
             
-            // Totales Globales
             let ingTotal = 0, gasTotal = 0;
             registros.forEach(r => {
                 if (r.tipo === 'Ingreso') ingTotal += r.monto;
@@ -1505,7 +1781,6 @@
             });
             const netoTotal = ingTotal - gasTotal;
             
-            // Por Categorías
             const catStats = {};
             registros.forEach(r => {
                 if (!catStats[r.categoria]) catStats[r.categoria] = { ing: 0, gas: 0 };
@@ -1513,7 +1788,6 @@
                 else catStats[r.categoria].gas += r.monto;
             });
             
-            // Por Meses
             const monthStats = {};
             registros.forEach(r => {
                 const key = r.fecha.slice(0, 7);
@@ -1742,17 +2016,14 @@
         function init() {
             loadData();
             
-            // Aplicar tema guardado
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'light') {
                 document.body.setAttribute('data-theme', 'light');
-                document.getElementById('theme-icon').setAttribute('data-lucide', 'moon');
+                document.getElementById('theme-toggle').checked = true;
             }
             
-            // Inicializar iconos
             lucide.createIcons();
             
-            // Mostrar welcome si es primera vez
             const hasVisited = localStorage.getItem('lara_visited');
             if (hasVisited) {
                 document.getElementById('welcome').style.display = 'none';
@@ -1762,7 +2033,6 @@
             }
         }
 
-        // Ejecutar al cargar
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
