@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b6efd">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Multi Servicios LARA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
@@ -549,7 +552,13 @@
         <section id="sec-registros" class="hidden space-y-4">
             <div class="section-header">
                 <div class="section-icon bg-emerald-500">📝</div>
-                <h2 class="text-xl font-bold text-blue-400">Nuevo Registro</h2>
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold text-blue-400">Nuevo Registro</h2>
+                </div>
+                <button onclick="nav('historial-registros')" class="bg-blue-500 text-white px-3 py-2 rounded-lg flex items-center gap-2">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span>Volver</span>
+                </button>
             </div>
             <div class="card">
                 <div class="flex items-center gap-2 mb-3">
@@ -639,7 +648,13 @@
         <section id="sec-viajes" class="hidden space-y-4">
             <div class="section-header">
                 <div class="section-icon bg-blue-500">🚗</div>
-                <h2 class="text-xl font-bold text-blue-400">Nuevo Viaje</h2>
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold text-blue-400">Nuevo Viaje</h2>
+                </div>
+                <button onclick="nav('historial-viajes')" class="bg-blue-500 text-white px-3 py-2 rounded-lg flex items-center gap-2">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span>Volver</span>
+                </button>
             </div>
             <div class="card">
                 <div class="flex items-center gap-2 mb-3">
@@ -786,7 +801,13 @@
         <section id="sec-historial-diezmos" class="hidden space-y-4">
             <div class="section-header">
                 <div class="section-icon bg-teal-500">📜</div>
-                <h2 class="text-xl font-bold text-blue-400">Historial de Pagos</h2>
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold text-blue-400">Historial de Pagos</h2>
+                </div>
+                <button onclick="nav('diezmos')" class="bg-blue-500 text-white px-3 py-2 rounded-lg flex items-center gap-2">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span>Volver</span>
+                </button>
             </div>
             <div id="diezmos-list"></div>
         </section>
@@ -1049,7 +1070,9 @@
 
         // NAVEGACIÓN DEL NAVEGADOR
         window.addEventListener('popstate', function(event) {
-            if (navigationHistory.length > 1) {
+            if (event.state && event.state.section) {
+                nav(event.state.section, false);
+            } else if (navigationHistory.length > 1) {
                 navigationHistory.pop();
                 const prev = navigationHistory[navigationHistory.length - 1];
                 if (prev === 'welcome') {
@@ -1057,12 +1080,15 @@
                 } else {
                     nav(prev, false);
                 }
+            } else {
+                // Si no hay historial, mostrar pantalla de inicio
+                nav('inicio', false);
             }
         });
 
         function closeWelcome() {
             document.getElementById('welcome').style.display = 'none';
-            history.pushState({section: 'inicio'}, '', '');
+            history.pushState({section: 'inicio'}, '', '#inicio');
             navigationHistory.push('inicio');
             loadData();
             updateHomeResumen();
@@ -1120,7 +1146,7 @@
             lucide.createIcons();
             
             if (addToHistory) {
-                history.pushState({section: section}, '', '');
+                history.pushState({section: section}, '', '#' + section);
                 navigationHistory.push(section);
             }
         }
@@ -2151,21 +2177,25 @@
         // INICIALIZACIÓN
         function init() {
             loadData();
-            
+
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'light') {
                 document.body.setAttribute('data-theme', 'light');
                 document.getElementById('theme-toggle').checked = true;
             }
-            
-            lucide.createIcons();
-            
+
             const hasVisited = localStorage.getItem('lara_visited');
             if (hasVisited) {
-                document.getElementById('welcome').style.display = 'none';
-                updateHomeResumen();
+                // Verificar si hay un hash en la URL para restaurar sección
+                const hash = window.location.hash.substring(1);
+                if (hash && ['inicio', 'historial-registros', 'historial-viajes', 'diezmos', 'resumen'].includes(hash)) {
+                    nav(hash, false);
+                } else {
+                    nav('inicio', false);
+                }
             } else {
                 localStorage.setItem('lara_visited', 'true');
+                document.getElementById('welcome').style.display = 'flex';
             }
         }
 
