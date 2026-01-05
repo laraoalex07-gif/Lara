@@ -102,13 +102,32 @@
             box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3);
         }
 
+        button {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
         .nav-bar {
             background: var(--card-bg);
             border-top: 1px solid #334155;
             box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
             padding: 6px 4px;
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 3px;
             position: fixed;
             bottom: 0;
@@ -432,54 +451,12 @@
             border-radius: 4px;
         }
 
-        /* INDICADOR DE SINCRONIZACIÓN */
-        .sync-indicator {
-            position: fixed;
-            top: 70px;
-            right: 20px;
-            background: rgba(16, 185, 129, 0.9);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            display: none;
-            align-items: center;
-            gap: 6px;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-        
-        .sync-indicator.syncing {
-            display: flex;
-            background: rgba(59, 130, 246, 0.9);
-        }
-        
-        .sync-indicator.error {
-            display: flex;
-            background: rgba(239, 68, 68, 0.9);
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .spinning {
-            animation: spin 1s linear infinite;
-        }
     </style>
 </head>
 <body>
 
     <!-- NOTIFICACIÓN -->
     <div id="notification"></div>
-
-    <!-- INDICADOR DE SINCRONIZACIÓN -->
-    <div id="sync-indicator" class="sync-indicator">
-        <i data-lucide="cloud" class="w-4 h-4"></i>
-        <span id="sync-text">Sincronizado</span>
-    </div>
 
     <!-- PANTALLA DE BIENVENIDA -->
     <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
@@ -575,32 +552,47 @@
                 <h2 class="text-xl font-bold text-blue-400">Nuevo Registro</h2>
             </div>
             <div class="card">
-                <label>💰 Tipo de Flujo</label>
-                <select id="reg-tipo">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="arrow-up-down" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Tipo de Flujo</label>
+                </div>
+                <select id="reg-tipo" class="mb-4">
                     <option value="Ingreso">🟢 Ingreso</option>
                     <option value="Gasto">🔴 Gasto</option>
                 </select>
                 
-                <label>📅 Fecha</label>
-                <input type="date" id="reg-fecha">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="calendar" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Fecha</label>
+                </div>
+                <input type="date" id="reg-fecha" class="mb-4">
                 
-                <label>💵 Monto (Q)</label>
-                <div class="flex gap-2">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="dollar-sign" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Monto (Q)</label>
+                </div>
+                <div class="flex gap-2 mb-4">
                     <input type="number" id="reg-monto" placeholder="0.00" step="0.01" class="flex-1">
-                    <button onclick="openCalculator('reg-monto')" class="bg-blue-500 text-white px-4 rounded-lg">
+                    <button onclick="openCalculator('reg-monto')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-lg flex items-center justify-center">
                         <i data-lucide="calculator" class="w-5 h-5"></i>
                     </button>
                 </div>
                 
-                <label>🏷️ Categoría</label>
-                <select id="reg-categoria"></select>
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="tag" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Categoría</label>
+                </div>
+                <select id="reg-categoria" class="mb-4"></select>
                 
-                <label>📄 Detalle / Concepto</label>
-                <textarea id="reg-detalle" placeholder="Descripción opcional..."></textarea>
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="file-text" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Detalle / Concepto</label>
+                </div>
+                <textarea id="reg-detalle" placeholder="Descripción opcional..." class="mb-4"></textarea>
                 
-                <button onclick="saveRegistro()" class="btn-primary mt-2">
+                <button onclick="saveRegistro()" class="btn-primary w-full flex items-center justify-center gap-2">
                     <i data-lucide="save" class="w-5 h-5"></i>
-                    GUARDAR REGISTRO
+                    <span>GUARDAR REGISTRO</span>
                 </button>
             </div>
         </section>
@@ -610,13 +602,20 @@
             <div class="section-header">
                 <div class="section-icon bg-purple-500">📊</div>
                 <div class="flex-1">
-                    <h2 class="text-xl font-bold text-blue-400">Historial</h2>
+                    <h2 class="text-xl font-bold text-blue-400">Historial de Registros</h2>
                 </div>
                 <button onclick="showFilterModal()" class="bg-blue-500 text-white px-3 py-2 rounded-lg">
                     <i data-lucide="filter" class="w-5 h-5"></i>
                 </button>
                 <button onclick="exportToExcel()" class="bg-green-500 text-white px-3 py-2 rounded-lg">
                     <i data-lucide="download" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="card bg-gradient-to-r from-emerald-500 to-emerald-600 border-0">
+                <button onclick="nav('registros')" class="w-full flex items-center justify-center gap-3 text-white font-bold py-3">
+                    <i data-lucide="plus-circle" class="w-6 h-6"></i>
+                    <span>➕ Nuevo Registro</span>
                 </button>
             </div>
             
@@ -643,42 +642,66 @@
                 <h2 class="text-xl font-bold text-blue-400">Nuevo Viaje</h2>
             </div>
             <div class="card">
-                <label>📅 Fecha</label>
-                <input type="date" id="viaje-fecha">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="calendar" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Fecha</label>
+                </div>
+                <input type="date" id="viaje-fecha" class="mb-4">
                 
-                <label>👤 Cliente</label>
-                <input type="text" id="viaje-cliente" placeholder="Nombre del cliente">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="user" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Cliente</label>
+                </div>
+                <input type="text" id="viaje-cliente" placeholder="Nombre del cliente" class="mb-4">
                 
-                <label>📍 Origen</label>
-                <input type="text" id="viaje-inicio" placeholder="Punto de inicio">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="map-pin" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Origen</label>
+                </div>
+                <input type="text" id="viaje-inicio" placeholder="Punto de inicio" class="mb-4">
                 
-                <label>🎯 Destino</label>
-                <input type="text" id="viaje-fin" placeholder="Punto de destino">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="navigation" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Destino</label>
+                </div>
+                <input type="text" id="viaje-fin" placeholder="Punto de destino" class="mb-4">
                 
-                <label>💵 Monto (Q) - Opcional</label>
-                <div class="flex gap-2">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="dollar-sign" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Monto (Q) - Opcional</label>
+                </div>
+                <div class="flex gap-2 mb-4">
                     <input type="number" id="viaje-monto" placeholder="0.00" step="0.01" class="flex-1">
-                    <button onclick="openCalculator('viaje-monto')" class="bg-blue-500 text-white px-4 rounded-lg">
+                    <button onclick="openCalculator('viaje-monto')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-lg flex items-center justify-center">
                         <i data-lucide="calculator" class="w-5 h-5"></i>
                     </button>
                 </div>
                 
-                <label>📋 Estado</label>
-                <select id="viaje-estado">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="clipboard-check" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Estado</label>
+                </div>
+                <select id="viaje-estado" class="mb-4">
                     <option value="Cotización">📄 Cotización</option>
                     <option value="Programado">📅 Programado</option>
                     <option value="Realizado">✅ Realizado</option>
                 </select>
                 
-                <label>📝 Condición</label>
-                <input type="text" id="viaje-condicion" placeholder="Ej: Pago contra entrega">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="file-text" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Condición</label>
+                </div>
+                <input type="text" id="viaje-condicion" placeholder="Ej: Pago contra entrega" class="mb-4">
                 
-                <label>📄 Detalle</label>
-                <textarea id="viaje-detalle" placeholder="Detalles adicionales..."></textarea>
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="align-left" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Detalle</label>
+                </div>
+                <textarea id="viaje-detalle" placeholder="Detalles adicionales..." class="mb-4"></textarea>
                 
-                <button onclick="saveViaje()" class="btn-primary mt-2">
+                <button onclick="saveViaje()" class="btn-primary w-full flex items-center justify-center gap-2">
                     <i data-lucide="save" class="w-5 h-5"></i>
-                    GUARDAR VIAJE
+                    <span>GUARDAR VIAJE</span>
                 </button>
             </div>
         </section>
@@ -689,6 +712,14 @@
                 <div class="section-icon bg-orange-500">🗺️</div>
                 <h2 class="text-xl font-bold text-blue-400">Historial de Viajes</h2>
             </div>
+            
+            <div class="card bg-gradient-to-r from-blue-500 to-blue-600 border-0">
+                <button onclick="nav('viajes')" class="w-full flex items-center justify-center gap-3 text-white font-bold py-3">
+                    <i data-lucide="plus-circle" class="w-6 h-6"></i>
+                    <span>➕ Nuevo Viaje</span>
+                </button>
+            </div>
+            
             <div id="viajes-list"></div>
         </section>
 
@@ -696,7 +727,13 @@
         <section id="sec-diezmos" class="hidden space-y-4">
             <div class="section-header">
                 <div class="section-icon bg-emerald-500">💚</div>
-                <h2 class="text-xl font-bold text-blue-400">Diezmos</h2>
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold text-blue-400">Diezmos</h2>
+                </div>
+                <button onclick="nav('historial-diezmos')" class="bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                    <i data-lucide="history" class="w-5 h-5"></i>
+                    <span>Pagos</span>
+                </button>
             </div>
             
             <div class="card">
@@ -718,23 +755,29 @@
             <div id="diezmo-info" class="card bg-blue-900/20 border-blue-500/30"></div>
             
             <div class="card">
-                <label>💳 Método de Pago</label>
-                <select id="diezmo-metodo">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="credit-card" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Método de Pago</label>
+                </div>
+                <select id="diezmo-metodo" class="mb-4">
                     <option value="Efectivo">💵 Efectivo</option>
                     <option value="Transferencia">💳 Transferencia</option>
                 </select>
                 
-                <label>💰 Monto a Pagar (Q)</label>
-                <div class="flex gap-2">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="dollar-sign" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Monto a Pagar (Q)</label>
+                </div>
+                <div class="flex gap-2 mb-4">
                     <input type="number" id="diezmo-monto" placeholder="0.00" step="0.01" class="flex-1">
-                    <button onclick="openCalculator('diezmo-monto')" class="bg-blue-500 text-white px-4 rounded-lg">
+                    <button onclick="openCalculator('diezmo-monto')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-lg flex items-center justify-center">
                         <i data-lucide="calculator" class="w-5 h-5"></i>
                     </button>
                 </div>
                 
-                <button onclick="saveDiezmo()" class="btn-success mt-2">
+                <button onclick="saveDiezmo()" class="btn-success w-full flex items-center justify-center gap-2">
                     <i data-lucide="check-circle" class="w-5 h-5"></i>
-                    REGISTRAR PAGO
+                    <span>REGISTRAR PAGO</span>
                 </button>
             </div>
         </section>
@@ -791,23 +834,15 @@
     <nav class="nav-bar">
         <button onclick="nav('inicio')" id="n-inicio" class="nav-btn nav-active">
             <span class="nav-icon">🏠</span>
-            <span>Inicio</span>
+            <span>Home</span>
         </button>
-        <button onclick="nav('registros')" id="n-registros" class="nav-btn">
+        <button onclick="nav('historial-registros')" id="n-registros" class="nav-btn">
             <span class="nav-icon">📝</span>
             <span>Registro</span>
         </button>
-        <button onclick="nav('historial-registros')" id="n-historial-registros" class="nav-btn">
-            <span class="nav-icon">📊</span>
-            <span>Historial</span>
-        </button>
-        <button onclick="nav('viajes')" id="n-viajes" class="nav-btn">
+        <button onclick="nav('historial-viajes')" id="n-viajes" class="nav-btn">
             <span class="nav-icon">🚗</span>
             <span>Viajes</span>
-        </button>
-        <button onclick="nav('historial-viajes')" id="n-historial-viajes" class="nav-btn">
-            <span class="nav-icon">🗺️</span>
-            <span>Rutas</span>
         </button>
         <button onclick="nav('diezmos')" id="n-diezmos" class="nav-btn">
             <span class="nav-icon">💚</span>
@@ -1042,9 +1077,9 @@
             const titles = {
                 'inicio': 'INICIO',
                 'registros': 'NUEVO REGISTRO',
-                'historial-registros': 'HISTORIAL',
+                'historial-registros': 'REGISTROS',
                 'viajes': 'NUEVO VIAJE',
-                'historial-viajes': 'RUTAS',
+                'historial-viajes': 'VIAJES',
                 'diezmos': 'DIEZMOS',
                 'historial-diezmos': 'PAGOS',
                 'resumen': 'RESUMEN'
@@ -1052,16 +1087,23 @@
             document.getElementById('section-title').textContent = titles[section] || 'LARA';
             
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('nav-active'));
-            const navBtn = document.getElementById('n-' + section);
-            if (navBtn) navBtn.classList.add('nav-active');
             
-            const fabSections = ['historial-registros', 'historial-viajes'];
-            const fab = document.getElementById('fab');
-            if (fabSections.includes(section)) {
-                fab.classList.remove('hidden');
-            } else {
-                fab.classList.add('hidden');
+            // Mapear secciones a botones de navegación
+            let navButtonId = null;
+            if (section === 'inicio') navButtonId = 'n-inicio';
+            else if (section === 'historial-registros' || section === 'registros') navButtonId = 'n-registros';
+            else if (section === 'historial-viajes' || section === 'viajes') navButtonId = 'n-viajes';
+            else if (section === 'diezmos' || section === 'historial-diezmos') navButtonId = 'n-diezmos';
+            else if (section === 'resumen') navButtonId = 'n-resumen';
+            
+            if (navButtonId) {
+                const navBtn = document.getElementById(navButtonId);
+                if (navBtn) navBtn.classList.add('nav-active');
             }
+            
+            // Ocultar FAB ya que ahora usamos botones en las secciones
+            const fab = document.getElementById('fab');
+            fab.classList.add('hidden');
             
             if (section === 'inicio') updateHomeResumen();
             if (section === 'registros') {
@@ -1109,40 +1151,6 @@
             }, 2500);
         }
 
-        // INDICADOR DE SINCRONIZACIÓN
-        function showSyncIndicator(status = 'syncing') {
-            const indicator = document.getElementById('sync-indicator');
-            const text = document.getElementById('sync-text');
-            const icon = indicator.querySelector('i');
-            
-            indicator.className = 'sync-indicator';
-            
-            if (status === 'syncing') {
-                indicator.classList.add('syncing');
-                text.textContent = 'Sincronizando...';
-                icon.setAttribute('data-lucide', 'cloud');
-                icon.classList.add('spinning');
-            } else if (status === 'success') {
-                indicator.style.display = 'flex';
-                indicator.style.background = 'rgba(16, 185, 129, 0.9)';
-                text.textContent = 'Sincronizado';
-                icon.setAttribute('data-lucide', 'cloud-check');
-                icon.classList.remove('spinning');
-                setTimeout(() => {
-                    indicator.style.display = 'none';
-                }, 2000);
-            } else if (status === 'error') {
-                indicator.classList.add('error');
-                text.textContent = 'Error al sincronizar';
-                icon.setAttribute('data-lucide', 'cloud-off');
-                icon.classList.remove('spinning');
-                setTimeout(() => {
-                    indicator.style.display = 'none';
-                }, 3000);
-            }
-            
-            lucide.createIcons();
-        }
 
         // MODALES
         function closeModal(modalId) {
@@ -1199,15 +1207,30 @@
         // ALMACENAMIENTO
         function saveData() {
             try {
+                // Validar que los datos sean arrays antes de guardar
+                if (!Array.isArray(registros)) registros = [];
+                if (!Array.isArray(viajes)) viajes = [];
+                if (!Array.isArray(diezmos)) diezmos = [];
+                if (!Array.isArray(categorias)) categorias = [];
+                
+                // Guardar en localStorage
                 localStorage.setItem('lara_registros', JSON.stringify(registros));
                 localStorage.setItem('lara_viajes', JSON.stringify(viajes));
                 localStorage.setItem('lara_diezmos', JSON.stringify(diezmos));
                 localStorage.setItem('lara_categorias', JSON.stringify(categorias));
                 
-                showSyncIndicator('success');
+                // Verificar que se guardó correctamente
+                const testRegistros = localStorage.getItem('lara_registros');
+                if (!testRegistros) {
+                    throw new Error('No se pudo verificar el guardado');
+                }
             } catch (error) {
                 console.error('Error al guardar:', error);
-                showSyncIndicator('error');
+                showNotification('❌ Error al guardar datos. Verifica el espacio de almacenamiento', 'error');
+                // Intentar limpiar espacio si es posible
+                if (error.name === 'QuotaExceededError') {
+                    showNotification('⚠️ Espacio de almacenamiento lleno. Considera exportar y limpiar datos antiguos', 'error');
+                }
             }
         }
 
@@ -1269,8 +1292,6 @@
                 return;
             }
             
-            showSyncIndicator('syncing');
-            
             registros.push({
                 id: Date.now(),
                 tipo,
@@ -1316,19 +1337,26 @@
                 const color = r.tipo === 'Ingreso' ? 'text-emerald-400' : 'text-red-400';
                 const sign = r.tipo === 'Ingreso' ? '+' : '-';
                 return `
-                    <div class="card clickable" onclick="editRegistro(${r.id})">
+                    <div class="card">
                         <div class="flex items-center gap-3">
-                            <div class="flex-1">
+                            <div class="flex-1" onclick="editRegistro(${r.id})" style="cursor: pointer;">
                                 <p class="text-xs font-bold text-slate-500 mb-1">#${idx + 1} | ${r.categoria}</p>
                                 <p class="text-sm font-bold ${color}">${r.tipo}</p>
                                 <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
                                 <p class="text-xs text-slate-500">${r.detalle || 'Sin notas'}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-xl font-black ${color}">${sign}${formatQ(r.monto)}</p>
-                                <button onclick="deleteRegistro(${r.id}, event)" class="text-red-400 mt-2">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
+                                <p class="text-xl font-black ${color} mb-2">${sign}${formatQ(r.monto)}</p>
+                                <div class="flex gap-2 justify-end">
+                                    <button onclick="editRegistro(${r.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
+                                        <i data-lucide="edit" class="w-3 h-3"></i>
+                                        Editar
+                                    </button>
+                                    <button onclick="deleteRegistro(${r.id}, event)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
+                                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                        Eliminar
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1366,8 +1394,6 @@
             const idx = registros.findIndex(r => r.id === editingId);
             if (idx === -1) return;
             
-            showSyncIndicator('syncing');
-            
             registros[idx] = {
                 ...registros[idx],
                 tipo: document.getElementById('edit-reg-tipo').value,
@@ -1386,7 +1412,6 @@
         function deleteRegistro(id, event) {
             event.stopPropagation();
             if (confirm('¿Eliminar este registro?')) {
-                showSyncIndicator('syncing');
                 registros = registros.filter(r => r.id !== id);
                 saveData();
                 renderRegistrosList();
@@ -1409,8 +1434,6 @@
                 showNotification('❌ Completa los campos obligatorios', 'error');
                 return;
             }
-            
-            showSyncIndicator('syncing');
             
             viajes.push({
                 id: Date.now(),
@@ -1449,19 +1472,26 @@
             container.innerHTML = sorted.map((v, idx) => {
                 const color = v.estado === 'Realizado' ? 'text-emerald-400' : 'text-blue-400';
                 return `
-                    <div class="card clickable" onclick="editViaje(${v.id})">
+                    <div class="card">
                         <div class="flex items-center gap-3">
-                            <div class="flex-1">
+                            <div class="flex-1" onclick="editViaje(${v.id})" style="cursor: pointer;">
                                 <p class="text-xs font-bold text-slate-500 mb-1">#${idx + 1} | ${v.cliente}</p>
                                 <p class="text-sm font-bold">${v.inicio} → ${v.fin}</p>
                                 <p class="text-xs text-slate-400">${formatDate(v.fecha)} - <span class="${color}">${v.estado}</span></p>
                                 ${v.condicion ? `<p class="text-xs text-blue-300 mt-1">📝 ${v.condicion}</p>` : ''}
                             </div>
                             <div class="text-right">
-                                <p class="text-xl font-black ${color}">${v.monto > 0 ? formatQ(v.monto) : '---'}</p>
-                                <button onclick="deleteViaje(${v.id}, event)" class="text-red-400 mt-2">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
+                                <p class="text-xl font-black ${color} mb-2">${v.monto > 0 ? formatQ(v.monto) : '---'}</p>
+                                <div class="flex gap-2 justify-end">
+                                    <button onclick="editViaje(${v.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
+                                        <i data-lucide="edit" class="w-3 h-3"></i>
+                                        Editar
+                                    </button>
+                                    <button onclick="deleteViaje(${v.id}, event)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
+                                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                        Eliminar
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1496,8 +1526,6 @@
             const idx = viajes.findIndex(v => v.id === editingId);
             if (idx === -1) return;
             
-            showSyncIndicator('syncing');
-            
             viajes[idx] = {
                 ...viajes[idx],
                 fecha: document.getElementById('edit-viaje-fecha').value,
@@ -1519,7 +1547,6 @@
         function deleteViaje(id, event) {
             event.stopPropagation();
             if (confirm('¿Eliminar este viaje?')) {
-                showSyncIndicator('syncing');
                 viajes = viajes.filter(v => v.id !== id);
                 saveData();
                 renderViajesList();
@@ -1572,36 +1599,107 @@
             const faltante = Math.max(0, sugerido - pagado);
             
             document.getElementById('diezmo-info').innerHTML = `
-                <h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">
-                    💚 Quincena: ${start.getDate()} - ${end.getDate()} de ${start.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })}
+                <h3 class="text-sm font-bold text-blue-400 mb-4 uppercase flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    Quincena: ${start.getDate()} - ${end.getDate()} de ${start.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })}
                 </h3>
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between border-b border-white/10 pb-2">
-                        <span>💰 Ingresos:</span>
-                        <b class="text-emerald-400">${formatQ(ing)}</b>
+                <div class="space-y-3">
+                    <div class="card bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 border-emerald-500/30">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-emerald-500 p-2 rounded-lg">
+                                    <i data-lucide="trending-up" class="w-5 h-5 text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-400 uppercase font-bold">Ingresos</p>
+                                    <p class="text-lg font-black text-emerald-400">${formatQ(ing)}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex justify-between border-b border-white/10 pb-2">
-                        <span>💸 Gastos:</span>
-                        <b class="text-red-400">${formatQ(gas)}</b>
+                    
+                    <div class="card bg-gradient-to-r from-red-500/20 to-red-600/20 border-red-500/30">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-red-500 p-2 rounded-lg">
+                                    <i data-lucide="trending-down" class="w-5 h-5 text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-400 uppercase font-bold">Gastos</p>
+                                    <p class="text-lg font-black text-red-400">${formatQ(gas)}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex justify-between border-b border-white/10 pb-2">
-                        <span>📊 Base (Neta):</span>
-                        <b>${formatQ(base)}</b>
+                    
+                    <div class="card bg-gradient-to-r from-blue-500/20 to-blue-600/20 border-blue-500/30">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-blue-500 p-2 rounded-lg">
+                                    <i data-lucide="calculator" class="w-5 h-5 text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-400 uppercase font-bold">Base (Neta)</p>
+                                    <p class="text-lg font-black text-blue-400">${formatQ(base)}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex justify-between border-t-2 border-blue-500/30 pt-2">
-                        <span class="font-bold">💎 Diezmo Sugerido (10%):</span>
-                        <b class="text-xl text-blue-400">${formatQ(sugerido)}</b>
+                    
+                    <div class="card bg-gradient-to-r from-purple-500/20 to-purple-600/20 border-purple-500/30 border-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-purple-500 p-2 rounded-lg">
+                                    <i data-lucide="gift" class="w-5 h-5 text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-400 uppercase font-bold">Diezmo Sugerido (10%)</p>
+                                    <p class="text-2xl font-black text-purple-400">${formatQ(sugerido)}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex justify-between border-b border-white/10 pb-2">
-                        <span>✅ Pagado:</span>
-                        <b class="text-emerald-400">${formatQ(pagado)}</b>
+                    
+                    <div class="card bg-gradient-to-r from-teal-500/20 to-teal-600/20 border-teal-500/30">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-teal-500 p-2 rounded-lg">
+                                    <i data-lucide="check-circle" class="w-5 h-5 text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-400 uppercase font-bold">Pagado</p>
+                                    <p class="text-lg font-black text-teal-400">${formatQ(pagado)}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex justify-between border-t-2 border-red-500/30 pt-2">
-                        <span class="font-bold text-red-400">⚠️ FALTANTE:</span>
-                        <b class="text-xl text-red-400">${formatQ(faltante)}</b>
+                    
+                    ${faltante > 0 ? `
+                    <div class="card bg-gradient-to-r from-red-500/30 to-red-600/30 border-red-500/50 border-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-red-500 p-2 rounded-lg">
+                                    <i data-lucide="alert-circle" class="w-5 h-5 text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-red-300 uppercase font-bold">Faltante</p>
+                                    <p class="text-2xl font-black text-red-400">${formatQ(faltante)}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    ` : `
+                    <div class="card bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 border-emerald-500/30">
+                        <div class="flex items-center justify-center gap-2 py-2">
+                            <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
+                            <p class="text-sm font-bold text-emerald-400">Diezmo completo</p>
+                        </div>
+                    </div>
+                    `}
                 </div>
             `;
+            
+            lucide.createIcons();
             
             document.getElementById('diezmo-monto').value = faltante > 0 ? faltante.toFixed(2) : '';
         }
@@ -1616,8 +1714,6 @@
                 showNotification('❌ Ingresa un monto válido', 'error');
                 return;
             }
-            
-            showSyncIndicator('syncing');
             
             diezmos.push({
                 id: Date.now(),
@@ -1669,14 +1765,15 @@
                         </div>
                         <div class="space-y-2">
                             ${pagos.map(p => `
-                                <div class="flex justify-between items-center text-sm bg-white/5 p-2 rounded-lg">
+                                <div class="flex justify-between items-center text-sm bg-white/5 p-3 rounded-lg">
                                     <div class="flex-1">
                                         <p class="text-xs text-slate-400">${formatDate(p.fecha)} • ${p.metodo}</p>
                                     </div>
                                     <div class="flex items-center gap-2">
-                                        <span class="font-bold text-emerald-400">${formatQ(p.monto)}</span>
-                                        <button onclick="deleteDiezmo(${p.id})" class="text-red-400">
-                                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                        <span class="font-bold text-emerald-400 text-base">${formatQ(p.monto)}</span>
+                                        <button onclick="deleteDiezmo(${p.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
+                                            <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                            Eliminar
                                         </button>
                                     </div>
                                 </div>
@@ -1691,7 +1788,6 @@
 
         function deleteDiezmo(id) {
             if (confirm('¿Eliminar este pago?')) {
-                showSyncIndicator('syncing');
                 diezmos = diezmos.filter(d => d.id !== id);
                 saveData();
                 renderDiezmosList();
@@ -1951,49 +2047,89 @@
         }
 
         function exportJSON() {
-            const data = {
-                registros,
-                viajes,
-                diezmos,
-                categorias,
-                exportDate: new Date().toISOString()
-            };
-            
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `LARA_Backup_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            
-            showNotification('💾 Respaldo creado');
+            try {
+                const data = {
+                    registros: registros || [],
+                    viajes: viajes || [],
+                    diezmos: diezmos || [],
+                    categorias: categorias || [],
+                    exportDate: new Date().toISOString(),
+                    version: '1.0'
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `LARA_Backup_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+                
+                showNotification('💾 Respaldo creado correctamente');
+            } catch (error) {
+                console.error('Error al exportar:', error);
+                showNotification('❌ Error al crear respaldo', 'error');
+            }
         }
 
         function importJSON(event) {
             const file = event.target.files[0];
             if (!file) return;
             
+            // Validar tipo de archivo
+            if (!file.name.endsWith('.json')) {
+                showNotification('❌ El archivo debe ser un JSON válido', 'error');
+                event.target.value = '';
+                return;
+            }
+            
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
                     
-                    if (data.registros) registros = data.registros;
-                    if (data.viajes) viajes = data.viajes;
-                    if (data.diezmos) diezmos = data.diezmos;
-                    if (data.categorias) categorias = data.categorias;
+                    // Validar estructura básica
+                    if (!data || typeof data !== 'object') {
+                        throw new Error('Formato de archivo inválido');
+                    }
                     
+                    // Importar datos con validación
+                    if (Array.isArray(data.registros)) {
+                        registros = data.registros;
+                    }
+                    if (Array.isArray(data.viajes)) {
+                        viajes = data.viajes;
+                    }
+                    if (Array.isArray(data.diezmos)) {
+                        diezmos = data.diezmos;
+                    }
+                    if (Array.isArray(data.categorias)) {
+                        categorias = data.categorias;
+                    }
+                    
+                    // Guardar datos
                     saveData();
                     showNotification('✅ Datos importados correctamente');
+                    
+                    // Actualizar vistas
                     updateHomeResumen();
                     
                     if (currentSection === 'historial-registros') renderRegistrosList();
                     if (currentSection === 'historial-viajes') renderViajesList();
+                    if (currentSection === 'historial-diezmos') renderDiezmosList();
+                    if (currentSection === 'diezmos') calcularDiezmo();
                     if (currentSection === 'resumen') renderResumen();
                 } catch (err) {
-                    showNotification('❌ Error al importar archivo', 'error');
-                    console.error(err);
+                    showNotification('❌ Error al importar archivo. Verifica que sea un archivo válido de LARA', 'error');
+                    console.error('Error de importación:', err);
                 }
             };
+            
+            reader.onerror = () => {
+                showNotification('❌ Error al leer el archivo', 'error');
+            };
+            
             reader.readAsText(file);
             event.target.value = '';
         }
