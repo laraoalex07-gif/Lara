@@ -1856,7 +1856,7 @@
                                         <i data-lucide="edit" class="w-3 h-3"></i>
                                         Editar
                                     </button>
-                                    <button onclick="deleteRegistro(${r.id}, event)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
+                                    <button onclick="deleteRegistro(${r.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
                                         <i data-lucide="trash-2" class="w-3 h-3"></i>
                                         Eliminar
                                     </button>
@@ -1924,11 +1924,8 @@
             }
         }
 
-        function deleteRegistro(id, event) {
-            event.preventDefault();
-            event.stopPropagation();
-            event.stopImmediatePropagation();
-            showDeleteConfirmation(() => {
+        function deleteRegistro(id) {
+            if (confirm('¿Seguro que deseas eliminar este registro?')) {
                 registros = registros.filter(r => r.id !== id);
                 saveData();
                 renderRegistrosList();
@@ -1944,7 +1941,7 @@
                 if (currentSection === 'resumen') {
                     renderResumen();
                 }
-            });
+            }
         }
 
         // VIAJES
