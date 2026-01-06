@@ -462,17 +462,34 @@
     <div id="notification"></div>
 
     <!-- PANTALLA DE BIENVENIDA -->
-    <div id="welcome" class="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
-        <div class="w-32 h-32 bg-white p-4 rounded-3xl mb-6 shadow-2xl">
-            <div class="w-full h-full flex items-center justify-center text-6xl">🚗</div>
+    <div id="welcome" class="fixed inset-0 z-50 bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] flex flex-col items-center justify-center p-6 text-center">
+        <div class="relative mb-8">
+            <div class="w-40 h-40 bg-gradient-to-br from-white to-gray-100 p-6 rounded-full shadow-2xl border-4 border-blue-500/30">
+                <div class="w-full h-full flex items-center justify-center">
+                    <img id="welcome-logo" src="aa.jpg" alt="Logo" class="w-24 h-24 object-contain rounded-lg" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                    <div class="text-7xl hidden">🚗</div>
+                </div>
+            </div>
+            <button onclick="openCustomizeModal()" class="absolute -top-2 -right-2 w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+            </button>
         </div>
-        <h1 class="text-3xl font-black mb-1 uppercase text-blue-400">MULTI SERVICIOS LARA</h1>
-        <p class="text-slate-400 text-lg mb-1">Servicio de Transporte Privado</p>
-        <p class="text-blue-300 font-semibold mb-10 italic">"Moviendo Vidas"</p>
-        <button onclick="closeWelcome()" class="btn-primary w-full max-w-xs">
-            <i data-lucide="arrow-right" class="w-5 h-5"></i>
-            ENTRAR
-        </button>
+
+        <div class="max-w-sm mx-auto">
+            <h1 id="welcome-title" class="text-4xl font-black mb-3 uppercase text-blue-400 leading-tight">MULTI SERVICIOS LARA</h1>
+            <p id="welcome-subtitle" class="text-slate-300 text-xl mb-3 font-medium">Servicio de Transporte Privado</p>
+            <p id="welcome-tagline" class="text-blue-300 font-semibold mb-12 italic text-lg">"Moviendo Vidas"</p>
+        </div>
+
+        <div class="w-full max-w-xs space-y-3">
+            <button onclick="closeWelcome()" class="btn-primary w-full flex items-center justify-center gap-3 py-4 text-lg font-bold">
+                <i data-lucide="arrow-right" class="w-6 h-6"></i>
+                <span>ENTRAR</span>
+            </button>
+            <div class="text-center">
+                <p class="text-slate-400 text-sm">Desliza hacia arriba o presiona el botón</p>
+            </div>
+        </div>
     </div>
 
     <!-- HEADER -->
@@ -876,6 +893,54 @@
     </nav>
 
     <!-- MODALES -->
+
+    <!-- Modal Personalizar App -->
+    <div id="modal-customize" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                Personalizar App
+            </h3>
+
+            <div class="space-y-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="type" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Nombre de la App</label>
+                </div>
+                <input type="text" id="customize-title" class="mb-4" placeholder="Ej: Mi Empresa">
+
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="file-text" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Descripción</label>
+                </div>
+                <input type="text" id="customize-subtitle" class="mb-4" placeholder="Ej: Servicio de Transporte">
+
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="quote" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Eslogan</label>
+                </div>
+                <input type="text" id="customize-tagline" class="mb-4" placeholder='Ej: "Moviendo Vidas"'>
+
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="image" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Logo (URL)</label>
+                </div>
+                <input type="url" id="customize-logo" class="mb-4" placeholder="https://ejemplo.com/logo.png">
+
+                <div class="flex gap-2 mt-6">
+                    <button onclick="saveCustomization()" class="btn-primary flex-1 flex items-center justify-center gap-2">
+                        <i data-lucide="save" class="w-5 h-5"></i>
+                        <span>Guardar</span>
+                    </button>
+                    <button onclick="closeModal('modal-customize')" class="btn-secondary flex-1">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALES -->
     
     <!-- Modal Calculadora -->
     <div id="modal-calculator" class="modal-overlay">
@@ -1033,7 +1098,7 @@
         </div>
     </div>
 
-    <!-- Modal Nueva Categoría -->
+        <!-- Modal Nueva Categoría -->
     <div id="modal-nueva-categoria" class="modal-overlay">
         <div class="modal-content">
             <h3 class="text-lg font-bold text-blue-400 mb-4">➕ Nueva Categoría</h3>
@@ -1044,6 +1109,74 @@
                 </button>
                 <button onclick="saveNuevaCategoria()" class="btn-primary flex-1">
                     Añadir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Personalización -->
+    <div id="modal-customize" class="modal-overlay">
+        <div class="modal-content max-w-lg">
+            <h3 class="text-2xl font-bold text-blue-400 mb-6 flex items-center gap-2">
+                <i data-lucide="settings" class="w-6 h-6"></i>
+                Personalizar App
+            </h3>
+
+            <div class="space-y-6">
+                <!-- Logo -->
+                <div class="card">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="image" class="w-5 h-5 text-blue-400"></i>
+                        <label class="text-sm font-bold text-blue-400 uppercase">Logo de la App</label>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <img id="preview-logo" src="aa.jpg" alt="Logo actual" class="w-16 h-16 object-contain rounded-lg border-2 border-slate-600">
+                        <div class="flex-1">
+                            <input type="file" id="logo-upload" accept="image/*" class="hidden" onchange="previewLogo(this)">
+                            <button onclick="document.getElementById('logo-upload').click()" class="btn-primary w-full">
+                                <i data-lucide="upload" class="w-4 h-4"></i>
+                                Cambiar Logo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nombre -->
+                <div class="card">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="type" class="w-5 h-5 text-blue-400"></i>
+                        <label class="text-sm font-bold text-blue-400 uppercase">Nombre de la App</label>
+                    </div>
+                    <input type="text" id="custom-app-name" placeholder="Nombre de tu aplicación" class="w-full">
+                </div>
+
+                <!-- Descripción -->
+                <div class="card">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="file-text" class="w-5 h-5 text-blue-400"></i>
+                        <label class="text-sm font-bold text-blue-400 uppercase">Descripción</label>
+                    </div>
+                    <input type="text" id="custom-app-description" placeholder="Breve descripción de tu servicio" class="w-full">
+                </div>
+
+                <!-- Tagline -->
+                <div class="card">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="quote" class="w-5 h-5 text-blue-400"></i>
+                        <label class="text-sm font-bold text-blue-400 uppercase">Eslogan</label>
+                    </div>
+                    <input type="text" id="custom-app-tagline" placeholder="Tu eslogan o frase motivadora" class="w-full">
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeModal('modal-customize')" class="btn-secondary flex-1">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    Cancelar
+                </button>
+                <button onclick="saveCustomization()" class="btn-primary flex-1">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                    Guardar Cambios
                 </button>
             </div>
         </div>
@@ -1062,6 +1195,14 @@
         let calcTargetInput = null;
         let calcExpression = '';
 
+        // Configuración de la app
+        let appConfig = {
+            title: 'MULTI SERVICIOS LARA',
+            subtitle: 'Servicio de Transporte Privado',
+            tagline: '"Moviendo Vidas"',
+            logo: 'aa.jpg'
+        };
+
         const formatter = new Intl.NumberFormat('es-GT', { 
             style: 'currency', 
             currency: 'GTQ',
@@ -1069,20 +1210,55 @@
         });
 
         // NAVEGACIÓN DEL NAVEGADOR
+        let isBackNavigation = false;
+        let lastSection = 'welcome';
+
+        // Detectar si es un dispositivo móvil
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
         window.addEventListener('popstate', function(event) {
+            isBackNavigation = true;
+
             if (event.state && event.state.section) {
                 nav(event.state.section, false);
             } else if (navigationHistory.length > 1) {
                 navigationHistory.pop();
                 const prev = navigationHistory[navigationHistory.length - 1];
+
                 if (prev === 'welcome') {
                     document.getElementById('welcome').style.display = 'flex';
+                    document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+                    currentSection = 'welcome';
                 } else {
                     nav(prev, false);
                 }
             } else {
-                // Si no hay historial, mostrar pantalla de inicio
-                nav('inicio', false);
+                // Si es móvil y no hay historial, mostrar welcome o inicio
+                if (isMobile && !localStorage.getItem('lara_visited')) {
+                    document.getElementById('welcome').style.display = 'flex';
+                    document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+                    currentSection = 'welcome';
+                } else {
+                    nav('inicio', false);
+                }
+            }
+
+            setTimeout(() => {
+                isBackNavigation = false;
+            }, 100);
+        });
+
+        // Prevenir salida accidental de la app en móviles
+        window.addEventListener('beforeunload', function(e) {
+            // Solo mostrar confirmación si estamos en formularios con datos no guardados
+            if ((currentSection === 'registros' || currentSection === 'viajes') &&
+                (document.getElementById('reg-monto')?.value ||
+                 document.getElementById('reg-detalle')?.value ||
+                 document.getElementById('viaje-cliente')?.value ||
+                 document.getElementById('viaje-monto')?.value)) {
+                e.preventDefault();
+                e.returnValue = '¿Estás seguro de que quieres salir? Los datos no guardados se perderán.';
+                return e.returnValue;
             }
         });
 
@@ -1155,7 +1331,7 @@
         function toggleTheme() {
             const body = document.body;
             const isLight = body.getAttribute('data-theme') === 'light';
-            
+
             if (isLight) {
                 body.removeAttribute('data-theme');
                 localStorage.setItem('theme', 'dark');
@@ -1164,6 +1340,67 @@
                 localStorage.setItem('theme', 'light');
             }
             lucide.createIcons();
+        }
+
+        // PERSONALIZACIÓN DE LA APP
+        function openCustomizeModal() {
+            document.getElementById('customize-title').value = appConfig.title;
+            document.getElementById('customize-subtitle').value = appConfig.subtitle;
+            document.getElementById('customize-tagline').value = appConfig.tagline;
+            document.getElementById('customize-logo').value = appConfig.logo;
+            document.getElementById('modal-customize').classList.add('show');
+            lucide.createIcons();
+        }
+
+        function saveCustomization() {
+            const newTitle = document.getElementById('customize-title').value.trim();
+            const newSubtitle = document.getElementById('customize-subtitle').value.trim();
+            const newTagline = document.getElementById('customize-tagline').value.trim();
+            const newLogo = document.getElementById('customize-logo').value.trim();
+
+            if (newTitle) appConfig.title = newTitle;
+            if (newSubtitle) appConfig.subtitle = newSubtitle;
+            if (newTagline) appConfig.tagline = newTagline;
+            if (newLogo) appConfig.logo = newLogo;
+
+            // Guardar configuración
+            localStorage.setItem('lara_app_config', JSON.stringify(appConfig));
+
+            // Actualizar pantalla de bienvenida
+            updateWelcomeScreen();
+
+            closeModal('modal-customize');
+            showNotification('✅ Configuración guardada');
+        }
+
+        function updateWelcomeScreen() {
+            document.getElementById('welcome-title').textContent = appConfig.title;
+            document.getElementById('welcome-subtitle').textContent = appConfig.subtitle;
+            document.getElementById('welcome-tagline').textContent = appConfig.tagline;
+
+            const logoImg = document.getElementById('welcome-logo');
+            const fallbackIcon = logoImg.nextElementSibling;
+
+            if (appConfig.logo) {
+                logoImg.src = appConfig.logo;
+                logoImg.style.display = 'block';
+                fallbackIcon.style.display = 'none';
+            } else {
+                logoImg.style.display = 'none';
+                fallbackIcon.style.display = 'block';
+            }
+        }
+
+        function loadAppConfig() {
+            const saved = localStorage.getItem('lara_app_config');
+            if (saved) {
+                try {
+                    const loadedConfig = JSON.parse(saved);
+                    appConfig = { ...appConfig, ...loadedConfig };
+                } catch (e) {
+                    console.error('Error loading app config:', e);
+                }
+            }
         }
 
         // NOTIFICACIONES
@@ -1182,6 +1419,14 @@
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('show');
             editingId = null;
+
+            // Limpiar preview del logo cuando se cierra el modal
+            if (modalId === 'modal-customize') {
+                const logoInput = document.getElementById('logo-upload');
+                logoInput.value = '';
+                const customData = JSON.parse(localStorage.getItem('lara_customization') || '{}');
+                document.getElementById('preview-logo').src = customData.logo || 'aa.jpg';
+            }
         }
 
         function openModal() {
@@ -2160,6 +2405,91 @@
             event.target.value = '';
         }
 
+        // PERSONALIZACIÓN DE LA APP
+        function openCustomizeModal() {
+            // Cargar datos actuales
+            const customData = JSON.parse(localStorage.getItem('lara_customization') || '{}');
+
+            document.getElementById('custom-app-name').value = customData.name || 'MULTI SERVICIOS LARA';
+            document.getElementById('custom-app-description').value = customData.description || 'Servicio de Transporte Privado';
+            document.getElementById('custom-app-tagline').value = customData.tagline || '"Moviendo Vidas"';
+
+            // Mostrar logo actual
+            const logoSrc = customData.logo || 'aa.jpg';
+            document.getElementById('welcome-logo').src = logoSrc;
+            document.getElementById('preview-logo').src = logoSrc;
+
+            document.getElementById('modal-customize').classList.add('show');
+            lucide.createIcons();
+        }
+
+        function previewLogo(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview-logo').src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function saveCustomization() {
+            const name = document.getElementById('custom-app-name').value.trim();
+            const description = document.getElementById('custom-app-description').value.trim();
+            const tagline = document.getElementById('custom-app-tagline').value.trim();
+
+            const customData = {
+                name: name || 'MULTI SERVICIOS LARA',
+                description: description || 'Servicio de Transporte Privado',
+                tagline: tagline || '"Moviendo Vidas"'
+            };
+
+            // Guardar logo si se cambió
+            const logoInput = document.getElementById('logo-upload');
+            if (logoInput.files && logoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    customData.logo = e.target.result;
+                    localStorage.setItem('lara_customization', JSON.stringify(customData));
+                    applyCustomization();
+                    closeModal('modal-customize');
+                    showNotification('✅ Personalización guardada', 'success');
+                };
+                reader.readAsDataURL(logoInput.files[0]);
+            } else {
+                localStorage.setItem('lara_customization', JSON.stringify(customData));
+                applyCustomization();
+                closeModal('modal-customize');
+                showNotification('✅ Personalización guardada', 'success');
+            }
+        }
+
+        function applyCustomization() {
+            const customData = JSON.parse(localStorage.getItem('lara_customization') || '{}');
+
+            // Aplicar cambios a la pantalla de bienvenida
+            document.getElementById('welcome-title').textContent = customData.name || 'MULTI SERVICIOS LARA';
+            document.getElementById('welcome-subtitle').textContent = customData.description || 'Servicio de Transporte Privado';
+            document.getElementById('welcome-tagline').textContent = customData.tagline || '"Moviendo Vidas"';
+
+            if (customData.logo) {
+                document.getElementById('welcome-logo').src = customData.logo;
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+            editingId = null;
+
+            // Limpiar preview del logo cuando se cierra el modal
+            if (modalId === 'modal-customize') {
+                const logoInput = document.getElementById('logo-upload');
+                logoInput.value = '';
+                const customData = JSON.parse(localStorage.getItem('lara_customization') || '{}');
+                document.getElementById('preview-logo').src = customData.logo || 'aa.jpg';
+            }
+        }
+
         function borrarTodo() {
             if (!confirm('⚠️ ¿BORRAR TODOS LOS DATOS? Esta acción NO se puede deshacer.')) return;
             if (!confirm('¿Estás completamente seguro? Se perderán TODOS los registros, viajes y pagos.')) return;
@@ -2177,6 +2507,7 @@
         // INICIALIZACIÓN
         function init() {
             loadData();
+            loadAppConfig();
 
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'light') {
@@ -2186,6 +2517,9 @@
 
             const hasVisited = localStorage.getItem('lara_visited');
             if (hasVisited) {
+                // Actualizar pantalla de bienvenida con configuración personalizada
+                updateWelcomeScreen();
+
                 // Verificar si hay un hash en la URL para restaurar sección
                 const hash = window.location.hash.substring(1);
                 if (hash && ['inicio', 'historial-registros', 'historial-viajes', 'diezmos', 'resumen'].includes(hash)) {
@@ -2195,7 +2529,15 @@
                 }
             } else {
                 localStorage.setItem('lara_visited', 'true');
+                updateWelcomeScreen();
                 document.getElementById('welcome').style.display = 'flex';
+            }
+
+            // Mejorar navegación en móviles
+            if ('ontouchstart' in window) {
+                document.body.addEventListener('touchstart', function(e) {
+                    // Permitir gestos naturales pero prevenir algunos comportamientos por defecto
+                }, { passive: true });
             }
         }
 
