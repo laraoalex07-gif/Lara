@@ -611,8 +611,8 @@
         <div class="relative z-10 flex flex-col items-center">
             <!-- Logo mejorado -->
             <div class="relative mb-8 group">
-                <div class="w-48 h-48 bg-gradient-to-br from-white to-slate-100 p-8 rounded-3xl shadow-2xl flex items-center justify-center transform group-hover:scale-105 transition-transform duration-300">
-                    <img id="welcome-logo" src="aa.jpg" alt="Logo" class="w-32 h-32 object-contain rounded-xl">
+                <div class="w-40 h-40 bg-gradient-to-br from-white to-slate-100 p-6 rounded-3xl shadow-2xl flex items-center justify-center transform group-hover:scale-105 transition-transform duration-300">
+                    <img id="welcome-logo" src="aa.jpg" alt="Logo" class="w-28 h-28 object-contain rounded-xl">
                     <div class="text-7xl hidden">🚗</div>
                 </div>
                 <!-- Efecto de glow -->
@@ -620,34 +620,23 @@
             </div>
 
             <!-- Texto mejorado -->
-            <div class="max-w-lg mx-auto mb-12">
-                <h1 id="welcome-title" class="text-6xl font-black mb-4 uppercase text-white leading-tight drop-shadow-lg whitespace-nowrap">
+            <div class="max-w-lg mx-auto mb-12 px-4">
+                <h1 id="welcome-title" class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 uppercase text-white leading-tight drop-shadow-lg text-center break-words">
                     <span class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                         MULTI SERVICIOS LARA
                     </span>
                 </h1>
-                <p id="welcome-subtitle" class="text-slate-300 text-xl mb-4 font-medium drop-shadow-md">
+                <p id="welcome-subtitle" class="text-slate-300 text-lg sm:text-xl mb-4 font-medium drop-shadow-md text-center">
                     Servicio de Transporte Privado
                 </p>
-                <p id="welcome-tagline" class="text-blue-300 font-semibold italic text-lg drop-shadow-md">
+                <p id="welcome-tagline" class="text-blue-300 font-semibold italic text-base sm:text-lg drop-shadow-md text-center">
                     "Moviendo Vidas"
                 </p>
             </div>
 
-            <!-- PIN de seguridad -->
-            <div class="w-full max-w-sm mb-6">
-                <div class="card bg-gradient-to-r from-blue-500/20 to-blue-600/20 border-blue-500/30">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="lock" class="w-5 h-5 text-blue-400"></i>
-                        <label class="text-sm font-bold text-blue-400 uppercase">PIN de Seguridad</label>
-                    </div>
-                    <input type="password" id="welcome-pin" placeholder="Ingresa tu PIN" maxlength="6" class="w-full text-center text-2xl font-bold tracking-widest" onkeypress="handlePinKeyPress(event)">
-                </div>
-            </div>
-
             <!-- Botón de entrada mejorado -->
             <div class="w-full max-w-sm space-y-4">
-                <button onclick="verifyPinAndEnter()" class="btn-primary w-full flex items-center justify-center gap-3 py-5 text-lg font-bold shadow-2xl transform hover:scale-105 transition-all duration-200">
+                <button onclick="closeWelcome()" class="btn-primary w-full flex items-center justify-center gap-3 py-5 text-lg font-bold shadow-2xl transform hover:scale-105 transition-all duration-200">
                     <i data-lucide="arrow-right" class="w-6 h-6"></i>
                     <span>ENTRAR</span>
                 </button>
@@ -677,13 +666,7 @@
         <section id="sec-inicio" class="space-y-4">
             <div class="section-header">
                 <div class="section-icon bg-blue-500">🏠</div>
-                <div class="flex-1 flex items-center justify-between">
-                    <h2 class="text-xl font-bold text-blue-400">Panel de Control</h2>
-                    <button onclick="openCustomizeModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center gap-2">
-                        <i data-lucide="settings" class="w-4 h-4"></i>
-                        <span class="hidden sm:inline">Configurar</span>
-                    </button>
-                </div>
+                <h2 class="text-xl font-bold text-blue-400">Panel de Control</h2>
             </div>
 
             <div class="ux-card ux-card-info border-2">
@@ -991,8 +974,9 @@
                 </div>
                 <div class="flex gap-2 mb-4">
                     <input type="number" id="diezmo-monto" placeholder="0.00" step="0.01" class="flex-1">
-                    <button onclick="openCalculator('diezmo-monto')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-lg flex items-center justify-center">
-                        <i data-lucide="calculator" class="w-5 h-5"></i>
+                    <button onclick="openCalculator('diezmo-monto')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-lg flex items-center justify-center gap-1">
+                        <i data-lucide="calculator" class="w-4 h-4"></i>
+                        <span class="text-sm">Calc</span>
                     </button>
                 </div>
                 
@@ -1010,9 +994,9 @@
                 <div class="flex-1">
                     <h2 class="text-xl font-bold text-blue-400">Historial de Pagos</h2>
                 </div>
-                <button onclick="nav('diezmos')" class="ux-btn-secondary">
+                <button onclick="nav('diezmos')" class="ux-btn-secondary flex items-center gap-2">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    <span class="hidden sm:inline">Volver</span>
+                    <span>Volver</span>
                 </button>
             </div>
             <div id="diezmos-list"></div>
@@ -1311,84 +1295,6 @@
         </div>
     </div>
 
-    <!-- Modal Personalización -->
-    <div id="modal-customize" class="modal-overlay">
-        <div class="modal-content max-w-lg">
-            <h3 class="text-2xl font-bold text-blue-400 mb-6 flex items-center gap-2">
-                <i data-lucide="settings" class="w-6 h-6"></i>
-                Personalizar App
-            </h3>
-
-            <div class="space-y-6">
-                <!-- Logo -->
-                <div class="ux-card">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="image" class="w-5 h-5 text-blue-400"></i>
-                        <label class="text-sm font-bold text-blue-400 uppercase">Logo de la App</label>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <img id="preview-logo" src="aa.jpg" alt="Logo actual" class="w-16 h-16 object-contain rounded-lg border-2 border-slate-600">
-                        <div class="flex-1">
-                            <input type="file" id="logo-upload" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml" class="hidden" onchange="previewLogo(this)">
-                            <button onclick="document.getElementById('logo-upload').click()" class="ux-btn-primary w-full">
-                                <i data-lucide="upload" class="w-4 h-4"></i>
-                                Subir Logo
-                            </button>
-                            <p class="text-xs text-slate-400 mt-1">Formatos: JPG, PNG, GIF, WebP, SVG (máx. 5MB)</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Nombre -->
-                <div class="ux-card">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="type" class="w-5 h-5 text-blue-400"></i>
-                        <label class="text-sm font-bold text-blue-400 uppercase">Nombre de la App</label>
-                    </div>
-                    <input type="text" id="custom-app-name" placeholder="Nombre de tu aplicación" class="ux-input">
-                </div>
-
-                <!-- Descripción -->
-                <div class="ux-card">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="file-text" class="w-5 h-5 text-blue-400"></i>
-                        <label class="text-sm font-bold text-blue-400 uppercase">Descripción</label>
-                    </div>
-                    <input type="text" id="custom-app-description" placeholder="Breve descripción de tu servicio" class="ux-input">
-                </div>
-
-                <!-- Tagline -->
-                <div class="ux-card">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="quote" class="w-5 h-5 text-blue-400"></i>
-                        <label class="text-sm font-bold text-blue-400 uppercase">Eslogan</label>
-                    </div>
-                    <input type="text" id="custom-app-tagline" placeholder="Tu eslogan o frase motivadora" class="ux-input">
-                </div>
-
-                <!-- PIN de Seguridad -->
-                <div class="ux-card ux-card-info">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="lock" class="w-5 h-5 text-blue-400"></i>
-                        <label class="text-sm font-bold text-blue-400 uppercase">PIN de Seguridad</label>
-                    </div>
-                    <input type="password" id="custom-security-pin" placeholder="Código PIN (4-6 dígitos)" maxlength="6" class="ux-input text-center text-xl font-mono" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                    <p class="text-xs text-slate-400 mt-2">Deja vacío para quitar la protección PIN</p>
-                </div>
-            </div>
-
-            <div class="flex gap-3 mt-6">
-                <button onclick="closeModal('modal-customize')" class="ux-btn-secondary flex-1">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                    Cancelar
-                </button>
-                <button onclick="saveCustomization()" class="ux-btn-primary flex-1">
-                    <i data-lucide="save" class="w-4 h-4"></i>
-                    Guardar Cambios
-                </button>
-            </div>
-        </div>
-    </div>
 
     <script>
         // VARIABLES GLOBALES
@@ -1470,30 +1376,6 @@
             }
         });
 
-        function verifyPinAndEnter() {
-            const enteredPin = document.getElementById('welcome-pin').value;
-            const savedPin = localStorage.getItem('lara_security_pin');
-
-            // Si no hay PIN configurado, permitir entrada
-            if (!savedPin) {
-                closeWelcome();
-                return;
-            }
-
-            if (enteredPin === savedPin) {
-                closeWelcome();
-            } else {
-                showNotification('❌ PIN incorrecto', 'error');
-                document.getElementById('welcome-pin').value = '';
-                document.getElementById('welcome-pin').focus();
-            }
-        }
-
-        function handlePinKeyPress(event) {
-            if (event.key === 'Enter') {
-                verifyPinAndEnter();
-            }
-        }
 
         function closeWelcome() {
             document.getElementById('welcome').style.display = 'none';
@@ -1807,7 +1689,7 @@
             });
             
             saveData();
-            showNotification('✅ Registro guardado');
+            showNotification('✅ Guardado');
             
             document.getElementById('reg-monto').value = '';
             document.getElementById('reg-detalle').value = '';
@@ -1910,7 +1792,7 @@
             saveData();
             closeModal('modal-edit-registro');
             renderRegistrosList();
-            showNotification('✅ Registro actualizado');
+            showNotification('✅ Guardado');
         }
 
         function deleteRegistro(id, event) {
@@ -1919,7 +1801,7 @@
                 registros = registros.filter(r => r.id !== id);
                 saveData();
                 renderRegistrosList();
-                showNotification('🗑️ Registro eliminado');
+                showNotification('🗑️ Borrado');
             }
         }
 
@@ -1953,7 +1835,7 @@
             });
             
             saveData();
-            showNotification('✅ Viaje guardado');
+            showNotification('✅ Guardado');
             
             document.getElementById('viaje-cliente').value = '';
             document.getElementById('viaje-inicio').value = '';
@@ -2045,7 +1927,7 @@
             saveData();
             closeModal('modal-edit-viaje');
             renderViajesList();
-            showNotification('✅ Viaje actualizado');
+            showNotification('✅ Guardado');
         }
 
         function deleteViaje(id, event) {
@@ -2054,7 +1936,7 @@
                 viajes = viajes.filter(v => v.id !== id);
                 saveData();
                 renderViajesList();
-                showNotification('🗑️ Viaje eliminado');
+                showNotification('🗑️ Borrado');
             }
         }
 
@@ -2231,7 +2113,7 @@
             saveData();
             calcularDiezmo();
             document.getElementById('diezmo-monto').value = '';
-            showNotification('🙏 Pago de diezmo registrado');
+            showNotification('✅ Pago guardado');
         }
 
         function renderDiezmosList() {
@@ -2296,7 +2178,7 @@
                 saveData();
                 renderDiezmosList();
                 if (currentSection === 'diezmos') calcularDiezmo();
-                showNotification('🗑️ Pago eliminado');
+                showNotification('🗑️ Pago borrado');
             }
         }
 
@@ -2638,161 +2520,6 @@
             event.target.value = '';
         }
 
-        // PERSONALIZACIÓN DE LA APP
-        function openCustomizeModal() {
-            try {
-                // Cargar datos actuales
-                const customData = JSON.parse(localStorage.getItem('lara_customization') || '{}');
-                const savedPin = localStorage.getItem('lara_security_pin') || '';
-
-                document.getElementById('custom-app-name').value = customData.name || 'MULTI SERVICIOS LARA';
-                document.getElementById('custom-app-description').value = customData.description || 'Servicio de Transporte Privado';
-                document.getElementById('custom-app-tagline').value = customData.tagline || '"Moviendo Vidas"';
-                document.getElementById('custom-security-pin').value = savedPin;
-
-                // Mostrar logo actual
-                const logoSrc = customData.logo || 'aa.jpg';
-                document.getElementById('welcome-logo').src = logoSrc;
-                document.getElementById('preview-logo').src = logoSrc;
-
-                document.getElementById('modal-customize').classList.add('show');
-                lucide.createIcons();
-            } catch (error) {
-                console.error('Error al abrir modal de personalización:', error);
-                showNotification('❌ Error al abrir configuración', 'error');
-            }
-        }
-
-        function previewLogo(input) {
-            if (input.files && input.files[0]) {
-                // Validar tipo de archivo
-                const file = input.files[0];
-                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-
-                if (!validTypes.includes(file.type)) {
-                    showNotification('❌ Formato de imagen no válido. Usa JPG, PNG, GIF, WebP o SVG', 'error');
-                    input.value = '';
-                    return;
-                }
-
-                // Validar tamaño (máximo 5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    showNotification('❌ La imagen es demasiado grande. Máximo 5MB', 'error');
-                    input.value = '';
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('preview-logo').src = e.target.result;
-                    showNotification('✅ Logo cargado correctamente', 'success');
-                };
-                reader.onerror = function() {
-                    showNotification('❌ Error al cargar la imagen', 'error');
-                    input.value = '';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function saveCustomization() {
-            try {
-                const name = document.getElementById('custom-app-name').value.trim();
-                const description = document.getElementById('custom-app-description').value.trim();
-                const tagline = document.getElementById('custom-app-tagline').value.trim();
-                const pin = document.getElementById('custom-security-pin').value.trim();
-
-                // Validar campos obligatorios
-                if (!name) {
-                    showNotification('❌ El nombre de la app es obligatorio', 'error');
-                    return;
-                }
-
-                // Validar PIN si se proporciona
-                if (pin && (pin.length < 4 || pin.length > 6)) {
-                    showNotification('❌ El PIN debe tener entre 4 y 6 dígitos', 'error');
-                    return;
-                }
-
-                const customData = {
-                    name: name,
-                    description: description || 'Servicio de Transporte Privado',
-                    tagline: tagline || '"Moviendo Vidas"'
-                };
-
-                // Guardar PIN de seguridad
-                if (pin) {
-                    localStorage.setItem('lara_security_pin', pin);
-                    showNotification('🔒 PIN de seguridad configurado', 'success');
-                } else {
-                    localStorage.removeItem('lara_security_pin');
-                    showNotification('🔓 Protección PIN desactivada', 'success');
-                }
-
-                // Guardar logo si se cambió
-                const logoInput = document.getElementById('logo-upload');
-                if (logoInput.files && logoInput.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        customData.logo = e.target.result;
-                        localStorage.setItem('lara_customization', JSON.stringify(customData));
-                        applyCustomization();
-                        closeModal('modal-customize');
-                        showNotification('✅ Personalización guardada con logo', 'success');
-                    };
-                    reader.onerror = function() {
-                        showNotification('❌ Error al procesar la imagen', 'error');
-                    };
-                    reader.readAsDataURL(logoInput.files[0]);
-                } else {
-                    localStorage.setItem('lara_customization', JSON.stringify(customData));
-                    applyCustomization();
-                    closeModal('modal-customize');
-                    showNotification('✅ Personalización guardada', 'success');
-                }
-            } catch (error) {
-                console.error('Error al guardar personalización:', error);
-                showNotification('❌ Error al guardar configuración', 'error');
-            }
-        }
-
-        function applyCustomization() {
-            try {
-                const customData = JSON.parse(localStorage.getItem('lara_customization') || '{}');
-
-                // Aplicar cambios a la pantalla de bienvenida
-                const titleElement = document.getElementById('welcome-title');
-                const subtitleElement = document.getElementById('welcome-subtitle');
-                const taglineElement = document.getElementById('welcome-tagline');
-                const logoElement = document.getElementById('welcome-logo');
-
-                if (titleElement) titleElement.textContent = customData.name || 'MULTI SERVICIOS LARA';
-                if (subtitleElement) subtitleElement.textContent = customData.description || 'Servicio de Transporte Privado';
-                if (taglineElement) taglineElement.textContent = customData.tagline || '"Moviendo Vidas"';
-
-                if (customData.logo && logoElement) {
-                    logoElement.src = customData.logo;
-                    logoElement.style.display = 'block';
-                    const fallbackIcon = logoElement.nextElementSibling;
-                    if (fallbackIcon) fallbackIcon.style.display = 'none';
-                }
-            } catch (error) {
-                console.error('Error al aplicar personalización:', error);
-            }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('show');
-            editingId = null;
-
-            // Limpiar preview del logo cuando se cierra el modal
-            if (modalId === 'modal-customize') {
-                const logoInput = document.getElementById('logo-upload');
-                logoInput.value = '';
-                const customData = JSON.parse(localStorage.getItem('lara_customization') || '{}');
-                document.getElementById('preview-logo').src = customData.logo || 'aa.jpg';
-            }
-        }
 
         function borrarTodo() {
             if (!confirm('⚠️ ¿BORRAR TODOS LOS DATOS? Esta acción NO se puede deshacer.')) return;
