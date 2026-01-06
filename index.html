@@ -794,13 +794,13 @@
                     <h2 class="text-xl font-bold text-blue-400">Historial de Registros</h2>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="showFilterModal()" class="ux-btn-primary bg-gradient-to-r from-blue-500 to-blue-600">
+                    <button onclick="showFilterModal()" class="ux-btn-primary bg-gradient-to-r from-blue-500 to-blue-600 flex items-center gap-2">
                         <i data-lucide="filter" class="w-4 h-4"></i>
-                        <span class="hidden sm:inline">Filtrar</span>
+                        <span>🔍 Filtrar</span>
                     </button>
-                    <button onclick="exportToExcel()" class="ux-btn-primary bg-gradient-to-r from-green-500 to-emerald-600">
-                        <i data-lucide="download" class="w-4 h-4"></i>
-                        <span class="hidden sm:inline">Excel</span>
+                    <button onclick="exportToExcel()" class="ux-btn-primary bg-gradient-to-r from-green-500 to-emerald-600 flex items-center gap-2">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                        <span>📊 Exportar Excel</span>
                     </button>
                 </div>
             </div>
@@ -934,9 +934,9 @@
                 <div class="flex-1">
                     <h2 class="text-xl font-bold text-blue-400">Diezmos</h2>
                 </div>
-                <button onclick="nav('historial-diezmos')" class="ux-btn-primary bg-gradient-to-r from-teal-500 to-cyan-600">
+                <button onclick="nav('historial-diezmos')" class="ux-btn-primary bg-gradient-to-r from-teal-500 to-cyan-600 flex items-center gap-2">
                     <i data-lucide="history" class="w-4 h-4"></i>
-                    <span class="hidden sm:inline">Historial</span>
+                    <span>📜 Historial de Pagos</span>
                 </button>
             </div>
             
@@ -980,9 +980,9 @@
                     </button>
                 </div>
                 
-                <button onclick="saveDiezmo()" class="btn-success w-full flex items-center justify-center gap-2">
-                    <i data-lucide="check-circle" class="w-5 h-5"></i>
-                    <span>REGISTRAR PAGO</span>
+                <button onclick="saveDiezmo()" class="ux-btn-primary bg-gradient-to-r from-emerald-500 to-teal-600 w-full flex items-center justify-center gap-2 font-bold py-4 text-lg">
+                    <i data-lucide="credit-card" class="w-6 h-6"></i>
+                    <span>💰 REGISTRAR PAGO</span>
                 </button>
             </div>
         </section>
@@ -1295,6 +1295,29 @@
         </div>
     </div>
 
+    <!-- Modal Confirmación Eliminar -->
+    <div id="modal-confirm-delete" class="modal-overlay">
+        <div class="modal-content max-w-sm">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="alert-triangle" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold text-red-400 mb-2">Eliminar</h3>
+                <p class="text-slate-300 mb-6">¿Seguro que deseas eliminar?</p>
+
+                <div class="flex gap-3">
+                    <button onclick="closeModal('modal-confirm-delete')" class="ux-btn-secondary flex-1">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                        <span>Cancelar</span>
+                    </button>
+                    <button onclick="confirmDelete()" class="ux-btn-primary flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span>Eliminar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // VARIABLES GLOBALES
@@ -1308,6 +1331,24 @@
         let navigationHistory = ['welcome'];
         let calcTargetInput = null;
         let calcExpression = '';
+
+        // Variables para confirmación de eliminación
+        let deleteCallback = null;
+
+        // FUNCIONES DE CONFIRMACIÓN DE ELIMINACIÓN
+        function showDeleteConfirmation(callback) {
+            deleteCallback = callback;
+            document.getElementById('modal-confirm-delete').classList.add('show');
+            lucide.createIcons();
+        }
+
+        function confirmDelete() {
+            if (deleteCallback) {
+                deleteCallback();
+                deleteCallback = null;
+            }
+            closeModal('modal-confirm-delete');
+        }
 
         // Configuración de la app
         let appConfig = {
@@ -1425,10 +1466,10 @@
             if (section === 'inicio') updateHomeResumen();
             if (section === 'registros') {
                 renderCategoriasSelect();
-                document.getElementById('reg-fecha').valueAsDate = new Date();
+                document.getElementById('reg-fecha').value = new Date().toISOString().split('T')[0];
             }
             if (section === 'historial-registros') renderRegistrosList();
-            if (section === 'viajes') document.getElementById('viaje-fecha').valueAsDate = new Date();
+            if (section === 'viajes') document.getElementById('viaje-fecha').value = new Date().toISOString().split('T')[0];
             if (section === 'historial-viajes') renderViajesList();
             if (section === 'diezmos') initDiezmos();
             if (section === 'historial-diezmos') renderDiezmosList();
@@ -1534,6 +1575,10 @@
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('show');
             editingId = null;
+            // Limpiar callback de eliminación si se cierra el modal de confirmación
+            if (modalId === 'modal-confirm-delete') {
+                deleteCallback = null;
+            }
 
             // Limpiar preview del logo cuando se cierra el modal
             if (modalId === 'modal-customize') {
@@ -1690,14 +1735,25 @@
             
             saveData();
             showNotification('✅ Guardado');
-            
+
+            // Actualizar todas las pantallas que dependen de los cálculos de registros
+            if (currentSection === 'inicio') {
+                updateHomeResumen();
+            }
+            if (currentSection === 'diezmos') {
+                calcularDiezmo();
+            }
+            if (currentSection === 'resumen') {
+                renderResumen();
+            }
+
             document.getElementById('reg-monto').value = '';
             document.getElementById('reg-detalle').value = '';
         }
 
         function renderRegistrosList() {
             const container = document.getElementById('registros-list');
-            
+
             let filtered = registros.slice();
             
             const desde = document.getElementById('filter-fecha-desde').value;
@@ -1713,7 +1769,7 @@
             }
             
             filtered.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-            
+
             if (filtered.length === 0) {
                 container.innerHTML = '<div class="card text-center text-slate-400">No hay registros</div>';
                 return;
@@ -1793,16 +1849,38 @@
             closeModal('modal-edit-registro');
             renderRegistrosList();
             showNotification('✅ Guardado');
+
+            // Actualizar todas las pantallas que dependen de los cálculos de registros
+            if (currentSection === 'inicio') {
+                updateHomeResumen();
+            }
+            if (currentSection === 'diezmos') {
+                calcularDiezmo();
+            }
+            if (currentSection === 'resumen') {
+                renderResumen();
+            }
         }
 
         function deleteRegistro(id, event) {
             event.stopPropagation();
-            if (confirm('¿Eliminar este registro?')) {
+            showDeleteConfirmation(() => {
                 registros = registros.filter(r => r.id !== id);
                 saveData();
                 renderRegistrosList();
                 showNotification('🗑️ Borrado');
-            }
+
+                // Actualizar todas las pantallas que dependen de los cálculos de registros
+                if (currentSection === 'inicio') {
+                    updateHomeResumen();
+                }
+                if (currentSection === 'diezmos') {
+                    calcularDiezmo();
+                }
+                if (currentSection === 'resumen') {
+                    renderResumen();
+                }
+            });
         }
 
         // VIAJES
@@ -1836,7 +1914,12 @@
             
             saveData();
             showNotification('✅ Guardado');
-            
+
+            // Actualizar resumen del panel de control si estamos en la pantalla de inicio
+            if (currentSection === 'inicio') {
+                updateHomeResumen();
+            }
+
             document.getElementById('viaje-cliente').value = '';
             document.getElementById('viaje-inicio').value = '';
             document.getElementById('viaje-fin').value = '';
@@ -1928,16 +2011,26 @@
             closeModal('modal-edit-viaje');
             renderViajesList();
             showNotification('✅ Guardado');
+
+            // Actualizar resumen del panel de control si estamos en la pantalla de inicio
+            if (currentSection === 'inicio') {
+                updateHomeResumen();
+            }
         }
 
         function deleteViaje(id, event) {
             event.stopPropagation();
-            if (confirm('¿Eliminar este viaje?')) {
+            showDeleteConfirmation(() => {
                 viajes = viajes.filter(v => v.id !== id);
                 saveData();
                 renderViajesList();
                 showNotification('🗑️ Borrado');
-            }
+
+                // Actualizar resumen del panel de control si estamos en la pantalla de inicio
+                if (currentSection === 'inicio') {
+                    updateHomeResumen();
+                }
+            });
         }
 
         // DIEZMOS
@@ -2113,6 +2206,12 @@
             saveData();
             calcularDiezmo();
             document.getElementById('diezmo-monto').value = '';
+
+            // Actualizar pantalla de resumen si estamos en ella
+            if (currentSection === 'resumen') {
+                renderResumen();
+            }
+
             showNotification('✅ Pago guardado');
         }
 
@@ -2173,13 +2272,19 @@
         }
 
         function deleteDiezmo(id) {
-            if (confirm('¿Eliminar este pago?')) {
+            showDeleteConfirmation(() => {
                 diezmos = diezmos.filter(d => d.id !== id);
                 saveData();
                 renderDiezmosList();
                 if (currentSection === 'diezmos') calcularDiezmo();
+
+                // Actualizar pantalla de resumen si estamos en ella
+                if (currentSection === 'resumen') {
+                    renderResumen();
+                }
+
                 showNotification('🗑️ Pago borrado');
-            }
+            });
         }
 
         // FILTROS
@@ -2222,7 +2327,7 @@
             const hoy = new Date();
             const start = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
             const end = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0, 23, 59, 59);
-            
+
             let ing = 0, gas = 0;
             registros.forEach(r => {
                 const d = new Date(r.fecha + 'T00:00:00');
@@ -2231,7 +2336,7 @@
                     else gas += r.monto;
                 }
             });
-            
+
             const neto = ing - gas;
             document.getElementById('home-neto').textContent = formatQ(neto);
             document.getElementById('home-ingresos').textContent = formatQ(ing);
