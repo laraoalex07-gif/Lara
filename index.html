@@ -1843,7 +1843,7 @@
                 return `
                     <div class="card">
                         <div class="flex items-center gap-3">
-                            <div class="flex-1" onclick="editRegistro(${r.id})" style="cursor: pointer;">
+                            <div class="flex-1">
                                 <p class="text-xs font-bold text-slate-500 mb-1">#${idx + 1} | ${r.categoria}</p>
                                 <p class="text-sm font-bold ${color}">${r.tipo}</p>
                                 <p class="text-xs text-slate-400">${formatDate(r.fecha)}</p>
@@ -2086,7 +2086,9 @@
         }
 
         function deleteViaje(id, event) {
+            event.preventDefault();
             event.stopPropagation();
+            event.stopImmediatePropagation();
             showDeleteConfirmation(() => {
                 viajes = viajes.filter(v => v.id !== id);
                 saveData();
