@@ -6,6 +6,96 @@
     <meta name="theme-color" content="#0b6efd">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <style>
+        /* Estilos adicionales para mejorar la experiencia UX */
+        .ux-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.9) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .ux-card-info {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .ux-card-success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .ux-card-warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .ux-card-error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .ux-btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .ux-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .ux-btn-secondary {
+            background: rgba(100, 116, 139, 0.1);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            color: #94a3b8;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .ux-btn-secondary:hover {
+            background: rgba(100, 116, 139, 0.2);
+            border-color: rgba(100, 116, 139, 0.5);
+        }
+
+        .ux-input {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            color: #f1f5f9;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .ux-input:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    </style>
     <title>Multi Servicios LARA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.js"></script>
@@ -48,15 +138,22 @@
             border: 1px solid rgba(0,0,0,0.08);
         }
         
-        input, select, textarea { 
-            background: var(--card-bg) !important; 
-            border: 1px solid #334155 !important; 
-            color: var(--text-color) !important; 
-            padding: 0.85rem !important;
-            border-radius: 0.75rem; 
-            width: 100%; 
-            font-size: 16px;
-            margin-bottom: 8px;
+        input, select, textarea, .ux-input {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            color: #f1f5f9;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            width: 100%;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus, .ux-input:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
         [data-theme="light"] input,
@@ -73,22 +170,25 @@
         
         textarea { min-height: 80px; resize: vertical; }
 
-        .btn-primary { 
+        .btn-primary, .ux-btn-primary {
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white; 
-            font-weight: bold; 
-            padding: 1rem; 
-            border-radius: 0.75rem; 
-            width: 100%; 
-            border: none; 
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            font-size: 0.95rem;
-            transition: transform 0.2s;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover, .ux-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
         }
         
         .btn-primary:active { 
@@ -100,9 +200,20 @@
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
         }
         
-        .btn-secondary {
-            background: #64748b;
-            box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3);
+        .btn-secondary, .ux-btn-secondary {
+            background: rgba(100, 116, 139, 0.1);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            color: #94a3b8;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover, .ux-btn-secondary:hover {
+            background: rgba(100, 116, 139, 0.2);
+            border-color: rgba(100, 116, 139, 0.5);
         }
 
         button {
@@ -185,13 +296,35 @@
             margin-bottom: 3px;
         }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 1.25rem;
+        .card, .ux-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.9) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 1rem;
             padding: 1rem;
             margin-bottom: 1rem;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: transform 0.2s;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .ux-card-info {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .ux-card-success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .ux-card-warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .ux-card-error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
         
         [data-theme="light"] .card {
@@ -199,12 +332,17 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         
-        .card.clickable {
+        .card.clickable, .ux-card.clickable {
             cursor: pointer;
         }
-        
-        .card.clickable:active {
-            transform: scale(0.98);
+
+        .card.clickable:hover, .ux-card.clickable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .card.clickable:active, .ux-card.clickable:active {
+            transform: translateY(0) scale(0.98);
         }
 
         #notification {
@@ -470,16 +608,11 @@
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-purple-500 rounded-full blur-2xl"></div>
         </div>
 
-        <!-- Botón de configuración -->
-        <button onclick="openCustomizeModal()" class="absolute top-6 right-6 w-12 h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 z-10">
-            <i data-lucide="settings" class="w-6 h-6"></i>
-        </button>
-
         <div class="relative z-10 flex flex-col items-center">
             <!-- Logo mejorado -->
             <div class="relative mb-8 group">
-                <div class="w-40 h-40 bg-gradient-to-br from-white to-slate-100 p-6 rounded-3xl shadow-2xl flex items-center justify-center transform group-hover:scale-105 transition-transform duration-300">
-                    <img id="welcome-logo" src="aa.jpg" alt="Logo" class="w-28 h-28 object-contain rounded-xl">
+                <div class="w-48 h-48 bg-gradient-to-br from-white to-slate-100 p-8 rounded-3xl shadow-2xl flex items-center justify-center transform group-hover:scale-105 transition-transform duration-300">
+                    <img id="welcome-logo" src="aa.jpg" alt="Logo" class="w-32 h-32 object-contain rounded-xl">
                     <div class="text-7xl hidden">🚗</div>
                 </div>
                 <!-- Efecto de glow -->
@@ -487,8 +620,8 @@
             </div>
 
             <!-- Texto mejorado -->
-            <div class="max-w-md mx-auto mb-12">
-                <h1 id="welcome-title" class="text-5xl font-black mb-4 uppercase text-white leading-tight drop-shadow-lg">
+            <div class="max-w-lg mx-auto mb-12">
+                <h1 id="welcome-title" class="text-6xl font-black mb-4 uppercase text-white leading-tight drop-shadow-lg whitespace-nowrap">
                     <span class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                         MULTI SERVICIOS LARA
                     </span>
@@ -501,9 +634,20 @@
                 </p>
             </div>
 
+            <!-- PIN de seguridad -->
+            <div class="w-full max-w-sm mb-6">
+                <div class="card bg-gradient-to-r from-blue-500/20 to-blue-600/20 border-blue-500/30">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="lock" class="w-5 h-5 text-blue-400"></i>
+                        <label class="text-sm font-bold text-blue-400 uppercase">PIN de Seguridad</label>
+                    </div>
+                    <input type="password" id="welcome-pin" placeholder="Ingresa tu PIN" maxlength="6" class="w-full text-center text-2xl font-bold tracking-widest" onkeypress="handlePinKeyPress(event)">
+                </div>
+            </div>
+
             <!-- Botón de entrada mejorado -->
             <div class="w-full max-w-sm space-y-4">
-                <button onclick="closeWelcome()" class="btn-primary w-full flex items-center justify-center gap-3 py-5 text-lg font-bold shadow-2xl transform hover:scale-105 transition-all duration-200">
+                <button onclick="verifyPinAndEnter()" class="btn-primary w-full flex items-center justify-center gap-3 py-5 text-lg font-bold shadow-2xl transform hover:scale-105 transition-all duration-200">
                     <i data-lucide="arrow-right" class="w-6 h-6"></i>
                     <span>ENTRAR</span>
                 </button>
@@ -533,53 +677,66 @@
         <section id="sec-inicio" class="space-y-4">
             <div class="section-header">
                 <div class="section-icon bg-blue-500">🏠</div>
-                <h2 class="text-xl font-bold text-blue-400">Panel de Control</h2>
+                <div class="flex-1 flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-blue-400">Panel de Control</h2>
+                    <button onclick="openCustomizeModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center gap-2">
+                        <i data-lucide="settings" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Configurar</span>
+                    </button>
+                </div>
             </div>
-            
-            <div class="card bg-gradient-to-br from-blue-600 to-blue-700 border-0">
-                <p class="text-blue-100 text-xs font-bold uppercase mb-1">💰 Ganancia Neta (Mes Actual)</p>
-                <h2 id="home-neto" class="text-4xl font-black text-white mb-4">Q 0.00</h2>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-white/10 backdrop-blur p-3 rounded-xl">
-                        <p class="text-xs text-blue-100 uppercase font-bold">Ingresos</p>
-                        <p id="home-ingresos" class="text-lg font-bold text-white">Q 0.00</p>
+
+            <div class="ux-card ux-card-info border-2">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="bg-blue-500 p-3 rounded-xl">
+                        <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
                     </div>
-                    <div class="bg-white/10 backdrop-blur p-3 rounded-xl">
-                        <p class="text-xs text-blue-100 uppercase font-bold">Gastos</p>
-                        <p id="home-gastos" class="text-lg font-bold text-white">Q 0.00</p>
+                    <div>
+                        <p class="text-xs text-blue-300 uppercase font-bold">Ganancia Neta (Mes Actual)</p>
+                        <h2 id="home-neto" class="text-4xl font-black text-blue-400">Q 0.00</h2>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="ux-card-success p-3 rounded-xl">
+                        <p class="text-xs text-emerald-300 uppercase font-bold mb-1">Ingresos</p>
+                        <p id="home-ingresos" class="text-xl font-black text-emerald-400">Q 0.00</p>
+                    </div>
+                    <div class="ux-card-error p-3 rounded-xl">
+                        <p class="text-xs text-red-300 uppercase font-bold mb-1">Gastos</p>
+                        <p id="home-gastos" class="text-xl font-black text-red-400">Q 0.00</p>
                     </div>
                 </div>
             </div>
-            
-            <div class="grid grid-cols-1 gap-3">
-                <div class="card clickable flex items-center gap-4" onclick="nav('registros')">
-                    <div class="bg-emerald-100 text-emerald-600 p-3 rounded-xl">
-                        <i data-lucide="pen-tool" class="w-6 h-6"></i>
+
+            <div class="space-y-3">
+                <div class="ux-card clickable flex items-center gap-4" onclick="nav('registros')">
+                    <div class="bg-emerald-500 p-3 rounded-xl">
+                        <i data-lucide="pen-tool" class="w-6 h-6 text-white"></i>
                     </div>
                     <div class="flex-1">
-                        <h3 class="font-bold">📝 Nuevo Registro</h3>
+                        <h3 class="font-bold text-emerald-400">📝 Nuevo Registro</h3>
                         <p class="text-xs text-slate-400">Ingresos y gastos</p>
                     </div>
                     <i data-lucide="chevron-right" class="text-slate-400"></i>
                 </div>
-                
-                <div class="card clickable flex items-center gap-4" onclick="nav('viajes')">
-                    <div class="bg-blue-100 text-blue-600 p-3 rounded-xl">
-                        <i data-lucide="car" class="w-6 h-6"></i>
+
+                <div class="ux-card clickable flex items-center gap-4" onclick="nav('viajes')">
+                    <div class="bg-blue-500 p-3 rounded-xl">
+                        <i data-lucide="car" class="w-6 h-6 text-white"></i>
                     </div>
                     <div class="flex-1">
-                        <h3 class="font-bold">🚗 Nuevo Viaje</h3>
+                        <h3 class="font-bold text-blue-400">🚗 Nuevo Viaje</h3>
                         <p class="text-xs text-slate-400">Gestión de rutas</p>
                     </div>
                     <i data-lucide="chevron-right" class="text-slate-400"></i>
                 </div>
-                
-                <div class="card clickable flex items-center gap-4" onclick="nav('diezmos')">
-                    <div class="bg-purple-100 text-purple-600 p-3 rounded-xl">
-                        <i data-lucide="heart" class="w-6 h-6"></i>
+
+                <div class="ux-card clickable flex items-center gap-4" onclick="nav('diezmos')">
+                    <div class="bg-purple-500 p-3 rounded-xl">
+                        <i data-lucide="heart" class="w-6 h-6 text-white"></i>
                     </div>
                     <div class="flex-1">
-                        <h3 class="font-bold">💚 Diezmos</h3>
+                        <h3 class="font-bold text-purple-400">💚 Diezmos</h3>
                         <p class="text-xs text-slate-400">Cálculo quincenal</p>
                     </div>
                     <i data-lucide="chevron-right" class="text-slate-400"></i>
@@ -621,8 +778,9 @@
                 </div>
                 <div class="flex gap-2 mb-4">
                     <input type="number" id="reg-monto" placeholder="0.00" step="0.01" class="flex-1">
-                    <button onclick="openCalculator('reg-monto')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-lg flex items-center justify-center">
-                        <i data-lucide="calculator" class="w-5 h-5"></i>
+                    <button onclick="openCalculator('reg-monto')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-lg flex items-center justify-center gap-1">
+                        <i data-lucide="calculator" class="w-4 h-4"></i>
+                        <span class="text-sm">Calc</span>
                     </button>
                 </div>
                 
@@ -652,17 +810,23 @@
                 <div class="flex-1">
                     <h2 class="text-xl font-bold text-blue-400">Historial de Registros</h2>
                 </div>
-                <button onclick="showFilterModal()" class="bg-blue-500 text-white px-3 py-2 rounded-lg">
-                    <i data-lucide="filter" class="w-5 h-5"></i>
-                </button>
-                <button onclick="exportToExcel()" class="bg-green-500 text-white px-3 py-2 rounded-lg">
-                    <i data-lucide="download" class="w-5 h-5"></i>
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="showFilterModal()" class="ux-btn-primary bg-gradient-to-r from-blue-500 to-blue-600">
+                        <i data-lucide="filter" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Filtrar</span>
+                    </button>
+                    <button onclick="exportToExcel()" class="ux-btn-primary bg-gradient-to-r from-green-500 to-emerald-600">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Excel</span>
+                    </button>
+                </div>
             </div>
-            
-            <div class="card bg-gradient-to-r from-emerald-500 to-emerald-600 border-0">
-                <button onclick="nav('registros')" class="w-full flex items-center justify-center gap-3 text-white font-bold py-3">
-                    <i data-lucide="plus-circle" class="w-6 h-6"></i>
+
+            <div class="ux-card ux-card-info border-2">
+                <button onclick="nav('registros')" class="w-full flex items-center justify-center gap-3 text-blue-400 font-bold py-4 hover:text-blue-300 transition-colors">
+                    <div class="bg-blue-500 p-3 rounded-xl">
+                        <i data-lucide="plus-circle" class="w-6 h-6 text-white"></i>
+                    </div>
                     <span>➕ Nuevo Registro</span>
                 </button>
             </div>
@@ -726,8 +890,9 @@
                 </div>
                 <div class="flex gap-2 mb-4">
                     <input type="number" id="viaje-monto" placeholder="0.00" step="0.01" class="flex-1">
-                    <button onclick="openCalculator('viaje-monto')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-lg flex items-center justify-center">
-                        <i data-lucide="calculator" class="w-5 h-5"></i>
+                    <button onclick="openCalculator('viaje-monto')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-lg flex items-center justify-center gap-1">
+                        <i data-lucide="calculator" class="w-4 h-4"></i>
+                        <span class="text-sm">Calc</span>
                     </button>
                 </div>
                 
@@ -766,10 +931,12 @@
                 <div class="section-icon bg-orange-500">🗺️</div>
                 <h2 class="text-xl font-bold text-blue-400">Historial de Viajes</h2>
             </div>
-            
-            <div class="card bg-gradient-to-r from-blue-500 to-blue-600 border-0">
-                <button onclick="nav('viajes')" class="w-full flex items-center justify-center gap-3 text-white font-bold py-3">
-                    <i data-lucide="plus-circle" class="w-6 h-6"></i>
+
+            <div class="ux-card ux-card-info border-2">
+                <button onclick="nav('viajes')" class="w-full flex items-center justify-center gap-3 text-blue-400 font-bold py-4 hover:text-blue-300 transition-colors">
+                    <div class="bg-blue-500 p-3 rounded-xl">
+                        <i data-lucide="plus-circle" class="w-6 h-6 text-white"></i>
+                    </div>
                     <span>➕ Nuevo Viaje</span>
                 </button>
             </div>
@@ -784,9 +951,9 @@
                 <div class="flex-1">
                     <h2 class="text-xl font-bold text-blue-400">Diezmos</h2>
                 </div>
-                <button onclick="nav('historial-diezmos')" class="bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                    <i data-lucide="history" class="w-5 h-5"></i>
-                    <span>Pagos</span>
+                <button onclick="nav('historial-diezmos')" class="ux-btn-primary bg-gradient-to-r from-teal-500 to-cyan-600">
+                    <i data-lucide="history" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Historial</span>
                 </button>
             </div>
             
@@ -843,9 +1010,9 @@
                 <div class="flex-1">
                     <h2 class="text-xl font-bold text-blue-400">Historial de Pagos</h2>
                 </div>
-                <button onclick="nav('diezmos')" class="bg-blue-500 text-white px-3 py-2 rounded-lg flex items-center gap-2">
+                <button onclick="nav('diezmos')" class="ux-btn-secondary">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    <span>Volver</span>
+                    <span class="hidden sm:inline">Volver</span>
                 </button>
             </div>
             <div id="diezmos-list"></div>
@@ -857,31 +1024,39 @@
                 <div class="section-icon bg-pink-500">📈</div>
                 <h2 class="text-xl font-bold text-blue-400">Resumen General</h2>
             </div>
-            
+
             <div id="resumen-container"></div>
-            
-            <div class="card">
-                <h3 class="text-sm font-bold text-blue-400 mb-3 uppercase">🛠️ Herramientas</h3>
-                <div class="space-y-2">
-                    <button onclick="exportPDF()" class="btn-primary">
-                        <i data-lucide="file-text" class="w-5 h-5"></i>
-                        Exportar PDF
+
+            <div class="ux-card">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="bg-purple-500 p-3 rounded-xl">
+                        <i data-lucide="settings" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-purple-400">🛠️ Herramientas</h3>
+                </div>
+                <div class="space-y-3">
+                    <button onclick="exportPDF()" class="ux-btn-primary bg-gradient-to-r from-red-500 to-pink-600 w-full">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                        <span>Exportar PDF</span>
                     </button>
-                    <button onclick="exportJSON()" class="btn-primary bg-gradient-to-r from-slate-600 to-slate-700">
-                        <i data-lucide="download" class="w-5 h-5"></i>
-                        Respaldar Datos (JSON)
+                    <button onclick="exportJSON()" class="ux-btn-primary bg-gradient-to-r from-slate-500 to-slate-700 w-full">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Respaldar Datos (JSON)</span>
                     </button>
                     <input type="file" id="import-file" class="hidden" accept=".json" onchange="importJSON(event)">
-                    <button onclick="document.getElementById('import-file').click()" class="btn-primary bg-gradient-to-r from-slate-600 to-slate-700">
-                        <i data-lucide="upload" class="w-5 h-5"></i>
-                        Importar Respaldo
+                    <button onclick="document.getElementById('import-file').click()" class="ux-btn-primary bg-gradient-to-r from-slate-500 to-slate-700 w-full">
+                        <i data-lucide="upload" class="w-4 h-4"></i>
+                        <span>Importar Respaldo</span>
                     </button>
                 </div>
             </div>
-            
-            <button onclick="borrarTodo()" class="w-full text-red-400 text-xs py-3 opacity-40">
-                BORRAR TODOS LOS DATOS
-            </button>
+
+            <div class="ux-card ux-card-error border-2">
+                <button onclick="borrarTodo()" class="w-full text-red-400 hover:text-red-300 text-sm py-3 font-bold transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    <span>BORRAR TODOS LOS DATOS</span>
+                </button>
+            </div>
         </section>
     </main>
 
@@ -1146,7 +1321,7 @@
 
             <div class="space-y-6">
                 <!-- Logo -->
-                <div class="card">
+                <div class="ux-card">
                     <div class="flex items-center gap-2 mb-3">
                         <i data-lucide="image" class="w-5 h-5 text-blue-400"></i>
                         <label class="text-sm font-bold text-blue-400 uppercase">Logo de la App</label>
@@ -1155,7 +1330,7 @@
                         <img id="preview-logo" src="aa.jpg" alt="Logo actual" class="w-16 h-16 object-contain rounded-lg border-2 border-slate-600">
                         <div class="flex-1">
                             <input type="file" id="logo-upload" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml" class="hidden" onchange="previewLogo(this)">
-                            <button onclick="document.getElementById('logo-upload').click()" class="btn-primary w-full">
+                            <button onclick="document.getElementById('logo-upload').click()" class="ux-btn-primary w-full">
                                 <i data-lucide="upload" class="w-4 h-4"></i>
                                 Subir Logo
                             </button>
@@ -1165,39 +1340,49 @@
                 </div>
 
                 <!-- Nombre -->
-                <div class="card">
+                <div class="ux-card">
                     <div class="flex items-center gap-2 mb-3">
                         <i data-lucide="type" class="w-5 h-5 text-blue-400"></i>
                         <label class="text-sm font-bold text-blue-400 uppercase">Nombre de la App</label>
                     </div>
-                    <input type="text" id="custom-app-name" placeholder="Nombre de tu aplicación" class="w-full">
+                    <input type="text" id="custom-app-name" placeholder="Nombre de tu aplicación" class="ux-input">
                 </div>
 
                 <!-- Descripción -->
-                <div class="card">
+                <div class="ux-card">
                     <div class="flex items-center gap-2 mb-3">
                         <i data-lucide="file-text" class="w-5 h-5 text-blue-400"></i>
                         <label class="text-sm font-bold text-blue-400 uppercase">Descripción</label>
                     </div>
-                    <input type="text" id="custom-app-description" placeholder="Breve descripción de tu servicio" class="w-full">
+                    <input type="text" id="custom-app-description" placeholder="Breve descripción de tu servicio" class="ux-input">
                 </div>
 
                 <!-- Tagline -->
-                <div class="card">
+                <div class="ux-card">
                     <div class="flex items-center gap-2 mb-3">
                         <i data-lucide="quote" class="w-5 h-5 text-blue-400"></i>
                         <label class="text-sm font-bold text-blue-400 uppercase">Eslogan</label>
                     </div>
-                    <input type="text" id="custom-app-tagline" placeholder="Tu eslogan o frase motivadora" class="w-full">
+                    <input type="text" id="custom-app-tagline" placeholder="Tu eslogan o frase motivadora" class="ux-input">
+                </div>
+
+                <!-- PIN de Seguridad -->
+                <div class="ux-card ux-card-info">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="lock" class="w-5 h-5 text-blue-400"></i>
+                        <label class="text-sm font-bold text-blue-400 uppercase">PIN de Seguridad</label>
+                    </div>
+                    <input type="password" id="custom-security-pin" placeholder="Código PIN (4-6 dígitos)" maxlength="6" class="ux-input text-center text-xl font-mono" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <p class="text-xs text-slate-400 mt-2">Deja vacío para quitar la protección PIN</p>
                 </div>
             </div>
 
             <div class="flex gap-3 mt-6">
-                <button onclick="closeModal('modal-customize')" class="btn-secondary flex-1">
+                <button onclick="closeModal('modal-customize')" class="ux-btn-secondary flex-1">
                     <i data-lucide="x" class="w-4 h-4"></i>
                     Cancelar
                 </button>
-                <button onclick="saveCustomization()" class="btn-primary flex-1">
+                <button onclick="saveCustomization()" class="ux-btn-primary flex-1">
                     <i data-lucide="save" class="w-4 h-4"></i>
                     Guardar Cambios
                 </button>
@@ -1284,6 +1469,31 @@
                 return e.returnValue;
             }
         });
+
+        function verifyPinAndEnter() {
+            const enteredPin = document.getElementById('welcome-pin').value;
+            const savedPin = localStorage.getItem('lara_security_pin');
+
+            // Si no hay PIN configurado, permitir entrada
+            if (!savedPin) {
+                closeWelcome();
+                return;
+            }
+
+            if (enteredPin === savedPin) {
+                closeWelcome();
+            } else {
+                showNotification('❌ PIN incorrecto', 'error');
+                document.getElementById('welcome-pin').value = '';
+                document.getElementById('welcome-pin').focus();
+            }
+        }
+
+        function handlePinKeyPress(event) {
+            if (event.key === 'Enter') {
+                verifyPinAndEnter();
+            }
+        }
 
         function closeWelcome() {
             document.getElementById('welcome').style.display = 'none';
@@ -2433,10 +2643,12 @@
             try {
                 // Cargar datos actuales
                 const customData = JSON.parse(localStorage.getItem('lara_customization') || '{}');
+                const savedPin = localStorage.getItem('lara_security_pin') || '';
 
                 document.getElementById('custom-app-name').value = customData.name || 'MULTI SERVICIOS LARA';
                 document.getElementById('custom-app-description').value = customData.description || 'Servicio de Transporte Privado';
                 document.getElementById('custom-app-tagline').value = customData.tagline || '"Moviendo Vidas"';
+                document.getElementById('custom-security-pin').value = savedPin;
 
                 // Mostrar logo actual
                 const logoSrc = customData.logo || 'aa.jpg';
@@ -2488,10 +2700,17 @@
                 const name = document.getElementById('custom-app-name').value.trim();
                 const description = document.getElementById('custom-app-description').value.trim();
                 const tagline = document.getElementById('custom-app-tagline').value.trim();
+                const pin = document.getElementById('custom-security-pin').value.trim();
 
                 // Validar campos obligatorios
                 if (!name) {
                     showNotification('❌ El nombre de la app es obligatorio', 'error');
+                    return;
+                }
+
+                // Validar PIN si se proporciona
+                if (pin && (pin.length < 4 || pin.length > 6)) {
+                    showNotification('❌ El PIN debe tener entre 4 y 6 dígitos', 'error');
                     return;
                 }
 
@@ -2500,6 +2719,15 @@
                     description: description || 'Servicio de Transporte Privado',
                     tagline: tagline || '"Moviendo Vidas"'
                 };
+
+                // Guardar PIN de seguridad
+                if (pin) {
+                    localStorage.setItem('lara_security_pin', pin);
+                    showNotification('🔒 PIN de seguridad configurado', 'success');
+                } else {
+                    localStorage.removeItem('lara_security_pin');
+                    showNotification('🔓 Protección PIN desactivada', 'success');
+                }
 
                 // Guardar logo si se cambió
                 const logoInput = document.getElementById('logo-upload');
