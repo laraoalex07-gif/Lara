@@ -1749,6 +1749,9 @@
 
             document.getElementById('reg-monto').value = '';
             document.getElementById('reg-detalle').value = '';
+
+            // Salir automáticamente del formulario y regresar al historial
+            nav('historial-registros');
         }
 
         function renderRegistrosList() {
@@ -1926,6 +1929,9 @@
             document.getElementById('viaje-monto').value = '';
             document.getElementById('viaje-condicion').value = '';
             document.getElementById('viaje-detalle').value = '';
+
+            // Salir automáticamente del formulario y regresar al historial
+            nav('historial-viajes');
         }
 
         function renderViajesList() {
@@ -2204,8 +2210,11 @@
             });
             
             saveData();
-            calcularDiezmo();
+
+            // Limpiar el campo antes de recalcular
             document.getElementById('diezmo-monto').value = '';
+
+            calcularDiezmo();
 
             // Actualizar pantalla de resumen si estamos en ella
             if (currentSection === 'resumen') {
