@@ -783,6 +783,17 @@
                     </div>
                     <i data-lucide="chevron-right" class="text-slate-400"></i>
                 </div>
+
+                <div class="ux-card clickable flex items-center gap-4" onclick="nav('deudas')">
+                    <div class="bg-orange-500 p-3 rounded-xl">
+                        <i data-lucide="credit-card" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-orange-400">💳 Deudas</h3>
+                        <p class="text-xs text-slate-400">Gestión de pagos</p>
+                    </div>
+                    <i data-lucide="chevron-right" class="text-slate-400"></i>
+                </div>
             </div>
         </section>
 
@@ -1101,6 +1112,120 @@
                 </button>
             </div>
         </section>
+
+        <!-- DEUDAS -->
+        <section id="sec-deudas" class="hidden space-y-4">
+            <div class="section-header">
+                <div class="section-icon bg-orange-500">💳</div>
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold text-blue-400">Nueva Deuda</h2>
+                </div>
+                <button onclick="nav('historial-deudas')" class="ux-btn-primary bg-gradient-to-r from-orange-500 to-amber-600">
+                    <i data-lucide="history" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Historial</span>
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="user" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Cliente</label>
+                </div>
+                <input type="text" id="deuda-cliente" placeholder="Nombre del cliente" class="mb-4">
+
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="dollar-sign" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Monto (Q)</label>
+                </div>
+                <div class="flex gap-2 mb-4">
+                    <input type="number" id="deuda-monto" placeholder="0.00" step="0.01" class="flex-1">
+                    <button onclick="openCalculator('deuda-monto')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-lg flex items-center justify-center gap-1">
+                        <i data-lucide="calculator" class="w-4 h-4"></i>
+                        <span class="text-sm">Calc</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="calendar" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Fecha</label>
+                </div>
+                <input type="date" id="deuda-fecha" class="mb-4">
+
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-blue-400"></i>
+                    <label class="text-sm font-bold text-blue-400 uppercase">Estado</label>
+                </div>
+                <select id="deuda-estado" class="mb-4">
+                    <option value="Pagado">✅ Pagado</option>
+                    <option value="Pendiente">⏳ Pendiente</option>
+                </select>
+
+                <button onclick="saveDeuda()" class="btn-primary w-full flex items-center justify-center gap-2">
+                    <i data-lucide="save" class="w-5 h-5"></i>
+                    <span>GUARDAR DEUDA</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- HISTORIAL DEUDAS -->
+        <section id="sec-historial-deudas" class="hidden space-y-4">
+            <div class="section-header">
+                <div class="section-icon bg-amber-500">📋</div>
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold text-blue-400">Historial de Deudas</h2>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="nav('deudas')" class="ux-btn-secondary flex items-center gap-2">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Nueva</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Balance General -->
+            <div class="ux-card ux-card-info border-2">
+                <h3 class="text-sm font-bold text-blue-400 mb-3 uppercase flex items-center gap-2">
+                    <i data-lucide="bar-chart" class="w-4 h-4"></i>
+                    Balance General de Deudas
+                </h3>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="text-center">
+                        <p class="text-xs text-slate-400 uppercase">Total Deudas</p>
+                        <p id="balance-total" class="text-xl font-black text-slate-400">Q 0.00</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-xs text-slate-400 uppercase">Pagadas</p>
+                        <p id="balance-pagadas" class="text-xl font-black text-emerald-400">Q 0.00</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-xs text-slate-400 uppercase">Pendientes</p>
+                        <p id="balance-pendientes" class="text-xl font-black text-red-400">Q 0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card">
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <div>
+                        <label class="text-xs text-slate-400 uppercase font-bold">Cliente</label>
+                        <select id="filter-deuda-cliente" onchange="renderDeudasList()">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 uppercase font-bold">Estado</label>
+                        <select id="filter-deuda-estado" onchange="renderDeudasList()">
+                            <option value="">Todos</option>
+                            <option value="Pagado">Pagado</option>
+                            <option value="Pendiente">Pendiente</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="deudas-list"></div>
+        </section>
     </main>
 
     <!-- FAB -->
@@ -1308,6 +1433,44 @@
         </div>
     </div>
 
+    <!-- Modal Editar Deuda -->
+    <div id="modal-edit-deuda" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold text-blue-400 mb-4">✏️ Editar Deuda</h3>
+            <form onsubmit="updateDeuda(event)">
+                <label>👤 Cliente</label>
+                <input type="text" id="edit-deuda-cliente" required>
+
+                <label>💵 Monto (Q)</label>
+                <div class="flex gap-2">
+                    <input type="number" id="edit-deuda-monto" step="0.01" class="flex-1" required>
+                    <button type="button" onclick="openCalculator('edit-deuda-monto')" class="bg-blue-500 text-white px-4 rounded-lg">
+                        <i data-lucide="calculator" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <label>📅 Fecha</label>
+                <input type="date" id="edit-deuda-fecha" required>
+
+                <label>📋 Estado</label>
+                <select id="edit-deuda-estado">
+                    <option value="Pagado">✅ Pagado</option>
+                    <option value="Pendiente">⏳ Pendiente</option>
+                </select>
+
+                <div class="flex gap-2 mt-4">
+                    <button type="button" onclick="closeModal('modal-edit-deuda')" class="btn-secondary flex-1">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary flex-1">
+                        <i data-lucide="save" class="w-5 h-5"></i>
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal Filtros -->
     <div id="modal-filtros" class="modal-overlay">
         <div class="modal-content">
@@ -1383,6 +1546,7 @@
         let registros = [];
         let viajes = [];
         let diezmos = [];
+        let deudas = [];
         let categorias = ["Sueldo", "Ventas", "Transporte", "Comida", "Vivienda", "Salud", "Uber Diario", "Renta Carro", "Mantenimiento", "Internet", "Gasolina", "Privado"];
         let currentSection = 'inicio';
         let editingId = null;
@@ -1497,6 +1661,8 @@
                 'historial-registros': 'REGISTROS',
                 'viajes': 'NUEVO VIAJE',
                 'historial-viajes': 'VIAJES',
+                'deudas': 'NUEVA DEUDA',
+                'historial-deudas': 'DEUDAS',
                 'diezmos': 'DIEZMOS',
                 'historial-diezmos': 'PAGOS',
                 'resumen': 'RESUMEN'
@@ -1510,6 +1676,8 @@
             if (section === 'inicio') navButtonId = 'n-inicio';
             else if (section === 'historial-registros' || section === 'registros') navButtonId = 'n-registros';
             else if (section === 'historial-viajes' || section === 'viajes') navButtonId = 'n-viajes';
+            else if (section === 'historial-deudas' || section === 'deudas') navButtonId = 'n-deudas';
+            else if (section === 'historial-deudas' || section === 'deudas') navButtonId = 'n-deudas';
             else if (section === 'diezmos' || section === 'historial-diezmos') navButtonId = 'n-diezmos';
             else if (section === 'resumen') navButtonId = 'n-resumen';
             
@@ -1530,6 +1698,11 @@
             if (section === 'historial-registros') renderRegistrosList();
             if (section === 'viajes') document.getElementById('viaje-fecha').value = new Date().toISOString().split('T')[0];
             if (section === 'historial-viajes') renderViajesList();
+            if (section === 'deudas') document.getElementById('deuda-fecha').value = new Date().toISOString().split('T')[0];
+            if (section === 'historial-deudas') {
+                renderDeudasList();
+                updateDeudasBalance();
+            }
             if (section === 'diezmos') initDiezmos();
             if (section === 'historial-diezmos') renderDiezmosList();
             if (section === 'resumen') renderResumen();
@@ -1701,12 +1874,14 @@
                 if (!Array.isArray(registros)) registros = [];
                 if (!Array.isArray(viajes)) viajes = [];
                 if (!Array.isArray(diezmos)) diezmos = [];
+                if (!Array.isArray(deudas)) deudas = [];
                 if (!Array.isArray(categorias)) categorias = [];
-                
+
                 // Guardar en localStorage
                 localStorage.setItem('lara_registros', JSON.stringify(registros));
                 localStorage.setItem('lara_viajes', JSON.stringify(viajes));
                 localStorage.setItem('lara_diezmos', JSON.stringify(diezmos));
+                localStorage.setItem('lara_deudas', JSON.stringify(deudas));
                 localStorage.setItem('lara_categorias', JSON.stringify(categorias));
                 
                 // Verificar que se guardó correctamente
@@ -1728,6 +1903,7 @@
             registros = JSON.parse(localStorage.getItem('lara_registros') || '[]');
             viajes = JSON.parse(localStorage.getItem('lara_viajes') || '[]');
             diezmos = JSON.parse(localStorage.getItem('lara_diezmos') || '[]');
+            deudas = JSON.parse(localStorage.getItem('lara_deudas') || '[]');
             const loadedCats = JSON.parse(localStorage.getItem('lara_categorias') || '[]');
             if (loadedCats.length > 0) categorias = loadedCats;
         }
@@ -2096,6 +2272,181 @@
                 if (currentSection === 'inicio') {
                     updateHomeResumen();
                 }
+            });
+        }
+
+        // DEUDAS
+        function saveDeuda() {
+            const cliente = document.getElementById('deuda-cliente').value.trim();
+            const monto = parseFloat(document.getElementById('deuda-monto').value) || 0;
+            const fecha = document.getElementById('deuda-fecha').value;
+            const estado = document.getElementById('deuda-estado').value;
+
+            if (!cliente || monto <= 0 || !fecha) {
+                showNotification('⚠️ Complete todos los campos correctamente', 'error');
+                return;
+            }
+
+            const nuevaDeuda = {
+                id: Date.now(),
+                cliente: cliente,
+                monto: monto,
+                fecha: fecha,
+                estado: estado,
+                created: Date.now()
+            };
+
+            deudas.push(nuevaDeuda);
+            saveData();
+            showNotification('✅ Deuda guardada');
+
+            // Limpiar formulario
+            document.getElementById('deuda-cliente').value = '';
+            document.getElementById('deuda-monto').value = '';
+            document.getElementById('deuda-estado').value = 'Pagado';
+
+            // Regresar al historial
+            nav('historial-deudas');
+        }
+
+        function renderDeudasList() {
+            const container = document.getElementById('deudas-list');
+            const clienteFilter = document.getElementById('filter-deuda-cliente').value;
+            const estadoFilter = document.getElementById('filter-deuda-estado').value;
+
+            // Obtener clientes únicos para el filtro
+            const clientesUnicos = [...new Set(deudas.map(d => d.cliente))];
+            const filterCliente = document.getElementById('filter-deuda-cliente');
+            filterCliente.innerHTML = '<option value="">Todos</option>';
+            clientesUnicos.forEach(cliente => {
+                filterCliente.innerHTML += `<option value="${cliente}">${cliente}</option>`;
+            });
+            // Mantener el filtro seleccionado
+            filterCliente.value = clienteFilter;
+
+            // Filtrar deudas
+            let filteredDeudas = deudas;
+            if (clienteFilter) {
+                filteredDeudas = filteredDeudas.filter(d => d.cliente === clienteFilter);
+            }
+            if (estadoFilter) {
+                filteredDeudas = filteredDeudas.filter(d => d.estado === estadoFilter);
+            }
+
+            // Ordenar por fecha (más reciente primero)
+            filteredDeudas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            if (filteredDeudas.length === 0) {
+                container.innerHTML = '<div class="card text-center text-slate-400">No hay deudas registradas</div>';
+                return;
+            }
+
+            container.innerHTML = filteredDeudas.map(deuda => `
+                <div class="ux-card clickable" onclick="editDeuda(${deuda.id})">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i data-lucide="user" class="w-4 h-4 text-blue-400"></i>
+                                <h4 class="font-bold text-blue-400">${deuda.cliente}</h4>
+                            </div>
+                            <div class="flex items-center gap-4 text-sm text-slate-400">
+                                <span class="flex items-center gap-1">
+                                    <i data-lucide="calendar" class="w-3 h-3"></i>
+                                    ${formatDate(deuda.fecha)}
+                                </span>
+                                <span class="px-2 py-1 rounded-full text-xs font-bold ${
+                                    deuda.estado === 'Pagado' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
+                                }">
+                                    ${deuda.estado === 'Pagado' ? '✅ Pagado' : '⏳ Pendiente'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-black text-slate-300">Q ${deuda.monto.toFixed(2)}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 mt-3">
+                        <button onclick="event.stopPropagation(); editDeuda(${deuda.id})" class="ux-btn-secondary flex-1 flex items-center justify-center gap-1">
+                            <i data-lucide="edit" class="w-4 h-4"></i>
+                            <span>Editar</span>
+                        </button>
+                        <button onclick="event.stopPropagation(); deleteDeuda(${deuda.id}, event)" class="ux-btn-primary bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 flex-1 flex items-center justify-center gap-1">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            <span>Borrar</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+            updateDeudasBalance();
+        }
+
+        function updateDeudasBalance() {
+            const total = deudas.reduce((sum, d) => sum + d.monto, 0);
+            const pagadas = deudas.filter(d => d.estado === 'Pagado').reduce((sum, d) => sum + d.monto, 0);
+            const pendientes = deudas.filter(d => d.estado === 'Pendiente').reduce((sum, d) => sum + d.monto, 0);
+
+            document.getElementById('balance-total').textContent = `Q ${total.toFixed(2)}`;
+            document.getElementById('balance-pagadas').textContent = `Q ${pagadas.toFixed(2)}`;
+            document.getElementById('balance-pendientes').textContent = `Q ${pendientes.toFixed(2)}`;
+        }
+
+        function editDeuda(id) {
+            const deuda = deudas.find(d => d.id === id);
+            if (!deuda) return;
+
+            editingId = id;
+
+            // Llenar modal de edición
+            document.getElementById('edit-deuda-cliente').value = deuda.cliente;
+            document.getElementById('edit-deuda-monto').value = deuda.monto;
+            document.getElementById('edit-deuda-fecha').value = deuda.fecha;
+            document.getElementById('edit-deuda-estado').value = deuda.estado;
+
+            document.getElementById('modal-edit-deuda').classList.add('show');
+            lucide.createIcons();
+        }
+
+        function updateDeuda(event) {
+            event.preventDefault();
+
+            const cliente = document.getElementById('edit-deuda-cliente').value.trim();
+            const monto = parseFloat(document.getElementById('edit-deuda-monto').value) || 0;
+            const fecha = document.getElementById('edit-deuda-fecha').value;
+            const estado = document.getElementById('edit-deuda-estado').value;
+
+            if (!cliente || monto <= 0 || !fecha) {
+                showNotification('⚠️ Complete todos los campos correctamente', 'error');
+                return;
+            }
+
+            const idx = deudas.findIndex(d => d.id === editingId);
+            if (idx === -1) return;
+
+            deudas[idx] = {
+                ...deudas[idx],
+                cliente: cliente,
+                monto: monto,
+                fecha: fecha,
+                estado: estado
+            };
+
+            saveData();
+            closeModal('modal-edit-deuda');
+            renderDeudasList();
+            showNotification('✅ Deuda actualizada');
+        }
+
+        function deleteDeuda(id, event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            showDeleteConfirmation(() => {
+                deudas = deudas.filter(d => d.id !== id);
+                saveData();
+                renderDeudasList();
+                showNotification('🗑️ Deuda eliminada');
             });
         }
 
